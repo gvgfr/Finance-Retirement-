@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaasu — Two Futures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1B18; --bg-card:#152420; --paper:#FFFDF7; --paper-dim:#E8E2D4;
+    --gold:#E0B957; --jade:#79C7A7; --teal:#62D0C8; --clay:#FF9B73;
+    --line:rgba(245,241,230,0.28); --numgreen:#54FF37;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse at 50% -10%, rgba(201,162,75,0.10), transparent 55%), var(--bg);
+    color:var(--paper); font-family:'Inter',sans-serif; min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:32px 18px 90px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.13em;
+    text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  }
+  .eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);}
+  h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(28px,7vw,40px);line-height:1.1;margin:0 0 14px;letter-spacing:-0.01em;}
+  h2{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(21px,5.5vw,27px);line-height:1.15;margin:0 0 8px;}
+  h2 em, h1 em{font-style:italic;color:var(--teal);}
+  .sub{color:var(--paper-dim);font-size:14px;line-height:1.6;margin:0 0 24px;}
+
+  /* Jump nav */
+  .jumpnav{display:flex;gap:6px;overflow-x:auto;margin-bottom:24px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .jumpnav::-webkit-scrollbar{display:none;}
+  .jumpnav-pill{
+    flex:none;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:7px 12px;border-radius:20px;
+    border:1px solid var(--line);color:var(--paper-dim);background:transparent;cursor:pointer;white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .jumpnav-pill.active{background:var(--teal);color:var(--bg);border-color:var(--teal);font-weight:600;}
+  .jumpnav-pill.visited:not(.active){border-color:var(--paper-dim);color:var(--paper);}
+
+  .step{display:none;}
+  .step.active{display:block;animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .btn{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.04em;padding:14px 24px;
+    border-radius:8px;border:none;cursor:pointer;transition:transform .15s ease;
+    display:inline-flex;align-items:center;gap:8px;width:100%;justify-content:center;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--teal);color:var(--bg);font-weight:600;}
+  .btn-ghost{background:transparent;color:var(--paper-dim);border:1px solid var(--line);width:auto;}
+  .btn-ghost:hover{color:var(--paper);border-color:var(--paper-dim);}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:32px;padding-top:20px;border-top:1px solid var(--line);}
+  .nav-row .btn-primary{flex:1;}
+
+  .rule-note{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--paper-dim);
+    background:rgba(79,182,176,0.08);border:1px solid rgba(79,182,176,0.25);
+    display:block;padding:10px 12px;border-radius:6px;margin-bottom:20px;line-height:1.6;
+  }
+  .rule-note b{color:var(--teal);font-weight:500;}
+
+  .group-label{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;
+    color:var(--paper-dim);margin:24px 0 4px;display:flex;align-items:center;gap:8px;
+  }
+  .group-label .swatch{width:8px;height:8px;border-radius:2px;flex:none;}
+  .group-label.first{margin-top:0;}
+
+  .cat-table{width:100%;border-collapse:collapse;margin-bottom:4px;}
+  .cat-row{padding:12px 0;border-bottom:1px solid var(--line);}
+  .cat-row-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .cat-name{font-size:15px;color:#FFFFFF;font-weight:600;background:transparent;border:none;outline:none;font-family:'Inter',sans-serif;padding:6px 0;width:100%;}
+  .cat-row-bottom{display:flex;gap:14px;}
+  .cat-field{display:flex;flex-direction:column;gap:3px;flex:1;}
+  .cat-field-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--paper-dim);}
+  .cat-input-wrap{display:flex;align-items:center;gap:3px;font-family:'IBM Plex Mono',monospace;}
+  .cat-input-wrap span{color:var(--gold);}
+  .cat-input{
+    background:transparent;border:none;border-bottom:1px solid var(--line);color:#FFFFFF;font-weight:600;
+    font-family:'IBM Plex Mono',monospace;font-size:16px;width:100%;padding:8px 2px;outline:none;
+  }
+  .cat-input:focus{border-color:var(--gold);}
+  .cat-delete-btn{
+    width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:transparent;
+    color:var(--paper-dim);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    flex:none;transition:all .15s ease;
+  }
+  .cat-delete-btn:active{background:rgba(201,123,90,0.15);color:var(--clay);border-color:var(--clay);}
+
+  .add-cat-btn{
+    margin-top:10px;background:transparent;border:1px dashed var(--line);color:var(--paper-dim);
+    font-family:'IBM Plex Mono',monospace;font-size:13.5px;padding:11px 14px;border-radius:8px;cursor:pointer;
+    min-height:40px;
+  }
+  .add-cat-btn:active{border-color:var(--gold);color:var(--gold);}
+
+  .totals-row{
+    display:flex;flex-wrap:wrap;gap:8px 20px;padding-top:14px;margin-top:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);border-top:1px solid var(--line);
+  }
+  .totals-row b{color:var(--numgreen);font-weight:500;}
+
+  .fi-card{margin-top:20px;background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;position:relative;overflow:hidden;}
+  .fi-label{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+  .fi-number{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(32px,9vw,44px);color:var(--numgreen);line-height:1;margin-bottom:6px;}
+  .fi-sub{color:var(--paper-dim);font-size:13px;line-height:1.55;}
+  .fi-breakdown{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap;}
+  .fi-stat-label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+  .fi-stat-value{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--jade);}
+
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;margin-bottom:6px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:var(--paper-dim);}
+  .field input, .field select{
+    background:transparent;border:none;border-bottom:1px solid var(--line);color:#FFFFFF;font-weight:600;
+    font-family:'IBM Plex Mono',monospace;font-size:16px;padding:11px 2px;outline:none;width:100%;min-height:40px;
+  }
+  .field select{background:var(--bg);}
+  .field select option{background:var(--bg);color:var(--paper);}
+  .field input:focus, .field select:focus{border-color:var(--teal);}
+  .field input::placeholder{color:var(--paper-dim);opacity:.6;}
+  .field-hint{font-size:13px;color:var(--paper-dim);line-height:1.45;}
+
+  .tax-card{
+    margin-top:16px;background:var(--bg-card);border:1px solid var(--line);border-radius:10px;
+    padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;
+  }
+  .tax-stat-label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+  .tax-stat-value{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--numgreen);}
+
+  .breakdown{margin-top:24px;}
+  .breakdown-row{margin-bottom:16px;}
+  .breakdown-row .brow-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:8px;}
+  .breakdown-row .brow-label{display:flex;align-items:center;gap:7px;color:var(--paper);font-size:13.5px;font-family:'IBM Plex Mono',monospace;}
+  .breakdown-row .brow-values{color:var(--paper-dim);font-size:13px;font-family:'IBM Plex Mono',monospace;text-align:right;white-space:nowrap;}
+  .breakdown-row .brow-values b{color:var(--numgreen);font-weight:500;}
+  .bar-track{width:100%;height:9px;background:var(--line);border-radius:5px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.22,.9,.32,1);width:0;}
+
+  .warn-box{margin-top:16px;padding:12px 14px;border-radius:8px;background:rgba(201,123,90,0.22);border-left:3px solid var(--clay);border-top:1px solid rgba(201,123,90,0.4);border-right:1px solid rgba(201,123,90,0.4);border-bottom:1px solid rgba(201,123,90,0.4);color:#FFDDC7;font-weight:500;font-size:13.5px;line-height:1.5;display:none;}
+  .warn-box a{color:#FFDDC7;text-decoration:underline;}
+  .warn-box.show{display:block;}
+  .good-box{margin-top:16px;padding:12px 14px;border-radius:8px;background:rgba(95,168,138,0.1);border:1px solid rgba(95,168,138,0.35);color:var(--jade);font-size:13.5px;line-height:1.5;display:none;}
+  .good-box.show{display:block;}
+
+  .result-hero{margin-top:22px;text-align:center;background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:32px 20px;}
+  .result-hero .fi-label{justify-content:center;display:flex;}
+  .result-hero .fi-number{font-size:clamp(34px,10vw,52px);}
+
+  /* Teaser / comparison cards */
+  .duo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;}
+  .duo-card{
+    border-radius:12px;padding:16px 12px;border:1px solid var(--line);background:var(--bg-card);text-align:center;
+  }
+  .duo-card.plan{border-color:rgba(79,182,176,0.4);}
+  .duo-card.drift{border-color:rgba(201,123,90,0.4);}
+  .duo-card .duo-label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
+  .duo-card.plan .duo-label{color:var(--teal);}
+  .duo-card.drift .duo-label{color:var(--clay);}
+  .duo-card .duo-number{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(19px,6vw,26px);line-height:1.1;margin-bottom:4px;color:var(--numgreen);}
+  .duo-card .duo-caption{font-size:12px;color:var(--paper-dim);line-height:1.4;}
+  .duo-card .duo-stat{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+  .duo-card .duo-stat b{color:var(--numgreen);}
+  .duo-verdict{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border-radius:6px;margin-top:10px;line-height:1.4;
+  }
+  .duo-card.plan .duo-verdict{background:rgba(95,168,138,0.12);color:var(--jade);}
+  .duo-card.drift .duo-verdict{background:rgba(201,123,90,0.12);color:var(--clay);}
+  .duo-card.drift .duo-verdict.surplus{background:rgba(95,168,138,0.12);color:var(--jade);}
+
+  .gap-strip{
+    text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);
+    padding:12px;border:1px dashed var(--line);border-radius:8px;margin-top:4px;
+  }
+  .gap-strip b{color:var(--gold);}
+
+  .tap-card-cta{
+    margin:18px 0 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:14px;
+    font-weight:700;letter-spacing:0.04em;color:var(--paper);
+  }
+  .tap-card-cta span{display:inline-block;padding:10px 16px;border-radius:999px;border:1px solid var(--gold);background:rgba(224,185,87,0.12);}
+
+  .shortfall-hero{
+    text-align:center;background:var(--bg-card);border:1px solid rgba(255,92,92,0.4);border-radius:14px;
+    padding:32px 20px;margin-bottom:20px;
+  }
+  .shortfall-hero .fi-label{color:#FF9B9B;justify-content:center;display:flex;}
+  .shortfall-hero .fi-number{font-size:clamp(34px,10vw,52px);color:#FF5C5C;}
+  .shortfall-actions{margin-top:24px;text-align:left;}
+  .shortfall-action{
+    display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:10px;border-radius:10px;
+    background:rgba(224,185,87,0.08);border:1px solid var(--line);cursor:pointer;transition:border-color .15s ease;
+  }
+  .shortfall-action:hover{border-color:var(--gold);}
+  .shortfall-action .num{
+    width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--bg);flex:none;
+    display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;
+  }
+  .shortfall-action .txt{font-size:14px;color:var(--paper);}
+  .shortfall-action .txt b{color:var(--gold);}
+
+  .share-banner{
+    background:linear-gradient(160deg, rgba(201,162,75,0.12), rgba(79,182,176,0.08));
+    border:1px solid var(--line);border-radius:16px;padding:26px 20px 22px;text-align:center;margin-bottom:22px;
+  }
+  .share-icons{width:100%;max-width:220px;height:auto;margin:0 auto 12px;display:block;}
+  .share-headline{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(21px,6.5vw,28px);color:var(--paper);line-height:1.2;}
+  .share-sub{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);letter-spacing:0.08em;text-transform:uppercase;margin-top:6px;}
+
+  .foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+  .section-header{display:flex;align-items:center;gap:10px;margin:28px 0 6px;}
+  .section-header.first{margin-top:0;}
+  .section-header .icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;}
+  .section-header .label{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;color:var(--paper);letter-spacing:0.01em;}
+  .subtotal-line{font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:var(--paper-dim);margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--line);}
+  .subtotal-line b{color:var(--numgreen);font-size:16px;font-weight:700;}
+
+  /* Scroll-led storytelling: each content block enters when the reader reaches it. */
+  .reveal{opacity:.08;transform:translateY(28px);filter:blur(1.5px);transition:opacity .7s ease, transform .7s cubic-bezier(.22,.8,.25,1), filter .7s ease;}
+  .reveal.revealed{opacity:1;transform:translateY(0);filter:none;}
+  .scroll-cue{display:flex;align-items:center;gap:10px;margin:8px 0 44px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .scroll-cue::after{content:'↓';display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--gold);border-radius:999px;animation:cueBounce 1.8s ease-in-out infinite;}
+  @keyframes cueBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+  @media (prefers-reduced-motion:reduce){
+    .reveal,.reveal.revealed{opacity:1;transform:none;filter:none;transition:none;}
+    .scroll-cue::after{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- STEP 0: TEASER -->
+  <div class="step active" data-step="0">
+    <div class="eyebrow">Kaasu · are you ready?</div>
+    <h1>What could your money make <em>possible</em>?</h1>
+    <p class="sub">See how today's spending and saving choices can create more freedom, flexibility, and options in the future.</p>
+
+    <div class="duo-grid">
+      <div class="duo-card plan" onclick="startPath('plan')" style="cursor:pointer;">
+        <div class="duo-label">Ready to retire?</div>
+        <div class="duo-number" style="font-size:clamp(17px,5.5vw,22px);">Build your retirement plan</div>
+        <div class="duo-caption">See what you may need, whether you are on track, and how much to invest each month.</div>
+      </div>
+      <div class="duo-card drift" onclick="startPath('drift')" style="cursor:pointer;">
+        <div class="duo-label">Start with today</div>
+        <div class="duo-number" style="font-size:clamp(17px,5.5vw,22px);">See where you're headed</div>
+        <div class="duo-caption">New to the workforce, or just starting out? Explore how your current saving and spending habits could shape your future freedom.</div>
+      </div>
+    </div>
+
+    <p class="tap-card-cta"><span>↑ TAP A CARD TO START</span></p>
+  </div>
+
+  <!-- JUMP NAV (steps 1-7) -->
+  <div id="modeLabel" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.08em;color:var(--gold);text-align:center;margin-bottom:10px;"></div>
+  <div class="jumpnav" id="jumpNav" style="display:none;"></div>
+
+  <!-- STEP 1: ESSENTIAL RETIREMENT SPENDING -->
+  <div class="step" data-step="1">
+    <div class="eyebrow">Retirement budget</div>
+    <h2>How much will you <em>spend</em> in retirement?</h2>
+    <p class="sub">First, the essentials — the costs of everyday life once you've stopped working. Not today's budget. Mortgage is often gone by 60, but healthcare usually rises.</p>
+
+    <div class="plan-grid">
+      <div class="field"><label>Your age now</label><input type="number" id="planStartCurrentAge" min="0" step="1"></div>
+      <div class="field"><label>Age you want to retire</label><input type="number" id="planStartRetireAge" min="0" step="1"></div>
+    </div>
+    <p class="field-hint" style="margin:6px 0 20px;">We ask this first because it feeds everything downstream — including how the Social Security bridge is calculated a couple steps from now.</p>
+
+    <div class="cat-table" id="essentialTable"></div>
+    <button class="add-cat-btn" id="addEssentialBtn">+ add category</button>
+
+    <div class="totals-row">
+      <span>Essential total: <b id="essentialTotal">$0</b>/yr</span>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(2)">Next: lifestyle & travel →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: LIFESTYLE & TRAVEL -->
+  <div class="step" data-step="2">
+    <div class="eyebrow">Retirement budget</div>
+    <h2>What's your retirement <em>lifestyle</em>?</h2>
+    <p class="sub">Now the fun part — travel, hobbies, the life you're retiring into. This usually goes up, not down, once you have the free time for it.</p>
+
+    <div class="cat-table" id="lifestyleTable"></div>
+    <button class="add-cat-btn" id="addLifestyleBtn">+ add category</button>
+
+    <div class="totals-row">
+      <span>Lifestyle total: <b id="lifestyleTotal">$0</b>/yr</span>
+      <span>Combined total: <b id="retirementGrandTotal">$0</b>/yr</span>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Next: your number →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: NEST EGG -->
+  <div class="step" data-step="3">
+    <div class="eyebrow">Your number</div>
+    <h2>What's your <em>nest egg</em> target?</h2>
+    <p class="sub">Social Security doesn't start the day you retire — it starts whenever you choose to claim it. If those two dates don't match, you need extra savings to cover the gap between them.</p>
+    <div class="rule-note">The 4% rule: save roughly <b>25×</b> what you plan to spend each year, and you can pull out about 4% annually without running out — a common starting point for a ~30-year retirement. Not a guarantee, just a solid baseline.</div>
+    <div class="rule-note gold">Say you retire at 55 but don't claim Social Security until 67. That's <b>12 years</b> where Social Security pays you nothing — your own savings have to cover 100% of your spending during that stretch. We call that gap the <b>"bridge."</b> Once Social Security actually starts, it covers part of your spending, so the rest of your savings don't have to work as hard, or as long.</div>
+
+    <div class="plan-grid">
+      <div class="field"><label>Est. Social Security (monthly, per couple)</label><input type="text" id="ssMonthly" inputmode="numeric" placeholder="e.g. 3,600"></div>
+      <div class="field"><label>Claiming age</label>
+        <select id="ssClaimAge">
+          <option value="62">62 (earliest — smaller monthly checks)</option>
+          <option value="67" selected>67 (full amount, no reduction)</option>
+          <option value="70">70 (waiting longest — biggest monthly checks)</option>
+        </select>
+      </div>
+    </div>
+    <p class="field-hint" style="margin-bottom:16px;">Estimate only — check your real projection at ssa.gov/myaccount.</p>
+
+    <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
+    <p class="field-hint" style="margin-bottom:10px;">Rental property, pensions, part-time work, royalties — anything besides Social Security and your portfolio.</p>
+    <div class="cat-table" id="otherRetIncomeTable"></div>
+    <button class="add-cat-btn" id="addOtherRetIncomeBtn">+ add income source</button>
+
+    <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-label">Your retirement number</div>
+      <div class="fi-number" id="fiNumber">$0</div>
+      <p class="fi-sub">The bridge (years before Social Security) + the long-term portfolio (years after)</p>
+      <div class="fi-breakdown">
+        <div><div class="fi-stat-label">Annual retirement spend</div><div class="fi-stat-value" id="fiAnnual">$0</div></div>
+        <div><div class="fi-stat-label">The bridge — before Social Security</div><div class="fi-stat-value" id="fiBridge">$0</div></div>
+        <div><div class="fi-stat-label">Long-term portfolio — after</div><div class="fi-stat-value" id="fiLongTerm">$0</div></div>
+      </div>
+      <p class="field-hint" id="fiBridgeNote" style="margin-top:14px;">—</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Next: monthly savings →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CONTRIBUTION CALCULATOR -->
+  <div class="step" data-step="4">
+    <div class="eyebrow">The plan</div>
+    <h2>How much to <em>put away</em> monthly?</h2>
+    <p class="sub">Working backward from your number, your timeline, and an assumed investment return.</p>
+
+    <div class="plan-grid">
+      <div class="field"><label>Current age</label><input type="number" id="currentAge" value="35" min="0" step="1"></div>
+      <div class="field"><label>Retirement age</label><input type="number" id="retireAge" value="55" min="0" step="1"></div>
+      <div class="field full"><label>Expected annual growth</label><input type="number" id="planGrowth" value="7" step="0.5"><span class="field-hint">Use an <b style="color:var(--paper);">inflation-adjusted (real)</b> return, not a raw market average — your spending targets are in today's dollars, so growth needs to be too. ~6-7% real is roughly the long-run historical figure for an all-stock portfolio; many planners now use more conservative forward-looking numbers like 4-5% real, especially for a balanced portfolio or a shorter timeline.</span></div>
+      <div class="field full"><label>Current invested assets</label><input type="text" id="planCurrentSavings" inputmode="numeric"><span class="field-hint">Include long-term investments you expect to use for retirement or financial freedom — such as a 401(k), IRA, brokerage account, or invested HSA. Do not include checking, emergency savings, or money you expect to spend soon. We assume this amount stays invested and grows at the selected annual rate until your target age.</span></div>
+      <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric"><span class="field-hint">auto-filled from your retirement number — editable</span></div>
+    </div>
+
+    <div class="fi-card">
+      <div class="fi-label">Required contribution</div>
+      <div class="fi-number" id="requiredAnnual">$0</div>
+      <p class="fi-sub" id="requiredMonthlyLine">≈ $0/month invested to hit your number on schedule.</p>
+    </div>
+    <div class="warn-box" id="ageOrderWarn">Your retirement age isn't after your current age, so there's no real time to invest — this number won't mean much until you fix that above.</div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" id="planFinishBtn" onclick="finishPlanPath()">Next: today's income →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: TODAY — INCOME & TAX -->
+  <div class="step" data-step="5">
+    <div class="eyebrow">Save after spending</div>
+    <h2>What do you <em>actually</em> take home?</h2>
+    <p class="sub">Let's ground this in today — your income right now, and what taxes actually take before anything gets saved or spent.</p>
+
+    <div class="plan-grid">
+      <div class="field">
+        <label>Filing status</label>
+        <select id="filingStatus">
+          <option value="single">Single</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+          <option value="hoh">Head of household</option>
+          <option value="qss">Qualifying surviving spouse</option>
+        </select>
+      </div>
+      <div class="field"><label>Gross annual salary</label><input type="text" id="planSalary" inputmode="numeric" placeholder="e.g. 100,000"></div>
+      <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="k401Input" inputmode="numeric" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year (usually ticks up a bit with inflation each year). Turning 50 or older? You can add a "catch-up" — an extra $8,000/year (total $32,500), or an extra $11,250/year if you're 60–63 (total $35,750).</span></div>
+      <div class="field"><label>Rough state tax rate</label><input type="number" id="stateTaxPct" value="5" step="0.5"><span class="field-hint">% flat estimate</span></div>
+    </div>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--jade)"></span>Other income sources</div>
+    <p class="field-hint" style="margin-bottom:10px;">Spouse's income, side business, rental, freelance — anything beyond your salary above.</p>
+    <div class="cat-table" id="otherIncomeTable"></div>
+    <button class="add-cat-btn" id="addOtherIncomeBtn">+ add income source</button>
+
+    <div class="tax-card" style="margin-top:22px;">
+      <div><div class="tax-stat-label">Total gross income</div><div class="tax-stat-value" id="totalGrossOut">$0</div></div>
+      <div><div class="tax-stat-label">Federal tax</div><div class="tax-stat-value" id="federalTaxOut">$0</div></div>
+      <div><div class="tax-stat-label">FICA (SS + Medicare)</div><div class="tax-stat-value" id="ficaOut">$0</div></div>
+      <div><div class="tax-stat-label">State tax (est.)</div><div class="tax-stat-value" id="stateTaxOut">$0</div></div>
+      <div><div class="tax-stat-label">Take-home cash</div><div class="tax-stat-value" id="takeHomeOut">$0</div></div>
+    </div>
+    <p class="field-hint" style="margin-top:6px;">2026 IRS federal brackets. State tax is a rough flat-rate estimate, not your actual state's bracket system.</p>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(6)">Next: your budget →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: TODAY — BUDGET & EDUCATION -->
+  <div class="step" data-step="6">
+    <div class="eyebrow">Save after spending</div>
+    <h2>What's left for <em>everything else</em>?</h2>
+    <p class="sub">What life costs you right now, plus anything set aside for kids — and what's actually left over once you decide how much to invest.</p>
+
+    <div class="plan-grid">
+      <div class="field"><label>Your age now</label><input type="number" id="driftCurrentAge" min="0" step="1"></div>
+      <div class="field"><label>Age you want to retire</label><input type="number" id="driftRetireAge" min="0" step="1"></div>
+    </div>
+    <div class="warn-box" id="driftAgeOrderWarn">Your retirement age isn't after your age now, so there's no real time to invest — fix that above before trusting the numbers below.</div>
+
+    <div class="section-header first" style="margin-top:26px;">
+      <span class="icon" style="background:rgba(201,123,90,0.2);color:var(--clay);">🏠</span>
+      <span class="label">NEEDS</span>
+    </div>
+    <p class="field-hint" style="margin-bottom:10px;">Life right now — rent, student loans, personal loans, auto loans, childcare, and other required costs. Do not add credit-card payments here; record the purchases in their actual spending categories instead.</p>
+    <div class="cat-table" id="currentNeedsTable"></div>
+    <button class="add-cat-btn" id="addCurrentNeedBtn">+ add category</button>
+    <div class="subtotal-line">Subtotal — NEEDS: <b id="needsSubtotal">$0</b>/yr</div>
+
+    <div class="section-header">
+      <span class="icon" style="background:rgba(217,164,92,0.2);color:#D9A45C;">🎯</span>
+      <span class="label">SAVINGS GOALS</span>
+    </div>
+    <p class="field-hint" style="margin-bottom:10px;">House, car, wedding, vacation — the stuff life costs before retirement even comes into it. Set a target and a timeline; we'll tell you the monthly.</p>
+    <div class="cat-table" id="goalsTable"></div>
+    <button class="add-cat-btn" id="addGoalBtn">+ add a goal</button>
+    <div class="subtotal-line">Subtotal — SAVINGS GOALS: <b id="goalsSubtotal">$0</b>/yr</div>
+
+    <div class="group-label" style="margin-top:26px;"><span class="swatch" style="background:var(--gold)"></span>Kids' education fund <span style="opacity:.6;">(optional)</span></div>
+    <div class="plan-grid">
+      <div class="field"><label># of kids</label><input type="number" id="numKids" value="0" min="0" step="1"></div>
+      <div class="field"><label>Years until college</label><input type="number" id="yearsToCollege" value="10" min="1" step="1"></div>
+      <div class="field full"><label>Target per kid</label><input type="text" id="collegeTargetPerKid" inputmode="numeric"></div>
+    </div>
+
+    <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">WHERE YOU'RE HEADED</b></div>
+    <p class="field-hint" style="margin-bottom:12px;">First, let's see what happens if nothing changes.</p>
+
+    <div class="fi-card" style="margin-top:8px;">
+      <div class="fi-label">What you are already building</div>
+      <div class="fi-number" id="driftAutopilotNumber">$0</div>
+      <p class="fi-sub">Keep your current invested assets and your current 401(k) contribution, without adding anything extra. Your existing invested assets are assumed to remain in the market and compound at the selected annual growth rate until your target age.</p>
+      <div class="fi-breakdown">
+        <div><div class="fi-stat-label">Estimated annual spending from this portfolio</div><div class="fi-stat-value" id="driftAutopilotIncome">$0/yr</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:30px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Now the big question</div>
+      <h2 style="font-size:clamp(20px,6vw,26px);">How much do you want to put toward retirement, <em>beyond</em> your 401(k)?</h2>
+    </div>
+    <div class="plan-grid">
+      <div class="field full">
+        <label>Extra investing (monthly)</label>
+        <input type="text" id="additionalInvestingInput" inputmode="numeric" placeholder="0" style="font-size:24px;font-weight:700;padding:14px 2px;">
+        <span class="field-hint">Starts at $0 — type any monthly amount to see where it leaves you.</span>
+      </div>
+    </div>
+
+    <div class="fi-card" style="margin-top:16px;border-color:rgba(79,182,176,0.4);">
+      <div class="fi-label">Add more, and here is what you could build</div>
+      <div class="fi-number" id="driftResultNumber">$0</div>
+      <p class="fi-sub">By age <span id="driftResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount you entered. All invested amounts are assumed to grow at the selected annual rate.</p>
+      <div class="fi-breakdown">
+        <div><div class="fi-stat-label">Estimated annual spending from this portfolio</div><div class="fi-stat-value" id="driftResultIncome">$0/yr</div></div>
+      </div>
+    </div>
+    <p class="field-hint" style="margin-top:10px;">These annual-spending estimates use a 4% first-year withdrawal from the portfolio, commonly evaluated over an approximately 30-year retirement, and include Social Security and other retirement income you've entered. Actual results are not guaranteed.</p>
+
+    <div class="breakdown" id="breakdownContainer" style="margin-top:30px;"></div>
+
+    <div class="warn-box" id="planWarn"></div>
+    <div class="good-box" id="planGood"></div>
+
+    <div class="result-hero">
+      <div class="fi-label">Left for experiences — travel, dining, fun</div>
+      <div class="fi-number" id="discretionaryResult">$0</div>
+      <p class="fi-sub" id="discretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
+    </div>
+
+    <div class="result-hero" id="nextStepsCard" style="border-color:rgba(201,123,90,0.4);">
+      <div class="fi-label">Next steps</div>
+      <p class="fi-sub" id="nextStepsText" style="font-size:14px;">—</p>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" id="step6NextBtn" onclick="goTo(7)">Compare: Plan vs. Drift →</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: COMPARISON -->
+  <div class="step" data-step="7">
+    <div class="share-banner">
+      <svg class="share-icons" viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="45" cy="35" r="26" fill="none" stroke="#E0B957" stroke-width="2.5"/>
+        <text x="45" y="44" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="28" fill="#E0B957">$</text>
+        <rect x="94" y="42" width="52" height="8" rx="2" fill="#62D0C8"/>
+        <rect x="99" y="22" width="5" height="18" fill="#62D0C8"/>
+        <rect x="109" y="22" width="5" height="18" fill="#62D0C8"/>
+        <rect x="119" y="22" width="5" height="18" fill="#62D0C8"/>
+        <rect x="129" y="22" width="5" height="18" fill="#62D0C8"/>
+        <polygon points="120,8 92,22 148,22" fill="#62D0C8"/>
+        <ellipse cx="200" cy="38" rx="24" ry="17" fill="none" stroke="#79C7A7" stroke-width="2.5"/>
+        <circle cx="222" cy="36" r="5" fill="none" stroke="#79C7A7" stroke-width="2.5"/>
+        <circle cx="223" cy="35" r="1" fill="#79C7A7"/>
+        <line x1="196" y1="21" x2="204" y2="21" stroke="#79C7A7" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="188" y1="52" x2="188" y2="58" stroke="#79C7A7" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="200" y1="54" x2="200" y2="60" stroke="#79C7A7" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="212" y1="52" x2="212" y2="58" stroke="#79C7A7" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="share-headline">Are you ready to retire?</div>
+      <div class="share-sub">Kaasu · financial wellness</div>
+    </div>
+
+    <div class="eyebrow" id="step7Eyebrow">The fork in the road</div>
+    <h2 id="step7Headline">Two futures, <em>your</em> numbers.</h2>
+    <p class="sub" id="step7Sub">The only difference is whether the money left over each month gets invested or spent.</p>
+
+    <div id="shortfallConclusion" style="display:none;"></div>
+
+    <div class="duo-grid" id="comparisonGrid"></div>
+    <div class="gap-strip" id="gapStrip"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+      <button class="btn btn-ghost" onclick="resetApp()">Start over</button>
+    </div>
+  </div>
+
+
+  <div class="foot">
+    <span>Kaasu — financial wellness</span>
+    <button id="footStartOver" onclick="resetApp()" style="display:none;background:transparent;border:none;color:var(--teal);font-family:'IBM Plex Mono',monospace;font-size:12.5px;cursor:pointer;padding:0;text-decoration:underline;">Start over</button>
+    <span id="statusLabel">demo data</span>
+  </div>
+
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx-kUugJ-0KUyj6b4P-e7JA0iL8m-vQxeadxWpjhKj5w-xo4jJhr9EfGzw4rhpn6Cws/exec";
+
+/* ================= MONEY HELPERS ================= */
+function formatNum(n){ return Math.round(n||0).toLocaleString('en-US'); }
+function fmtMoney(n){ return "$" + formatNum(n); }
+function bindMoneyInput(el, getVal, setVal, onChange){
+  el.value = getVal() ? formatNum(getVal()) : "";
+  el.addEventListener('input', () => {
+    const raw = el.value.replace(/[^0-9]/g,'');
+    const num = raw === '' ? 0 : parseInt(raw,10);
+    setVal(num);
+    el.value = raw === '' ? '' : formatNum(num);
+    onChange();
+  });
+}
+
+/* ================= ALL STATE (declared up front to avoid ordering bugs) ================= */
+const DEFAULT_ESSENTIAL = [
+  { name: "Housing (tax, insurance, upkeep)", annual: 12000 },
+  { name: "Healthcare & insurance",           annual: 12000 },
+  { name: "Food & groceries",                 annual: 9000  },
+  { name: "Transportation",                   annual: 6000  },
+  { name: "Utilities",                        annual: 4800  },
+  { name: "Long-term care buffer",            annual: 3000  }
+];
+const DEFAULT_LIFESTYLE = [
+  { name: "Travel & leisure",       annual: 10000 },
+  { name: "Dining & entertainment", annual: 6000  },
+  { name: "Family support & gifts", annual: 3000  },
+  { name: "Hobbies & miscellaneous",annual: 3600  }
+];
+const DEFAULT_CURRENT_NEEDS = [
+  { name: "Rent or mortgage",          annual: 21600 },
+  { name: "Property taxes",            annual: 0     },
+  { name: "Home maintenance",          annual: 0     },
+  { name: "Homeowner's/renter's insurance", annual: 0 },
+  { name: "Utilities",                 annual: 2400  },
+  { name: "Health insurance premium",  annual: 3600  },
+  { name: "Life insurance",            annual: 0     },
+  { name: "Medical/dental out-of-pocket", annual: 0  },
+  { name: "Auto loan payment",         annual: 0     },
+  { name: "Auto insurance",            annual: 1500  },
+  { name: "Groceries",                 annual: 6000  },
+  { name: "Personal care",             annual: 0     },
+  { name: "Transportation & gas",      annual: 2400  },
+  { name: "Student loan payment",       annual: 0     },
+  { name: "Personal loan payment",      annual: 0     },
+  { name: "Other loan payment",         annual: 0     },
+  { name: "Phone & internet",          annual: 1500  },
+  { name: "Childcare / daycare",       annual: 0     }
+];
+
+const DEFAULT_SAVINGS_GOALS = [
+  { name: "House down payment", target: 40000, years: 5 },
+  { name: "Car", target: 15000, years: 3 },
+  { name: "Wedding", target: 20000, years: 2 },
+  { name: "Vacation", target: 5000, years: 1 }
+];
+const DEFAULT_OTHER_INCOME = [ { name: "Spouse's income", annual: 0 } ];
+const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental property income", annual: 0 } ];
+
+let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
+let lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
+let currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
+let savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
+let otherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
+let otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
+
+let ssMonthlyVal = 0;
+let currentSavingsVal = 0;
+let targetVal = 0;
+let targetManuallyEdited = false;
+let salaryVal = 0;
+let k401Val = 0;
+let additionalInvestingVal = 0;
+let additionalInvestingManuallyEdited = false;
+let collegeTargetPerKidVal = 100000;
+
+let currentStep = 0;
+let entryMode = null; // null | 'plan' | 'drift' | 'full'
+let returnToCompareAfterPlan = false;
+const TOTAL_STEPS = 8;
+const STEP_LABELS = ["Intro","Essential","Lifestyle","Number","Plan","Income","Budget","Compare"];
+
+/* ================= DOM REFS ================= */
+const ssMonthlyEl = document.getElementById('ssMonthly');
+const ssClaimAgeEl = document.getElementById('ssClaimAge');
+const currentAgeEl = document.getElementById('currentAge');
+const retireAgeEl = document.getElementById('retireAge');
+const planGrowthEl = document.getElementById('planGrowth');
+const planCurrentSavingsEl = document.getElementById('planCurrentSavings');
+const planTargetEl = document.getElementById('planTarget');
+const filingStatusEl = document.getElementById('filingStatus');
+const planSalaryEl = document.getElementById('planSalary');
+const k401InputEl = document.getElementById('k401Input');
+const additionalInvestingInputEl = document.getElementById('additionalInvestingInput');
+const driftCurrentAgeEl = document.getElementById('driftCurrentAge');
+const driftRetireAgeEl = document.getElementById('driftRetireAge');
+const stateTaxPctEl = document.getElementById('stateTaxPct');
+const numKidsEl = document.getElementById('numKids');
+const yearsToCollegeEl = document.getElementById('yearsToCollege');
+const collegeTargetPerKidEl = document.getElementById('collegeTargetPerKid');
+
+/* ================= STEP NAV ================= */
+function renderJumpNav(){
+  const nav = document.getElementById('jumpNav');
+  if(currentStep === 0){ nav.style.display = 'none'; return; }
+  nav.style.display = 'flex';
+  nav.innerHTML = "";
+
+  const modeLabel = document.getElementById('modeLabel');
+  if(entryMode === 'drift'){
+    modeLabel.style.display = 'block';
+    modeLabel.textContent = '— DRIFT PATH: save after spending —';
+  } else if(entryMode === 'plan'){
+    modeLabel.style.display = 'block';
+    modeLabel.textContent = '— THE PLAN: save first, then spend —';
+  } else {
+    modeLabel.style.display = 'none';
+  }
+
+  const stepsToShow = (entryMode === 'drift') ? [5,6] : [1,2,3,4,5,6,7];
+
+  stepsToShow.forEach(i => {
+    const pill = document.createElement('button');
+    pill.className = 'jumpnav-pill';
+    if(i === currentStep) pill.classList.add('active');
+    else if(i < currentStep) pill.classList.add('visited');
+    pill.textContent = STEP_LABELS[i];
+    pill.addEventListener('click', () => goTo(i));
+    nav.appendChild(pill);
+  });
+
+  if(entryMode === 'drift'){
+    const expandPill = document.createElement('button');
+    expandPill.className = 'jumpnav-pill';
+    expandPill.style.borderStyle = 'dashed';
+    expandPill.textContent = '+ set retirement goal (1–4)';
+    expandPill.addEventListener('click', () => { entryMode = 'full'; renderJumpNav(); });
+    nav.appendChild(expandPill);
+  }
+}
+
+function startPath(mode){
+  entryMode = mode;
+  goTo(mode === 'drift' ? 5 : 1);
+}
+
+function resetAllState(){
+  essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
+  lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
+  currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
+  savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
+  otherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
+  otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
+
+  ssMonthlyVal = 0;
+  currentSavingsVal = 0;
+  targetVal = 0;
+  targetManuallyEdited = false;
+  salaryVal = 0;
+  k401Val = 0;
+  additionalInvestingVal = 0;
+  additionalInvestingManuallyEdited = false;
+  collegeTargetPerKidVal = 100000;
+  returnToCompareAfterPlan = false;
+
+  currentAgeEl.value = 35;
+  retireAgeEl.value = 55;
+  planGrowthEl.value = 7;
+  filingStatusEl.value = 'single';
+  stateTaxPctEl.value = 5;
+  ssClaimAgeEl.value = '67';
+  numKidsEl.value = 0;
+  yearsToCollegeEl.value = 10;
+  driftCurrentAgeEl.value = 35;
+  driftRetireAgeEl.value = 55;
+  planStartCurrentAgeEl.value = 35;
+  planStartRetireAgeEl.value = 55;
+
+  ssMonthlyEl.value = '';
+  planCurrentSavingsEl.value = '';
+  planTargetEl.value = '';
+  planSalaryEl.value = '';
+  k401InputEl.value = '';
+  additionalInvestingInputEl.value = '';
+  collegeTargetPerKidEl.value = formatNum(collegeTargetPerKidVal);
+
+  renderEssential();
+  renderLifestyle();
+  renderCurrentNeedsTable();
+  renderGoalsTable();
+  renderOtherIncomeTable();
+  renderOtherRetIncomeTable();
+  syncPlanTarget();
+}
+
+function resetApp(){
+  goTo(0);
+}
+
+function buildPlanFromDrift(){
+  entryMode = 'full';
+  returnToCompareAfterPlan = true;
+  goTo(1);
+}
+
+function finishPlanPath(){
+  if(returnToCompareAfterPlan){
+    returnToCompareAfterPlan = false;
+    goTo(7);
+  } else {
+    goTo(5);
+  }
+}
+
+function goTo(step, opts){
+  opts = opts || {};
+  if(step === 0){
+    entryMode = null;
+    resetAllState();
+  }
+  currentStep = step;
+  document.querySelectorAll('.step').forEach(el => el.classList.toggle('active', Number(el.dataset.step) === step));
+  renderJumpNav();
+  document.getElementById('footStartOver').style.display = (step === 0) ? 'none' : 'inline';
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(step === 3) updateFiCard();
+  if(step === 4){
+    syncPlanTarget(); renderContribution();
+    const nextBtn = document.getElementById('planFinishBtn');
+    if(nextBtn) nextBtn.textContent = returnToCompareAfterPlan ? "Finish: compare both paths →" : "Next: today's income →";
+  }
+  if(step === 5) renderStep4();
+  if(step === 6) renderStep4();
+  if(step === 7) renderComparison();
+  triggerStepReveal(step);
+
+  // Keep the browser/trackpad Back gesture inside the app instead of leaving to a previous tab-history page.
+  if(!opts.fromHistory){
+    const state = { kaasuStep: step, entryMode: entryMode };
+    if(opts.replace) history.replaceState(state, '', '#step-' + step);
+    else history.pushState(state, '', '#step-' + step);
+  }
+}
+
+function goBack(){
+  history.back();
+}
+
+window.addEventListener('popstate', (event) => {
+  const state = event.state;
+  if(state && Number.isInteger(state.kaasuStep)){
+    entryMode = state.entryMode || null;
+    goTo(state.kaasuStep, { fromHistory: true });
+  } else {
+    entryMode = null;
+    goTo(0, { fromHistory: true });
+  }
+});
+
+/* ================= PROGRESSIVE REVEAL (scroll-led storytelling) ================= */
+let revealObserver = null;
+function setupReveals(){
+  document.querySelectorAll('.step[data-step]').forEach(stepEl => {
+    if(stepEl.dataset.step === '0') return; // landing page stays immediately visible
+
+    const introSub = Array.from(stepEl.children).find(el => el.classList && el.classList.contains('sub'));
+    if(introSub && !stepEl.querySelector('.scroll-cue')){
+      const cue = document.createElement('div');
+      cue.className = 'scroll-cue';
+      cue.textContent = 'Scroll to build your answer';
+      introSub.insertAdjacentElement('afterend', cue);
+    }
+
+    let introDone = false;
+    Array.from(stepEl.children).forEach(child => {
+      const cls = child.className || '';
+      const tag = child.tagName;
+      if(!introDone && (cls.indexOf('eyebrow')>-1 || tag==='H1' || tag==='H2' || cls.indexOf('sub')>-1 || cls.indexOf('scroll-cue')>-1)){
+        return;
+      }
+      introDone = true;
+      if(cls.indexOf('nav-row')>-1) return; // navigation remains available
+      child.classList.add('reveal');
+    });
+  });
+  revealObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('revealed');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.16, rootMargin:'0px 0px -12% 0px'});
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+function triggerStepReveal(step){
+  // Reset only the current chapter so content reveals as the reader scrolls to it again.
+  const active = document.querySelector('.step[data-step="'+step+'"]');
+  if(!active) return;
+  active.querySelectorAll('.reveal').forEach(el => {
+    el.classList.remove('revealed');
+    if(revealObserver) revealObserver.observe(el);
+  });
+}
+
+/* ================= STEP 1: RETIREMENT BUDGET ================= */
+function renderCatTable(tableId, list, onChange){
+  const table = document.getElementById(tableId);
+  table.innerHTML = "";
+  list.forEach((cat, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const top = document.createElement('div');
+    top.className = 'cat-row-top';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name';
+    nameInput.value = cat.name;
+    nameInput.addEventListener('input', (e) => { list[i].name = e.target.value; });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cat-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', () => { list.splice(i,1); renderCatTable(tableId, list, onChange); });
+    top.appendChild(nameInput);
+    top.appendChild(delBtn);
+
+    const bottom = document.createElement('div');
+    bottom.className = 'cat-row-bottom';
+
+    const monthlyField = document.createElement('div');
+    monthlyField.className = 'cat-field';
+    const monthlyLabel = document.createElement('div');
+    monthlyLabel.className = 'cat-field-label';
+    monthlyLabel.textContent = 'Monthly';
+    const monthlyWrap = document.createElement('div');
+    monthlyWrap.className = 'cat-input-wrap';
+    const mDollar = document.createElement('span'); mDollar.textContent = '$';
+    const monthlyInput = document.createElement('input');
+    monthlyInput.className = 'cat-input';
+    monthlyInput.setAttribute('inputmode','numeric');
+    monthlyWrap.appendChild(mDollar);
+    monthlyWrap.appendChild(monthlyInput);
+    monthlyField.appendChild(monthlyLabel);
+    monthlyField.appendChild(monthlyWrap);
+
+    const annualField = document.createElement('div');
+    annualField.className = 'cat-field';
+    const annualLabel = document.createElement('div');
+    annualLabel.className = 'cat-field-label';
+    annualLabel.textContent = 'Annual';
+    const annualWrap = document.createElement('div');
+    annualWrap.className = 'cat-input-wrap';
+    const aDollar = document.createElement('span'); aDollar.textContent = '$';
+    const annualInput = document.createElement('input');
+    annualInput.className = 'cat-input';
+    annualInput.setAttribute('inputmode','numeric');
+    annualWrap.appendChild(aDollar);
+    annualWrap.appendChild(annualInput);
+    annualField.appendChild(annualLabel);
+    annualField.appendChild(annualWrap);
+
+    bindMoneyInput(annualInput, () => list[i].annual, (v) => { list[i].annual = v; monthlyInput.value = formatNum(Math.round(v/12)); }, onChange);
+    bindMoneyInput(monthlyInput, () => Math.round((list[i].annual||0)/12), (v) => { list[i].annual = v*12; annualInput.value = formatNum(v*12); }, onChange);
+
+    bottom.appendChild(monthlyField);
+    bottom.appendChild(annualField);
+
+    row.appendChild(top);
+    row.appendChild(bottom);
+    table.appendChild(row);
+  });
+  onChange();
+}
+
+function updateRetirementTotals(){
+  const eTotal = essential.reduce((s,c)=>s+(Number(c.annual)||0),0);
+  const lTotal = lifestyle.reduce((s,c)=>s+(Number(c.annual)||0),0);
+  document.getElementById('essentialTotal').textContent = fmtMoney(eTotal);
+  document.getElementById('lifestyleTotal').textContent = fmtMoney(lTotal);
+  document.getElementById('retirementGrandTotal').textContent = fmtMoney(eTotal+lTotal);
+}
+function renderEssential(){ renderCatTable('essentialTable', essential, updateRetirementTotals); }
+function renderLifestyle(){ renderCatTable('lifestyleTable', lifestyle, updateRetirementTotals); }
+
+function totalRetirementAnnualSpend(){
+  return essential.reduce((s,c)=>s+(Number(c.annual)||0),0) + lifestyle.reduce((s,c)=>s+(Number(c.annual)||0),0);
+}
+
+/* ================= STEP 2: NEST EGG + SOCIAL SECURITY ================= */
+function annualSSBenefit(){ return ssMonthlyVal * 12; }
+function otherRetirementIncomeAnnualTotal(){ return otherRetirementIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
+
+function socialSecurityClaimAge(){ return Number(ssClaimAgeEl.value) || 67; }
+function plannedRetirementAge(){ return Number(retireAgeEl.value) || 0; }
+function bridgeYears(){ return Math.max(0, socialSecurityClaimAge() - plannedRetirementAge()); }
+function bridgeAnnualNeed(){ return Math.max(0, totalRetirementAnnualSpend() - otherRetirementIncomeAnnualTotal()); }
+function bridgeFundAmount(){ return bridgeAnnualNeed() * bridgeYears(); }
+function portfolioAnnualNeed(){ return Math.max(0, totalRetirementAnnualSpend() - annualSSBenefit() - otherRetirementIncomeAnnualTotal()); }
+function longTermPortfolioAmount(){ return portfolioAnnualNeed() / 0.04; }
+function calculatedRetirementTarget(){ return bridgeFundAmount() + longTermPortfolioAmount(); }
+
+function renderOtherRetIncomeTable(){ renderCatTable('otherRetIncomeTable', otherRetirementIncome, updateFiCard); }
+
+function updateFiCard(){
+  const spend = totalRetirementAnnualSpend();
+  const years = bridgeYears();
+  const bridge = bridgeFundAmount();
+  const longTerm = longTermPortfolioAmount();
+  const fiNumber = calculatedRetirementTarget();
+  document.getElementById('fiNumber').textContent = fmtMoney(fiNumber);
+  document.getElementById('fiAnnual').textContent = fmtMoney(spend);
+  document.getElementById('fiBridge').textContent = years > 0 ? `${fmtMoney(bridge)} (${years} yr${years===1?'':'s'})` : "$0 — none needed";
+  document.getElementById('fiLongTerm').textContent = fmtMoney(longTerm);
+  const note = document.getElementById('fiBridgeNote');
+  if(years > 0){
+    note.textContent = `You plan to retire at ${plannedRetirementAge()}. You said you'd claim Social Security at ${socialSecurityClaimAge()}. That's a ${years}-year gap — during those years, Social Security pays you $0, so your savings alone have to cover everything.`;
+  } else {
+    note.textContent = `You plan to retire at ${plannedRetirementAge()}, which is at or after your Social Security claiming age (${socialSecurityClaimAge()}) — so there's no gap. No bridge needed.`;
+  }
+}
+
+/* ================= STEP 3: CONTRIBUTION CALC ================= */
+function getYearsToRetirement(){
+  const cur = Number(currentAgeEl.value) || 0;
+  const ret = Number(retireAgeEl.value) || 0;
+  return Math.max(1, ret - cur);
+}
+
+function syncPlanTarget(){
+  if(targetManuallyEdited) return;
+  targetVal = Math.round(calculatedRetirementTarget());
+  planTargetEl.value = formatNum(targetVal);
+}
+
+function requiredAnnualContribution(target, current, years, rate){
+  const r = rate/100;
+  const growthOfCurrent = current * Math.pow(1+r, years);
+  const remaining = Math.max(0, target - growthOfCurrent);
+  if(r === 0) return years > 0 ? remaining/years : remaining;
+  const factor = (Math.pow(1+r, years) - 1) / r;
+  return factor > 0 ? remaining / factor : remaining;
+}
+function futureValueOfContributions(annualContribution, current, years, rate){
+  const r = rate/100;
+  const fvCurrent = current * Math.pow(1+r, years);
+  const fvContrib = r === 0 ? annualContribution*years : annualContribution * ((Math.pow(1+r, years) - 1) / r);
+  return fvCurrent + fvContrib;
+}
+
+function getRequiredInvesting(){
+  const years = getYearsToRetirement();
+  const growth = Number(planGrowthEl.value) || 0;
+  return requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
+}
+
+function renderContribution(){
+  const required = getRequiredInvesting();
+  document.getElementById('requiredAnnual').textContent = fmtMoney(required);
+  document.getElementById('requiredMonthlyLine').textContent = `≈ ${fmtMoney(required/12)}/month invested to hit your number on schedule.`;
+  const badAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
+  document.getElementById('ageOrderWarn').classList.toggle('show', badAge);
+}
+
+/* ================= STEP 4: TAX + BUDGET + EDUCATION ================= */
+const STANDARD_DEDUCTION_2026 = { single: 16100, mfj: 32200, mfs: 16100, hoh: 24150, qss: 32200 };
+const BRACKETS_2026 = {
+  single: [ {upTo:12400,rate:.10},{upTo:50400,rate:.12},{upTo:105700,rate:.22},{upTo:201775,rate:.24},{upTo:256225,rate:.32},{upTo:640600,rate:.35},{upTo:Infinity,rate:.37} ],
+  mfj:    [ {upTo:24800,rate:.10},{upTo:100800,rate:.12},{upTo:211400,rate:.22},{upTo:403550,rate:.24},{upTo:512450,rate:.32},{upTo:768700,rate:.35},{upTo:Infinity,rate:.37} ],
+  hoh:    [ {upTo:17700,rate:.10},{upTo:67450,rate:.12},{upTo:105700,rate:.22},{upTo:201775,rate:.24},{upTo:256200,rate:.32},{upTo:640600,rate:.35},{upTo:Infinity,rate:.37} ],
+  mfs:    [ {upTo:12400,rate:.10},{upTo:50400,rate:.12},{upTo:105700,rate:.22},{upTo:201775,rate:.24},{upTo:256225,rate:.32},{upTo:384350,rate:.35},{upTo:Infinity,rate:.37} ]
+};
+BRACKETS_2026.qss = BRACKETS_2026.mfj;
+const FICA_SS_WAGE_BASE_2026 = 184500;
+const ADDL_MEDICARE_THRESHOLD = { single: 200000, mfj: 250000, mfs: 125000, hoh: 200000, qss: 250000 };
+
+function computeFederalTax(agi, status){
+  const stdDed = STANDARD_DEDUCTION_2026[status] || STANDARD_DEDUCTION_2026.single;
+  const taxable = Math.max(0, agi - stdDed);
+  const brackets = BRACKETS_2026[status] || BRACKETS_2026.single;
+  let tax = 0, prevCap = 0;
+  for(const b of brackets){
+    if(taxable > prevCap){
+      const amt = Math.min(taxable, b.upTo) - prevCap;
+      tax += amt * b.rate;
+      prevCap = b.upTo;
+    } else break;
+  }
+  return tax;
+}
+function computeFICA(gross, status){
+  const ss = Math.min(gross, FICA_SS_WAGE_BASE_2026) * 0.062;
+  const medicare = gross * 0.0145;
+  const threshold = ADDL_MEDICARE_THRESHOLD[status] || 200000;
+  const addl = Math.max(0, gross - threshold) * 0.009;
+  return ss + medicare + addl;
+}
+
+function renderCurrentNeedsTable(){ renderCatTable('currentNeedsTable', currentNeeds, renderStep4); }
+function currentNeedsAnnualTotal(){ return currentNeeds.reduce((s,c)=>s+(Number(c.annual)||0),0); }
+
+function renderGoalsTable(){
+  const table = document.getElementById('goalsTable');
+  table.innerHTML = "";
+  savingsGoals.forEach((goal, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const top = document.createElement('div');
+    top.className = 'cat-row-top';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name';
+    nameInput.value = goal.name;
+    nameInput.addEventListener('input', (e) => { savingsGoals[i].name = e.target.value; });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cat-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', () => { savingsGoals.splice(i,1); renderGoalsTable(); renderStep4(); });
+    top.appendChild(nameInput);
+    top.appendChild(delBtn);
+
+    const bottom = document.createElement('div');
+    bottom.className = 'cat-row-bottom';
+
+    const targetField = document.createElement('div');
+    targetField.className = 'cat-field';
+    const targetLabel = document.createElement('div');
+    targetLabel.className = 'cat-field-label';
+    targetLabel.textContent = 'Target';
+    const targetWrap = document.createElement('div');
+    targetWrap.className = 'cat-input-wrap';
+    const tDollar = document.createElement('span'); tDollar.textContent = '$';
+    const targetInput = document.createElement('input');
+    targetInput.className = 'cat-input';
+    targetInput.setAttribute('inputmode','numeric');
+    targetWrap.appendChild(tDollar);
+    targetWrap.appendChild(targetInput);
+    targetField.appendChild(targetLabel);
+    targetField.appendChild(targetWrap);
+
+    const yearsField = document.createElement('div');
+    yearsField.className = 'cat-field';
+    const yearsLabel = document.createElement('div');
+    yearsLabel.className = 'cat-field-label';
+    yearsLabel.textContent = 'Years to save';
+    const yearsInput = document.createElement('input');
+    yearsInput.className = 'cat-input';
+    yearsInput.type = 'number';
+    yearsInput.min = 1; yearsInput.step = 1;
+    yearsInput.value = goal.years;
+    yearsField.appendChild(yearsLabel);
+    yearsField.appendChild(yearsInput);
+
+    bottom.appendChild(targetField);
+    bottom.appendChild(yearsField);
+
+    const monthlyNote = document.createElement('div');
+    monthlyNote.className = 'field-hint';
+    monthlyNote.style.marginTop = '8px';
+
+    function refreshMonthlyNote(){
+      const monthly = (savingsGoals[i].target||0) / Math.max(1,(savingsGoals[i].years||1)*12);
+      monthlyNote.textContent = `≈ ${fmtMoney(monthly)}/mo to hit this in ${savingsGoals[i].years} year${savingsGoals[i].years===1?'':'s'}`;
+    }
+    bindMoneyInput(targetInput, () => savingsGoals[i].target, (v) => { savingsGoals[i].target = v; }, () => { refreshMonthlyNote(); renderStep4(); });
+    yearsInput.addEventListener('input', (e) => {
+      savingsGoals[i].years = Math.max(1, Number(e.target.value) || 1);
+      refreshMonthlyNote();
+      renderStep4();
+    });
+    refreshMonthlyNote();
+
+    row.appendChild(top);
+    row.appendChild(bottom);
+    row.appendChild(monthlyNote);
+    table.appendChild(row);
+  });
+}
+function goalsAnnualTotal(){
+  return savingsGoals.reduce((s,g) => s + ((Number(g.target)||0) / Math.max(1, Number(g.years)||1)), 0);
+}
+function renderOtherIncomeTable(){ renderCatTable('otherIncomeTable', otherIncome, renderStep4); }
+function otherIncomeAnnualTotal(){ return otherIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
+
+function getEducationRequiredAnnual(){
+  const kids = Math.max(0, Number(numKidsEl.value) || 0);
+  const years = Math.max(1, Number(yearsToCollegeEl.value) || 1);
+  const growth = Number(planGrowthEl.value) || 0;
+  const target = kids * collegeTargetPerKidVal;
+  if(target === 0) return 0;
+  return requiredAnnualContribution(target, 0, years, growth);
+}
+
+function renderStep4(){
+  const hasRealPlan = (entryMode === 'plan' || entryMode === 'full');
+  const status = filingStatusEl.value;
+  const gross = salaryVal + otherIncomeAnnualTotal();
+  const agi = Math.max(0, gross - k401Val);
+  const fedTax = computeFederalTax(agi, status);
+  const fica = computeFICA(gross, status);
+  const statePct = Number(stateTaxPctEl.value) || 0;
+  const stateTax = agi * (statePct/100);
+  const totalTax = fedTax + fica + stateTax;
+  const takeHomeCash = gross - k401Val - totalTax;
+
+  document.getElementById('totalGrossOut').textContent = fmtMoney(gross);
+  document.getElementById('federalTaxOut').textContent = fmtMoney(fedTax);
+  document.getElementById('ficaOut').textContent = fmtMoney(fica);
+  document.getElementById('stateTaxOut').textContent = fmtMoney(stateTax);
+  document.getElementById('takeHomeOut').textContent = fmtMoney(takeHomeCash);
+
+  const needsAnnual = currentNeedsAnnualTotal();
+  const goalsAnnual = goalsAnnualTotal();
+  document.getElementById('needsSubtotal').textContent = fmtMoney(needsAnnual);
+  document.getElementById('goalsSubtotal').textContent = fmtMoney(goalsAnnual);
+
+  const requiredInvesting = getRequiredInvesting();
+  const autoAdditional = Math.max(0, requiredInvesting - k401Val);
+  const additionalInvesting = additionalInvestingVal;
+  const educationRequired = getEducationRequiredAnnual();
+
+  const committed = needsAnnual + goalsAnnual + additionalInvesting + educationRequired;
+  const leftover = takeHomeCash - committed;
+  const shortfall = committed > takeHomeCash ? committed - takeHomeCash : 0;
+  const underfunded = hasRealPlan && (additionalInvesting < autoAdditional - 1);
+  const breakdownInvestingLabel = hasRealPlan
+    ? "Extra investing beyond 401k (would need " + fmtMoney(autoAdditional) + "/yr to hit your retirement number)"
+    : "Extra investing beyond 401k";
+
+  const rows = [
+    { name: "401(k) contribution", value: k401Val, base: gross, color: "#E0B957" },
+    { name: "NEEDS — current non-discretionary", value: needsAnnual, base: gross, color: "#FF9B73" },
+    { name: "Savings goals (house, car, wedding...)", value: goalsAnnual, base: gross, color: "#D9A45C" },
+    { name: breakdownInvestingLabel, value: additionalInvesting, base: gross, color: "#62D0C8" },
+    { name: "Education fund", value: educationRequired, base: gross, color: "#E8E2D4" },
+    { name: "Left for discretionary spending", value: Math.max(0,leftover), base: gross, color: "#79C7A7" }
+  ];
+
+  const container = document.getElementById('breakdownContainer');
+  container.innerHTML = "";
+  rows.forEach(r => {
+    const pct = r.base > 0 ? Math.min(100, (r.value/r.base)*100) : 0;
+    const div = document.createElement('div');
+    div.className = 'breakdown-row';
+    div.innerHTML = `
+      <div class="brow-top">
+        <span class="brow-label"><span style="width:7px;height:7px;border-radius:50%;background:${r.color};display:inline-block;flex:none;"></span>${r.name}</span>
+        <span class="brow-values"><b>${fmtMoney(r.value)}</b>/yr · ${Math.round(pct)}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="background:${r.color};"></div></div>
+    `;
+    container.appendChild(div);
+    const fillEl = div.querySelector('.bar-fill');
+    setTimeout(()=>{ fillEl.style.width = pct + '%'; }, 60);
+  });
+
+  const warnBox = document.getElementById('planWarn');
+  const goodBox = document.getElementById('planGood');
+  warnBox.classList.remove('show'); goodBox.classList.remove('show');
+  if(gross === 0){
+    warnBox.classList.add('show');
+    warnBox.textContent = "Enter a gross annual salary above to see the full split.";
+  } else if(shortfall > 0){
+    warnBox.classList.add('show');
+    warnBox.textContent = `Needs plus your investing amount exceed take-home pay by ${fmtMoney(shortfall)}/yr (${fmtMoney(shortfall/12)}/mo). Extend your timeline, raise expected growth, trim needs, lower your target, or type in a smaller investing amount above.`;
+  } else if(underfunded){
+    warnBox.classList.add('show');
+    const message = additionalInvesting <= 0
+      ? `You haven't set aside anything extra yet — it takes ${fmtMoney(autoAdditional)}/yr to hit your retirement number.`
+      : `You've set aside ${fmtMoney(additionalInvesting)}/yr (${fmtMoney(additionalInvesting/12)}/mo) — that's <b style="color:#FF5C5C;font-size:15px;">${fmtMoney(autoAdditional-additionalInvesting)}/yr short</b> of the ${fmtMoney(autoAdditional)}/yr total it takes to hit your retirement number.`;
+    warnBox.innerHTML = `${message} <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#FFDDC7;font-weight:700;">Adjust it above ↑</a>`;
+  } else {
+    goodBox.classList.add('show');
+    goodBox.textContent = hasRealPlan
+      ? `Your plan fits: ${fmtMoney(Math.max(0,leftover))}/yr left over after tax, 401(k), needs, savings goals, education fund, and investing.`
+      : `This fits your budget: ${fmtMoney(Math.max(0,leftover))}/yr left over.`;
+  }
+
+  document.getElementById('discretionaryResult').textContent = fmtMoney(Math.max(0,leftover));
+  document.getElementById('discretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month for travel, dining, and everything discretionary.`;
+
+  /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
+  const years = getYearsToRetirement();
+  const growth = Number(planGrowthEl.value) || 0;
+  const ss = annualSSBenefit() + otherRetirementIncomeAnnualTotal();
+
+  const badDriftAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
+  document.getElementById('driftAgeOrderWarn').classList.toggle('show', badDriftAge);
+
+  const autopilotFV = futureValueOfContributions(k401Val, currentSavingsVal, years, growth);
+  document.getElementById('driftAutopilotNumber').textContent = fmtMoney(autopilotFV);
+  document.getElementById('driftAutopilotIncome').textContent = fmtMoney(autopilotFV*0.04 + ss) + "/yr";
+
+  const resultFV = futureValueOfContributions(k401Val + additionalInvesting, currentSavingsVal, years, growth);
+  document.getElementById('driftResultNumber').textContent = fmtMoney(resultFV);
+  document.getElementById('driftResultAge').textContent = Number(retireAgeEl.value)||'—';
+  document.getElementById('driftResultIncome').textContent = fmtMoney(resultFV*0.04 + ss) + "/yr";
+
+  const nextStepsText = document.getElementById('nextStepsText');
+  const step6NextBtn = document.getElementById('step6NextBtn');
+  if(step6NextBtn){
+    if(hasRealPlan){
+      step6NextBtn.textContent = "Compare: Plan vs. Drift →";
+      step6NextBtn.onclick = function(){ goTo(7); };
+    } else {
+      step6NextBtn.textContent = "Build your retirement plan →";
+      step6NextBtn.onclick = function(){ buildPlanFromDrift(); };
+    }
+  }
+
+  if(gross === 0){
+    nextStepsText.textContent = "Add your salary above so we can tell you what's realistic.";
+  } else if(shortfall > 0){
+    nextStepsText.innerHTML = `That extra amount doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. <a href="#" onclick="document.getElementById('currentNeedsTable').scrollIntoView({behavior:'smooth'});return false;" style="color:var(--teal);">Head back up and trim your budget</a>, or lower the extra-investing amount above.`;
+  } else if(leftover < 0){
+    nextStepsText.textContent = "Your numbers are close — small trims to your budget above could free up more room.";
+  } else if(!hasRealPlan){
+    nextStepsText.innerHTML = `Your budget works today. Next: <a href="#" onclick="buildPlanFromDrift();return false;" style="color:var(--gold);font-weight:700;">build your real retirement plan</a> to see if it's actually enough.`;
+  } else if(underfunded){
+    nextStepsText.innerHTML = `This fits your budget, but it's still <b style="color:#FF5C5C;font-size:15px;">${fmtMoney(autoAdditional-additionalInvesting)}/yr short</b> of what your retirement number actually calls for. <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:var(--gold);font-weight:700;">Adjust your extra investing above ↑</a> or revisit your target in earlier steps.`;
+  } else {
+    nextStepsText.textContent = `Nice — ${fmtMoney(leftover/12)}/mo is genuinely free, on top of fully funding the retirement goal you set.`;
+  }
+}
+
+/* ================= STEP 5: PLAN vs DRIFT COMPARISON ================= */
+function renderComparison(){
+  const years = getYearsToRetirement();
+  const growth = Number(planGrowthEl.value) || 0;
+  const spend = totalRetirementAnnualSpend();
+  const ss = annualSSBenefit() + otherRetirementIncomeAnnualTotal();
+  const bridgeNeeded = bridgeFundAmount();
+
+  // A nest egg first fills the bridge (spent down over the bridge years, 0% real return),
+  // then whatever's left generates sustainable 4% long-term income. Blending them together
+  // and multiplying the whole pile by 4% overstates sustainable income once the bridge is funded.
+  function sustainableIncome(nestEgg){
+    const longTermPortion = Math.max(0, nestEgg - bridgeNeeded);
+    return longTermPortion * 0.04 + ss;
+  }
+
+  const planInvestedAnnually = k401Val + additionalInvestingVal;
+  const planNestEgg = futureValueOfContributions(planInvestedAnnually, currentSavingsVal, years, growth);
+  const planIncome = sustainableIncome(planNestEgg);
+  const planGapPct = spend > 0 ? Math.round((planIncome/spend)*100) : 100;
+  const planShortfall = Math.max(0, spend - planIncome);
+
+  const driftFV = futureValueOfContributions(k401Val, currentSavingsVal, years, growth);
+  const driftIncome = sustainableIncome(driftFV);
+  const driftGap = spend - driftIncome;
+
+  const eyebrowEl = document.getElementById('step7Eyebrow');
+  const headlineEl = document.getElementById('step7Headline');
+  const subEl = document.getElementById('step7Sub');
+  const shortfallEl = document.getElementById('shortfallConclusion');
+  const gridEl = document.getElementById('comparisonGrid');
+  const gapStripEl = document.getElementById('gapStrip');
+
+  // If someone came in through The Plan (never "drifting" in the first place) and their own
+  // plan still falls short of the goal, a Plan-vs-Drift comparison is the wrong conclusion —
+  // they need a direct statement of the gap and what closes it, not a comparison to a scenario
+  // they were never doing anyway.
+  const showShortfallConclusion = (entryMode === 'plan') && planGapPct < 100;
+
+  if(showShortfallConclusion){
+    eyebrowEl.textContent = "The bottom line";
+    headlineEl.innerHTML = `You're <em style="color:#FF5C5C;">short</em> of your goal.`;
+    subEl.textContent = "Here's exactly by how much, and what closes the gap.";
+
+    gridEl.style.display = 'none';
+    gapStripEl.style.display = 'none';
+    shortfallEl.style.display = 'block';
+    shortfallEl.innerHTML = `
+      <div class="shortfall-hero">
+        <div class="fi-label">Short by</div>
+        <div class="fi-number">${fmtMoney(planShortfall)}/yr</div>
+        <p class="field-hint" style="margin-top:10px;">At ${fmtMoney(planInvestedAnnually/12)}/mo invested, you're on track for ${fmtMoney(planNestEgg)} by age ${Number(retireAgeEl.value)||'—'} — supporting about ${fmtMoney(planIncome)}/yr against the ${fmtMoney(spend)}/yr you said you'll need. That's ${planGapPct}% of your goal.</p>
+      </div>
+      <div class="shortfall-actions">
+        <div class="shortfall-action" onclick="goTo(6)">
+          <div class="num">1</div>
+          <div class="txt">Increase how much you invest <b>beyond your 401(k)</b> →</div>
+        </div>
+        <div class="shortfall-action" onclick="goTo(4)">
+          <div class="num">2</div>
+          <div class="txt">Push your <b>retirement age</b> out, or raise your growth assumption →</div>
+        </div>
+        <div class="shortfall-action" onclick="goTo(1)">
+          <div class="num">3</div>
+          <div class="txt">Lower your <b>retirement spending target</b> →</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  eyebrowEl.textContent = "The fork in the road";
+  headlineEl.innerHTML = `Two futures, <em>your</em> numbers.`;
+  subEl.textContent = "The only difference is whether the money left over each month gets invested or spent.";
+  gridEl.style.display = '';
+  gapStripEl.style.display = '';
+  shortfallEl.style.display = 'none';
+
+  gridEl.innerHTML = `
+    <div class="duo-card plan" onclick="goTo(4)" style="cursor:pointer;">
+      <div class="duo-label">The Plan</div>
+      <div class="duo-number">${fmtMoney(planNestEgg)}</div>
+      <div class="duo-caption">nest egg at age ${Number(retireAgeEl.value)||'—'}, saving ${fmtMoney(planInvestedAnnually/12)}/mo</div>
+      <div class="duo-stat">Supports <b>${fmtMoney(planIncome)}</b>/yr</div>
+      <div class="duo-verdict">${planGapPct>=100 ? "✓ Ready — fully funds the retirement you described" : planGapPct+"% ready toward your target lifestyle"}</div>
+      <div class="duo-stat" style="border-top:none;padding-top:0;opacity:.7;">Tap to edit →</div>
+    </div>
+    <div class="duo-card drift" onclick="goTo(6)" style="cursor:pointer;">
+      <div class="duo-label">The Drift</div>
+      <div class="duo-number">${fmtMoney(driftFV)}</div>
+      <div class="duo-caption">nest egg at age ${Number(retireAgeEl.value)||'—'}, saving only the 401(k) (${fmtMoney(k401Val/12)}/mo)</div>
+      <div class="duo-stat">Supports <b>${fmtMoney(driftIncome)}</b>/yr</div>
+      <div class="duo-verdict ${driftGap<=0?'surplus':''}">${driftGap<=0 ? "✓ Ready — actually covers your target lifestyle" : "Not yet — "+fmtMoney(driftGap)+"/yr short"}</div>
+      <div class="duo-stat" style="border-top:none;padding-top:0;opacity:.7;">Tap to edit →</div>
+    </div>
+  `;
+
+  const gapAmount = planNestEgg - driftFV;
+  if(planGapPct < 100){
+    // Plan and Drift may look similar (or identical), but that's only worth noting if
+    // the Plan itself actually hits the goal. If it doesn't, say so plainly instead of
+    // congratulating a shortfall just because Drift didn't do any worse.
+    gapStripEl.textContent = `Even "The Plan" as configured is ${fmtMoney(planShortfall)}/yr short of your goal — increasing what you invest beyond the 401(k) is what actually closes this.`;
+  } else if(gapAmount > 0){
+    gapStripEl.textContent = `The gap: ${fmtMoney(gapAmount)} at retirement — that's the cost of drifting instead of planning.`;
+  } else {
+    gapStripEl.textContent = `Your 401(k) alone already gets you to your real goal — nicely done.`;
+  }
+}
+
+/* ================= BINDINGS ================= */
+document.getElementById('addEssentialBtn').addEventListener('click', () => { essential.push({name:"New category", annual:0}); renderEssential(); });
+document.getElementById('addLifestyleBtn').addEventListener('click', () => { lifestyle.push({name:"New category", annual:0}); renderLifestyle(); });
+document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
+document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
+document.getElementById('addOtherIncomeBtn').addEventListener('click', () => { otherIncome.push({name:"New income source", annual:0}); renderOtherIncomeTable(); });
+document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:"New income source", annual:0}); renderOtherRetIncomeTable(); });
+
+bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, updateFiCard);
+ssClaimAgeEl.addEventListener('change', updateFiCard);
+
+bindMoneyInput(planCurrentSavingsEl, ()=>currentSavingsVal, (v)=>{currentSavingsVal=v;}, renderContribution);
+bindMoneyInput(planTargetEl, ()=>targetVal, (v)=>{targetVal=v; targetManuallyEdited=true;}, renderContribution);
+[currentAgeEl, retireAgeEl, planGrowthEl].forEach(el => el.addEventListener('input', renderContribution));
+
+driftCurrentAgeEl.value = currentAgeEl.value;
+driftRetireAgeEl.value = retireAgeEl.value;
+driftCurrentAgeEl.addEventListener('input', () => { currentAgeEl.value = driftCurrentAgeEl.value; renderContribution(); renderStep4(); });
+driftRetireAgeEl.addEventListener('input', () => { retireAgeEl.value = driftRetireAgeEl.value; renderContribution(); renderStep4(); });
+
+const planStartCurrentAgeEl = document.getElementById('planStartCurrentAge');
+const planStartRetireAgeEl = document.getElementById('planStartRetireAge');
+planStartCurrentAgeEl.value = currentAgeEl.value;
+planStartRetireAgeEl.value = retireAgeEl.value;
+planStartCurrentAgeEl.addEventListener('input', () => { currentAgeEl.value = planStartCurrentAgeEl.value; driftCurrentAgeEl.value = planStartCurrentAgeEl.value; renderContribution(); renderStep4(); updateFiCard(); });
+planStartRetireAgeEl.addEventListener('input', () => { retireAgeEl.value = planStartRetireAgeEl.value; driftRetireAgeEl.value = planStartRetireAgeEl.value; renderContribution(); renderStep4(); updateFiCard(); });
+
+currentAgeEl.addEventListener('input', () => { driftCurrentAgeEl.value = currentAgeEl.value; planStartCurrentAgeEl.value = currentAgeEl.value; updateFiCard(); });
+retireAgeEl.addEventListener('input', () => { driftRetireAgeEl.value = retireAgeEl.value; planStartRetireAgeEl.value = retireAgeEl.value; updateFiCard(); });
+
+bindMoneyInput(planSalaryEl, ()=>salaryVal, (v)=>{salaryVal=v;}, renderStep4);
+bindMoneyInput(k401InputEl, ()=>k401Val, (v)=>{k401Val=v;}, renderStep4);
+bindMoneyInput(additionalInvestingInputEl, ()=>Math.round(additionalInvestingVal/12), (v)=>{additionalInvestingVal=v*12; additionalInvestingManuallyEdited=true;}, renderStep4);
+filingStatusEl.addEventListener('change', renderStep4);
+stateTaxPctEl.addEventListener('input', renderStep4);
+[numKidsEl, yearsToCollegeEl].forEach(el => el.addEventListener('input', renderStep4));
+bindMoneyInput(collegeTargetPerKidEl, ()=>collegeTargetPerKidVal, (v)=>{collegeTargetPerKidVal=v;}, renderStep4);
+
+/* ================= LOAD FROM SHEET ================= */
+async function loadFromSheet(){
+  const statusLabel = document.getElementById('statusLabel');
+  if(!SHEET_API_URL){ statusLabel.textContent = "demo data — connect sheet in Code.gs"; return; }
+  try{
+    statusLabel.textContent = "loading sheet…";
+    const res = await fetch(SHEET_API_URL);
+    const data = await res.json();
+    if(data.categories && data.categories.length){
+      essential = data.categories.map(c => ({ name: c.name, annual: (Number(c.monthly)||Number(c.annual)||0) * (c.monthly?12:1) }));
+      renderEssential();
+    }
+    statusLabel.textContent = "live from sheet";
+  }catch(e){
+    statusLabel.textContent = "demo data — sheet unreachable";
+  }
+}
+
+/* ================= INITIAL RENDER ================= */
+renderEssential();
+renderLifestyle();
+renderCurrentNeedsTable();
+renderGoalsTable();
+renderOtherIncomeTable();
+renderOtherRetIncomeTable();
+syncPlanTarget();
+renderJumpNav();
+loadFromSheet();
+setupReveals();
+triggerStepReveal(0);
+history.replaceState({ kaasuStep: 0, entryMode: null }, '', '#step-0');
+</script>
+</body>
+</html>
