@@ -1,10 +1,10 @@
-# Idaa — financial wellness, visualized
+# Kaasu — financial wellness, visualized
 
-Idaa turns a paycheck into something you can actually see: where every
+Kaasu turns a paycheck into something you can actually see: where every
 dollar flows, what your real retirement number is under the 4% rule,
 and exactly how much of a $100k salary needs to go toward it.
 
-**Live site:** https://your-username.github.io/idaa/
+**Live site:** https://your-username.github.io/Kaasu/
 *(update this link once GitHub Pages is enabled)*
 
 ## What's on the page
