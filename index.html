@@ -234,6 +234,17 @@
   .readiness-fill{height:100%;border-radius:5px;transition:width .6s ease;width:0;}
   .readiness-caption{font-size:12px;color:var(--paper-dim);line-height:1.4;margin:0;}
 
+  .chart-tooltip{
+    display:none;position:absolute;pointer-events:none;z-index:5;
+    background:var(--paper);color:var(--bg);border-radius:8px;padding:9px 12px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;white-space:nowrap;
+    box-shadow:0 4px 14px rgba(0,0,0,0.22);transform:translate(-50%,-100%);margin-top:-10px;
+  }
+  .chart-tooltip .ctt-age{font-weight:700;letter-spacing:0.04em;text-transform:uppercase;font-size:11px;opacity:0.75;margin-bottom:3px;}
+  .chart-tooltip .ctt-row{display:flex;align-items:center;gap:6px;}
+  .chart-tooltip .ctt-dot{width:7px;height:7px;border-radius:50%;flex:none;}
+  .chart-tooltip .ctt-val{font-weight:700;}
+
   .plan-legend{display:flex;flex-direction:column;gap:8px;}
   .plan-legend-item{
     display:flex;justify-content:space-between;align-items:center;gap:12px;
@@ -697,8 +708,8 @@
     <div class="shortfall-actions" id="resultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The teal line is investing as planned; the orange line is 401(k) only, for comparison.</p>
-    <div class="stage" style="min-height:280px;"><svg id="balanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"></svg></div>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The teal line is investing as planned; the orange line is 401(k) only, for comparison. Hover or tap the chart to see the numbers at any age.</p>
+    <div class="stage" style="min-height:280px;position:relative;"><svg id="balanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="balanceChartTooltip"></div></div>
     <div class="plan-legend" id="balanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="balanceChartNote" style="margin-top:8px;">—</p>
 
@@ -1064,8 +1075,8 @@
     <div class="shortfall-actions" id="driftOwnResultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts.</p>
-    <div class="stage" style="min-height:280px;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"></svg></div>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. Hover or tap the chart to see the numbers at any age.</p>
+    <div class="stage" style="min-height:280px;position:relative;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="driftOwnBalanceChartTooltip"></div></div>
     <div class="plan-legend" id="driftOwnBalanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
 
@@ -2345,6 +2356,81 @@ function computeBalanceSeries(annualContribution){
   return points;
 }
 
+// Shared hover/tap tooltip for both balance-over-time charts (Plan and Drift each call this
+// with their own series + scale after (re)rendering the chart's SVG). Pointer Events cover
+// mouse hover and touch drag with one code path; percentage-based positioning works because
+// the tooltip div and the SVG share the same aspect ratio via width:100%/height:auto.
+function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colorA, colorB, scale){
+  const { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H } = scale;
+  const guideline = svg.querySelector('.hover-guideline');
+  const dotA = svg.querySelector('.hover-dot-a');
+  const dotB = svg.querySelector('.hover-dot-b');
+
+  function pointAt(series, age){
+    if(!series || !series.length) return null;
+    if(age <= series[0].age) return series[0];
+    const last = series[series.length-1];
+    if(age >= last.age) return last;
+    return series.find(p => p.age === age) || last;
+  }
+
+  function update(clientX){
+    const rect = svg.getBoundingClientRect();
+    if(rect.width === 0) return;
+    const svgX = (clientX - rect.left) * (W / rect.width);
+    const clampedX = Math.max(padL, Math.min(W - padR, svgX));
+    const ageFloat = minAge + ((clampedX - padL) / plotW) * (maxAge - minAge);
+    const age = Math.round(Math.max(minAge, Math.min(maxAge, ageFloat)));
+
+    const pointA = pointAt(seriesA, age);
+    const pointB = pointAt(seriesB, age);
+    if(!pointA && !pointB) return;
+
+    const x = xForAge(age);
+    if(guideline){
+      guideline.setAttribute('x1', x); guideline.setAttribute('x2', x);
+      guideline.setAttribute('y1', padT); guideline.setAttribute('y2', H - padB);
+      guideline.setAttribute('visibility', 'visible');
+    }
+    if(dotA && pointA){
+      dotA.setAttribute('cx', x); dotA.setAttribute('cy', yForBalance(pointA.balance));
+      dotA.setAttribute('visibility', 'visible');
+    }
+    if(dotB && pointB){
+      dotB.setAttribute('cx', x); dotB.setAttribute('cy', yForBalance(pointB.balance));
+      dotB.setAttribute('visibility', 'visible');
+    }
+
+    tooltipEl.innerHTML = `
+      <div class="ctt-age">Age ${age}</div>
+      ${pointA ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorA}"></span>${labelA}: <span class="ctt-val">${fmtMoney(pointA.balance)}</span></div>` : ''}
+      ${pointB ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorB}"></span>${labelB}: <span class="ctt-val">${fmtMoney(pointB.balance)}</span></div>` : ''}
+    `;
+    tooltipEl.style.display = 'block';
+    const anchorBalance = pointA ? pointA.balance : pointB.balance;
+    tooltipEl.style.left = ((x / W) * 100) + '%';
+    tooltipEl.style.top = Math.max(4, (yForBalance(anchorBalance) / H) * 100) + '%';
+  }
+
+  function hide(){
+    tooltipEl.style.display = 'none';
+    if(guideline) guideline.setAttribute('visibility', 'hidden');
+    if(dotA) dotA.setAttribute('visibility', 'hidden');
+    if(dotB) dotB.setAttribute('visibility', 'hidden');
+  }
+
+  // Mouse: pointermove updates live, pointerleave hides — standard hover.
+  // Touch: a tap is pointerdown+pointerup in quick succession with no pointermove between —
+  // hiding on pointerup would make the tooltip flash and vanish before anyone could read it.
+  // Instead leave it showing after a tap, and dismiss it only when the next tap lands
+  // somewhere outside this chart.
+  svg.onpointermove = (evt) => update(evt.clientX);
+  svg.onpointerdown = (evt) => update(evt.clientX);
+  svg.onpointerleave = (evt) => { if(evt.pointerType !== 'touch') hide(); };
+  svg.onpointercancel = hide;
+  document.onpointerdown = (evt) => { if(evt.target !== svg && !svg.contains(evt.target)) hide(); };
+}
+
 function renderBalanceChart(){
   const svg = document.getElementById('balanceChart');
   if(!svg) return;
@@ -2405,7 +2491,15 @@ function renderBalanceChart(){
   svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="var(--teal)"/>`;
   svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="var(--clay)"/>`;
 
+  // Hover/tap overlay — hidden until attachChartHover positions it
+  svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="var(--teal)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="var(--clay)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+
   svg.innerHTML = svgContent;
+  attachChartHover(svg, document.getElementById('balanceChartTooltip'), planSeries, driftSeries,
+    'Your plan', '401(k) only', 'var(--teal)', 'var(--clay)',
+    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H });
 
   const legend = document.getElementById('balanceChartLegend');
   if(legend){
@@ -3069,7 +3163,13 @@ function renderDriftBalanceChart(){
   const planEnd = planSeries[planSeries.length-1], driftEnd = driftOnlySeries[driftOnlySeries.length-1];
   svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="var(--teal)"/>`;
   svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="var(--clay)"/>`;
+  svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="var(--teal)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="var(--clay)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
   svg.innerHTML = svgContent;
+  attachChartHover(svg, document.getElementById('driftOwnBalanceChartTooltip'), planSeries, driftOnlySeries,
+    'With extra investing', '401(k) only', 'var(--teal)', 'var(--clay)',
+    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H });
   const legend = document.getElementById('driftOwnBalanceChartLegend');
   if(legend){
     const planDepletedAt = planSeries.find(p => p.phase==='spend' && p.balance<=0);
