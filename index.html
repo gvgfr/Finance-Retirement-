@@ -447,7 +447,7 @@
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
     <div class="plan-grid" style="margin-top:22px;">
-      <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint">auto-filled from your retirement target — editable</span></div>
+      <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint">auto-filled from your retirement target — editable</span><span class="field-hint" id="planTargetEditedNote" style="display:none;color:#9A3412;"></span></div>
     </div>
 
     <div class="fi-card">
@@ -602,8 +602,14 @@
     </div>
 
     <div style="margin-top:30px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:var(--paper);margin-bottom:10px;">Now the big question</div>
-      <h2 style="font-size:clamp(20px,6vw,26px);color:var(--paper);">How much do you want to put toward retirement, <em>beyond</em> your 401(k)?</h2>
+      <div style="font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:20px;letter-spacing:0.05em;text-transform:uppercase;color:#DC2626;">Now the big question</div>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;color:var(--paper-dim);margin:14px 0 4px;">Have you met your retirement goal of</p>
+      <div style="font-family:'Fraunces',serif;font-weight:800;font-size:clamp(28px,8vw,38px);color:#2563EB;" id="planGoalMetNumber">$0</div>
+    </div>
+    <p class="field-hint" id="planGoalMetMessage" style="margin-top:14px;text-align:center;">—</p>
+
+    <div style="margin-top:26px;text-align:center;">
+      <h2 style="font-size:clamp(19px,5.5vw,24px);color:var(--paper);">How much do you want to put toward retirement, <em>beyond</em> your 401(k)?</h2>
     </div>
     <div class="plan-grid">
       <div class="field full">
@@ -614,7 +620,7 @@
     </div>
 
     <div class="fi-card" style="margin-top:16px;border-color:rgba(5,150,105,0.4);">
-      <div class="fi-label">If you add that extra amount</div>
+      <div class="fi-label">This is how much your nest egg will grow to</div>
       <div class="fi-number" id="driftResultNumber">$0</div>
       <p class="fi-sub">By age <span id="driftResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
       <div class="fi-breakdown">
@@ -629,7 +635,7 @@
     <div class="good-box" id="planGood"></div>
 
     <div class="result-hero">
-      <div class="fi-label">Left for experiences — travel, dining, fun</div>
+      <div class="fi-label">Left for experiences — travel, dining, fun and other discretionary expenses</div>
       <div class="fi-number" id="discretionaryResult">$0</div>
       <p class="fi-sub" id="discretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
     </div>
@@ -1873,6 +1879,26 @@ function renderContribution(){
   const badAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('ageOrderWarn').classList.toggle('show', badAge);
   updateGoalReminders();
+
+  // If this field was hand-edited it freezes and stops following the live target on Step 3 —
+  // surface that clearly instead of letting the rest of the app quietly show two different
+  // "goal" numbers with no explanation.
+  const editedNote = document.getElementById('planTargetEditedNote');
+  if(editedNote){
+    const liveTarget = Math.round(calculatedRetirementTarget());
+    if(targetManuallyEdited && liveTarget !== targetVal){
+      editedNote.style.display = 'block';
+      editedNote.innerHTML = `You edited this — it no longer matches your calculated target of <b>${fmtMoney(liveTarget)}</b> from Step 3. <a href="#" onclick="resetPlanTarget();return false;" style="color:#9A3412;font-weight:700;">Use the calculated number instead</a>`;
+    } else {
+      editedNote.style.display = 'none';
+    }
+  }
+}
+
+function resetPlanTarget(){
+  targetManuallyEdited = false;
+  syncPlanTarget();
+  renderContribution();
 }
 
 /* ================= STEP 4: TAX + BUDGET + EDUCATION ================= */
@@ -2146,6 +2172,19 @@ function renderStep4(){
   const additionalInvesting = additionalInvestingVal;
   const educationRequired = getEducationRequiredAnnual();
 
+  const planGoalMetEl = document.getElementById('planGoalMetMessage');
+  const planGoalMetNumEl = document.getElementById('planGoalMetNumber');
+  if(planGoalMetEl && planGoalMetNumEl){
+    planGoalMetNumEl.textContent = fmtMoney(targetVal);
+    if(targetVal <= 0){
+      planGoalMetEl.innerHTML = `Set your retirement goal in the earlier step first.`;
+    } else if(additionalInvesting >= autoAdditional - 1){
+      planGoalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
+    } else {
+      planGoalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about ${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo (${fmtMoney(autoAdditional-additionalInvesting)}/yr) of extra investing beyond your 401(k) — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+    }
+  }
+
   const committed = needsAnnual + goalsAnnual + additionalInvesting + educationRequired;
   const leftover = takeHomeCash - committed;
   const shortfall = committed > takeHomeCash ? committed - takeHomeCash : 0;
@@ -2204,7 +2243,7 @@ function renderStep4(){
       : `Everything you've entered is covered, with ${fmtMoney(Math.max(0,leftover))}/yr free on top.`;
   }
 
-  document.getElementById('discretionaryResult').textContent = fmtMoney(Math.max(0,leftover));
+  document.getElementById('discretionaryResult').textContent = fmtMoney(Math.max(0,leftover)) + '/yr';
   document.getElementById('discretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month for travel, dining, and everything discretionary.`;
 
   /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
@@ -2427,14 +2466,12 @@ function renderComparison(){
   const retAge = retAgeNum || '—';
 
   document.getElementById('resultNestEgg').textContent = fmtMoney(planNestEgg);
-  const planBreakdownParts = [];
-  if(retirementContribution() > 0) planBreakdownParts.push(`${fmtMoney(retirementContribution()/12)}/mo from your 401(k)/cash balance`);
-  if(additionalInvestingVal > 0) planBreakdownParts.push(`${fmtMoney(additionalInvestingVal/12)}/mo extra`);
-  const planInvestingBreakdown = planBreakdownParts.length ? ` (${planBreakdownParts.join(' + ')})` : '';
-  const planContribSentence = planInvestedAnnually > 0
-    ? `investing ${fmtMoney(planInvestedAnnually/12)}/mo${planInvestingBreakdown}, `
-    : `with no new contributions, `;
-  document.getElementById('resultDetail').innerHTML = `Over the next ${years} year${years===1?'':'s'} (age ${Number(currentAgeEl.value)||'—'} → ${retAge}), ${planContribSentence}at ${growth}% growth: your current ${fmtMoney(currentSavingsVal)} in invested assets grows to about <b style="color:var(--paper);">${fmtMoney(fvExistingAssets)}</b>${planInvestedAnnually > 0 ? `, and your new contributions add about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>` : ''} — together, roughly <b style="color:var(--gold);">${fmtMoney(planNestEgg)}</b> by age ${retAge}, supporting about ${fmtMoney(planIncome)}/yr.`;
+  const planMonthlyContribLine = planInvestedAnnually > 0
+    ? (additionalInvestingVal > 0
+        ? `<b style="color:var(--paper);">${fmtMoney(retirementContribution()/12)}/mo</b> from your 401(k)/cash balance plus <b style="color:var(--paper);">${fmtMoney(additionalInvestingVal/12)}/mo</b> extra, growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`
+        : `<b style="color:var(--paper);">${fmtMoney(planInvestedAnnually/12)}/mo</b> from your 401(k), growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`)
+    : `No new contributions entered.`;
+  document.getElementById('resultDetail').innerHTML = `By your planned retirement at age ${retAge} (${years} year${years===1?'':'s'} from now): your current <b style="color:var(--paper);">${fmtMoney(currentSavingsVal)}</b> in invested assets will grow to about <b style="color:var(--paper);">${fmtMoney(fvExistingAssets)}</b> at ${growth}% growth. ${planMonthlyContribLine} Together: roughly <b style="color:var(--gold);">${fmtMoney(planNestEgg)}</b>, supporting about ${fmtMoney(planIncome)}/yr.`;
   document.getElementById('resultTargetNumber').textContent = fmtMoney(targetVal);
 
   const shortBox = document.getElementById('resultShortBox');
