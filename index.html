@@ -2291,7 +2291,10 @@ function renderStep4(){
   if(gross === 0){
     nextStepsText.textContent = "Add your salary above so we can tell you what's realistic.";
   } else if(shortfall > 0){
-    nextStepsText.innerHTML = `That extra amount doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. <a href="#" onclick="document.getElementById('currentNeedsTable').scrollIntoView({behavior:'smooth'});return false;" style="color:var(--teal);">Head back up and trim your budget</a>, or lower the extra-investing amount above.`;
+    const trimBudgetLink = `<a href="#" onclick="document.getElementById('currentNeedsTable').scrollIntoView({behavior:'smooth'});return false;" style="color:var(--teal);">Head back up and trim your budget</a>`;
+    nextStepsText.innerHTML = additionalInvesting > 0
+      ? `That extra amount doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. ${trimBudgetLink}, or lower the extra-investing amount above.`
+      : `Your budget doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. ${trimBudgetLink}.`;
   } else if(leftover < 0){
     nextStepsText.textContent = "Your numbers are close — small trims to your budget above could free up more room.";
   } else if(!hasRealPlan){
@@ -3151,7 +3154,10 @@ function renderDriftBudget(){
   if(gross === 0){
     nextStepsText.innerHTML = `Add your salary above so we can tell you what's realistic. <a href="#" onclick="driftGoToAndFocus(8,'driftSalary');return false;" style="color:var(--teal);font-weight:700;">Go to income →</a>`;
   } else if(shortfall > 0){
-    nextStepsText.innerHTML = `That extra amount doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. <a href="#" onclick="driftGoToAndFocus(9,'driftCurrentNeedsTable');return false;" style="color:var(--teal);font-weight:700;">Head back and trim your budget</a>, or lower the extra-investing amount above.`;
+    const trimBudgetLink = `<a href="#" onclick="driftGoToAndFocus(9,'driftCurrentNeedsTable');return false;" style="color:var(--teal);font-weight:700;">Head back and trim your budget</a>`;
+    nextStepsText.innerHTML = additionalInvesting > 0
+      ? `That extra amount doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. ${trimBudgetLink}, or lower the extra-investing amount above.`
+      : `Your budget doesn't fit your take-home pay yet — you're short ${fmtMoney(shortfall/12)}/mo. ${trimBudgetLink}.`;
   } else if(leftover < 0){
     nextStepsText.textContent = "Your numbers are close — small trims to your budget above could free up more room.";
   } else if(!hasTarget){
