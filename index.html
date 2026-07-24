@@ -463,7 +463,7 @@
 
     <div class="fi-card">
       <div class="fi-label">Minimum required 401(k) + other investing to reach your retirement goal</div>
-      <div class="fi-number" id="requiredAnnual">$0</div>
+      <div class="fi-number" id="requiredAnnual" style="color:#2563EB;">$0/yr</div>
       <p class="fi-sub" id="requiredMonthlyLine">≈ $0/month invested to hit your target on schedule.</p>
     </div>
     <div class="warn-box" id="ageOrderWarn">Your retirement age isn't after your current age, so there's no real time to invest — this number won't mean much until you fix that above.</div>
@@ -646,7 +646,7 @@
     <div class="good-box" id="planGood"></div>
 
     <div class="result-hero">
-      <div class="fi-label">Left for experiences — travel, dining, fun and other discretionary expenses</div>
+      <div class="fi-label">Left for additional savings, investing, charity, or discretionary spending</div>
       <div class="fi-number" id="discretionaryResult">$0</div>
       <p class="fi-sub" id="discretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
     </div>
@@ -1033,7 +1033,7 @@
 
     <div class="result-hero">
 
-      <div class="fi-label">Left for experiences — travel, dining, fun</div>
+      <div class="fi-label">Left for additional savings, investing, charity, or discretionary spending</div>
       <div class="fi-number" id="driftOwnDiscretionaryResult">$0</div>
       <p class="fi-sub" id="driftOwnDiscretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
     </div>
@@ -1155,6 +1155,7 @@ const DEFAULT_CURRENT_NEEDS = [
   { name: "Auto insurance",            annual: 1500  },
   { name: "Groceries",                 annual: 6000  },
   { name: "Dining out",                annual: 0     },
+  { name: "Travel & vacation",         annual: 0     },
   { name: "Personal care",             annual: 0     },
   { name: "Transportation & gas",      annual: 2400  },
   { name: "Student loan payment",       annual: 0     },
@@ -1885,7 +1886,7 @@ function updateGoalReminders(){
 
 function renderContribution(){
   const required = getRequiredInvesting();
-  document.getElementById('requiredAnnual').textContent = fmtMoney(required);
+  document.getElementById('requiredAnnual').textContent = fmtMoney(required) + '/yr';
   document.getElementById('requiredMonthlyLine').textContent = `${fmtMoney(required)}/yr (≈${fmtMoney(required/12)}/mo), every year until you retire at age ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years from now), to hit your target on schedule.`;
   const badAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('ageOrderWarn').classList.toggle('show', badAge);
@@ -2255,7 +2256,7 @@ function renderStep4(){
   }
 
   document.getElementById('discretionaryResult').textContent = fmtMoney(Math.max(0,leftover)) + '/yr';
-  document.getElementById('discretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month for travel, dining, and everything discretionary.`;
+  document.getElementById('discretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`;
 
   /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
   const years = getYearsToRetirement();
@@ -2300,7 +2301,7 @@ function renderStep4(){
   } else if(!hasRealPlan){
     nextStepsText.innerHTML = `Your budget works today. Next: <a href="#" onclick="buildPlanFromDrift();return false;" style="color:var(--gold);font-weight:700;">build your real retirement plan</a> to see if it's actually enough.`;
   } else if(underfunded){
-    nextStepsText.innerHTML = `This fits your budget, but you're still <b style="color:#DC2626;font-size:15px;">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo short</b> of your retirement target — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:var(--gold);font-weight:700;">Change Extra investing above to ${fmtMoney(autoAdditional/12)}/mo ↑</a> to hit your goal, or revisit your target in earlier steps.`;
+    nextStepsText.innerHTML = `Your spending and current investing fit within your take-home pay, but you're still <b style="color:#DC2626;font-size:15px;">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo short</b> of your retirement target — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:var(--gold);font-weight:700;">Change Extra investing above to ${fmtMoney(autoAdditional/12)}/mo ↑</a> to hit your goal, or revisit your target in earlier steps.`;
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
@@ -2555,8 +2556,10 @@ function renderBalanceChart(){
     svgContent += `<path d="${pathFor(goalSeries)}" fill="none" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
   }
 
-  // Drift line (drawn first, underneath)
-  svgContent += `<path d="${pathFor(driftSeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="3.5"/>`;
+  // Drift line (drawn first, underneath, wider than the plan line so a sliver of red still
+  // shows when the two are identical — e.g. no extra investing entered yet — instead of the
+  // blue line hiding it completely).
+  svgContent += `<path d="${pathFor(driftSeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="6"/>`;
   // Plan line (drawn on top)
   svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="${CHART_PLAN_COLOR}" stroke-width="3.5"/>`;
 
@@ -3095,7 +3098,7 @@ function renderDriftBudget(){
   }
 
   document.getElementById('driftOwnDiscretionaryResult').textContent = fmtMoney(Math.max(0,leftover)) + '/yr';
-  document.getElementById('driftOwnDiscretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month for travel, dining, and everything discretionary.`;
+  document.getElementById('driftOwnDiscretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`;
 
   const years = driftGetYearsToRetirement();
   const growth = Number(driftGrowthEl.value) || 0;
@@ -3289,7 +3292,8 @@ function renderDriftBalanceChart(){
   if(driftTargetVal > 0){
     svgContent += `<path d="${pathFor(goalSeries)}" fill="none" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
   }
-  svgContent += `<path d="${pathFor(driftOnlySeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="3.5"/>`;
+  // Wider than the plan line so a sliver of red still shows when the two are identical.
+  svgContent += `<path d="${pathFor(driftOnlySeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="6"/>`;
   svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="${CHART_PLAN_COLOR}" stroke-width="3.5"/>`;
   const planEnd = planSeries[planSeries.length-1], driftEnd = driftOnlySeries[driftOnlySeries.length-1];
   svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="${CHART_PLAN_COLOR}"/>`;
