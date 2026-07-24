@@ -462,7 +462,7 @@
     </div>
 
     <div class="fi-card">
-      <div class="fi-label">Continued 401(k) + other investing, per year, to hit your retirement goal</div>
+      <div class="fi-label">Minimum required 401(k) + other investing to reach your retirement goal</div>
       <div class="fi-number" id="requiredAnnual">$0</div>
       <p class="fi-sub" id="requiredMonthlyLine">≈ $0/month invested to hit your target on schedule.</p>
     </div>
@@ -708,7 +708,7 @@
     <div class="shortfall-actions" id="resultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The teal line is investing as planned; the orange line is 401(k) only, for comparison. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The pink line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="balanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="balanceChartTooltip"></div></div>
     <div class="plan-legend" id="balanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="balanceChartNote" style="margin-top:8px;">—</p>
@@ -1075,7 +1075,7 @@
     <div class="shortfall-actions" id="driftOwnResultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The pink line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="driftOwnBalanceChartTooltip"></div></div>
     <div class="plan-legend" id="driftOwnBalanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
@@ -1886,7 +1886,7 @@ function updateGoalReminders(){
 function renderContribution(){
   const required = getRequiredInvesting();
   document.getElementById('requiredAnnual').textContent = fmtMoney(required);
-  document.getElementById('requiredMonthlyLine').textContent = `≈ ${fmtMoney(required/12)}/month (${fmtMoney(required)}/yr) invested every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years) to hit your target on schedule.`;
+  document.getElementById('requiredMonthlyLine').textContent = `${fmtMoney(required)}/yr (≈${fmtMoney(required/12)}/mo), every year until you retire at age ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years from now), to hit your target on schedule.`;
   const badAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('ageOrderWarn').classList.toggle('show', badAge);
   updateGoalReminders();
@@ -2356,15 +2356,23 @@ function computeBalanceSeries(annualContribution){
   return points;
 }
 
+// Balance-chart line colors — bold and distinct from the app's teal/clay accent palette so
+// the three lines read clearly against each other: pink for the funded plan, red for the
+// no-extra-investing comparison, green for the flat retirement-goal reference line.
+const CHART_PLAN_COLOR = '#DB2777';
+const CHART_NOINVEST_COLOR = '#DC2626';
+const CHART_GOAL_COLOR = '#16A34A';
+
 // Shared hover/tap tooltip for both balance-over-time charts (Plan and Drift each call this
 // with their own series + scale after (re)rendering the chart's SVG). Pointer Events cover
 // mouse hover and touch drag with one code path; percentage-based positioning works because
 // the tooltip div and the SVG share the same aspect ratio via width:100%/height:auto.
-function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colorA, colorB, scale){
+function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colorA, colorB, scale, goal){
   const { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H } = scale;
   const guideline = svg.querySelector('.hover-guideline');
   const dotA = svg.querySelector('.hover-dot-a');
   const dotB = svg.querySelector('.hover-dot-b');
+  const dotGoal = svg.querySelector('.hover-dot-goal');
 
   function pointAt(series, age){
     if(!series || !series.length) return null;
@@ -2400,11 +2408,16 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
       dotB.setAttribute('cx', x); dotB.setAttribute('cy', yForBalance(pointB.balance));
       dotB.setAttribute('visibility', 'visible');
     }
+    if(dotGoal && goal && goal.value > 0){
+      dotGoal.setAttribute('cx', x); dotGoal.setAttribute('cy', yForBalance(goal.value));
+      dotGoal.setAttribute('visibility', 'visible');
+    }
 
     tooltipEl.innerHTML = `
       <div class="ctt-age">Age ${age}</div>
       ${pointA ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorA}"></span>${labelA}: <span class="ctt-val">${fmtMoney(pointA.balance)}</span></div>` : ''}
       ${pointB ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorB}"></span>${labelB}: <span class="ctt-val">${fmtMoney(pointB.balance)}</span></div>` : ''}
+      ${goal && goal.value > 0 ? `<div class="ctt-row"><span class="ctt-dot" style="background:${goal.color}"></span>${goal.label}: <span class="ctt-val">${fmtMoney(goal.value)}</span></div>` : ''}
     `;
     tooltipEl.style.display = 'block';
     const anchorBalance = pointA ? pointA.balance : pointB.balance;
@@ -2417,6 +2430,7 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
     if(guideline) guideline.setAttribute('visibility', 'hidden');
     if(dotA) dotA.setAttribute('visibility', 'hidden');
     if(dotB) dotB.setAttribute('visibility', 'hidden');
+    if(dotGoal) dotGoal.setAttribute('visibility', 'hidden');
   }
 
   // Mouse: pointermove updates live, pointerleave hides — standard hover.
@@ -2442,7 +2456,7 @@ function renderBalanceChart(){
   const driftSeries = computeBalanceSeries(retirementContribution());
   const retAge = Number(retireAgeEl.value) || 0;
 
-  const allBalances = planSeries.concat(driftSeries).map(p => p.balance);
+  const allBalances = planSeries.concat(driftSeries).map(p => p.balance).concat([targetVal]);
   const maxBalance = Math.max(1, ...allBalances);
   const minAge = planSeries[0].age;
   const maxAge = Math.max(planSeries[planSeries.length-1].age, driftSeries[driftSeries.length-1].age);
@@ -2480,34 +2494,43 @@ function renderBalanceChart(){
   svgContent += `<line x1="${retX}" y1="${padT}" x2="${retX}" y2="${H-padB}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,4"/>`;
   svgContent += `<text x="${retX}" y="${padT-6}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="26" fill="var(--gold)">retire @ ${retAge}</text>`;
 
+  // Retirement-goal reference line — flat, since the goal is a single target amount, not a trajectory
+  if(targetVal > 0){
+    const goalY = yForBalance(targetVal);
+    svgContent += `<line x1="${padL}" y1="${goalY}" x2="${W-padR}" y2="${goalY}" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
+  }
+
   // Drift line (drawn first, underneath)
-  svgContent += `<path d="${pathFor(driftSeries)}" fill="none" stroke="var(--clay)" stroke-width="2.5"/>`;
+  svgContent += `<path d="${pathFor(driftSeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="3.5"/>`;
   // Plan line (drawn on top)
-  svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="var(--teal)" stroke-width="2.5"/>`;
+  svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="${CHART_PLAN_COLOR}" stroke-width="3.5"/>`;
 
   // End-of-line dots + values
   const planEnd = planSeries[planSeries.length-1];
   const driftEnd = driftSeries[driftSeries.length-1];
-  svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="var(--teal)"/>`;
-  svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="var(--clay)"/>`;
+  svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="${CHART_PLAN_COLOR}"/>`;
+  svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="${CHART_NOINVEST_COLOR}"/>`;
 
   // Hover/tap overlay — hidden until attachChartHover positions it
   svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
-  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="var(--teal)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
-  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="var(--clay)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="${CHART_PLAN_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="${CHART_NOINVEST_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-goal" cx="0" cy="0" r="5" fill="${CHART_GOAL_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
 
   svg.innerHTML = svgContent;
   attachChartHover(svg, document.getElementById('balanceChartTooltip'), planSeries, driftSeries,
-    'Your plan', '401(k) only', 'var(--teal)', 'var(--clay)',
-    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H });
+    'Your plan', '401(k) only', CHART_PLAN_COLOR, CHART_NOINVEST_COLOR,
+    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H },
+    { label: 'Retirement goal', color: CHART_GOAL_COLOR, value: targetVal });
 
   const legend = document.getElementById('balanceChartLegend');
   if(legend){
     const planDepletedAt = planSeries.find(p => p.phase==='spend' && p.balance<=0);
     const driftDepletedAt = driftSeries.find(p => p.phase==='spend' && p.balance<=0);
     legend.innerHTML = `
-      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:var(--teal)"></span>Your plan (401(k) + extra investing)</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
-      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:var(--clay)"></span>401(k) only, no extra investing</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_PLAN_COLOR}"></span>Your plan (401(k) + extra investing)</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_NOINVEST_COLOR}"></span>401(k) only, no extra investing</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      ${targetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal</span><span>${fmtMoney(targetVal)}</span></div>` : ''}
     `;
     const chartNote = document.getElementById('balanceChartNote');
     if(chartNote){
@@ -3134,7 +3157,7 @@ function renderDriftBalanceChart(){
   const planSeries = driftComputeBalanceSeries(planInvestedAnnually);
   const driftOnlySeries = driftComputeBalanceSeries(driftRetirementContribution());
   const retAge = Number(driftOwnRetireAgeEl.value) || 0;
-  const allBalances = planSeries.concat(driftOnlySeries).map(p => p.balance);
+  const allBalances = planSeries.concat(driftOnlySeries).map(p => p.balance).concat([driftTargetVal]);
   const maxBalance = Math.max(1, ...allBalances);
   const minAge = planSeries[0].age;
   const maxAge = Math.max(planSeries[planSeries.length-1].age, driftOnlySeries[driftOnlySeries.length-1].age);
@@ -3158,25 +3181,32 @@ function renderDriftBalanceChart(){
   const retX = xForAge(retAge);
   svgContent += `<line x1="${retX}" y1="${padT}" x2="${retX}" y2="${H-padB}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,4"/>`;
   svgContent += `<text x="${retX}" y="${padT-6}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="26" fill="var(--gold)">retire @ ${retAge}</text>`;
-  svgContent += `<path d="${pathFor(driftOnlySeries)}" fill="none" stroke="var(--clay)" stroke-width="2.5"/>`;
-  svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="var(--teal)" stroke-width="2.5"/>`;
+  if(driftTargetVal > 0){
+    const goalY = yForBalance(driftTargetVal);
+    svgContent += `<line x1="${padL}" y1="${goalY}" x2="${W-padR}" y2="${goalY}" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
+  }
+  svgContent += `<path d="${pathFor(driftOnlySeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="3.5"/>`;
+  svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="${CHART_PLAN_COLOR}" stroke-width="3.5"/>`;
   const planEnd = planSeries[planSeries.length-1], driftEnd = driftOnlySeries[driftOnlySeries.length-1];
-  svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="var(--teal)"/>`;
-  svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="var(--clay)"/>`;
+  svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="${CHART_PLAN_COLOR}"/>`;
+  svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="${CHART_NOINVEST_COLOR}"/>`;
   svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
-  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="var(--teal)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
-  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="var(--clay)" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="${CHART_PLAN_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="${CHART_NOINVEST_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
+  svgContent += `<circle class="hover-dot-goal" cx="0" cy="0" r="5" fill="${CHART_GOAL_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
   svg.innerHTML = svgContent;
   attachChartHover(svg, document.getElementById('driftOwnBalanceChartTooltip'), planSeries, driftOnlySeries,
-    'With extra investing', '401(k) only', 'var(--teal)', 'var(--clay)',
-    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H });
+    'With extra investing', '401(k) only', CHART_PLAN_COLOR, CHART_NOINVEST_COLOR,
+    { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H },
+    { label: 'Retirement goal', color: CHART_GOAL_COLOR, value: driftTargetVal });
   const legend = document.getElementById('driftOwnBalanceChartLegend');
   if(legend){
     const planDepletedAt = planSeries.find(p => p.phase==='spend' && p.balance<=0);
     const driftDepletedAt = driftOnlySeries.find(p => p.phase==='spend' && p.balance<=0);
     legend.innerHTML = `
-      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:var(--teal)"></span>With extra investing</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
-      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:var(--clay)"></span>401(k) only</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_PLAN_COLOR}"></span>With extra investing</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_NOINVEST_COLOR}"></span>401(k) only</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
+      ${driftTargetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal</span><span>${fmtMoney(driftTargetVal)}</span></div>` : ''}
     `;
     const note = document.getElementById('driftOwnBalanceChartNote');
     if(note){
