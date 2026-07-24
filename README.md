@@ -9,9 +9,7 @@ The app offers two ways to begin:
 
 ## Live site
 
-Update this link after GitHub Pages is enabled:
-
-`https://your-username.github.io/Finance-Retirement-/`
+`https://gvgfr.github.io/Finance-Retirement-/`
 
 ## What the app does
 
