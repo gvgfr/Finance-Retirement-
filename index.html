@@ -708,7 +708,7 @@
     <div class="shortfall-actions" id="resultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The pink line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The blue line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="balanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="balanceChartTooltip"></div></div>
     <div class="plan-legend" id="balanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="balanceChartNote" style="margin-top:8px;">—</p>
@@ -1075,7 +1075,7 @@
     <div class="shortfall-actions" id="driftOwnResultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The pink line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The blue line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="driftOwnBalanceChartTooltip"></div></div>
     <div class="plan-legend" id="driftOwnBalanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
@@ -2405,9 +2405,9 @@ function computeGoalSeries(minAge, retAge, target){
 }
 
 // Balance-chart line colors — bold and distinct from the app's teal/clay accent palette so
-// the three lines read clearly against each other: pink for the funded plan, red for the
+// the three lines read clearly against each other: blue for the funded plan, red for the
 // no-extra-investing comparison, green for the retirement-goal trajectory.
-const CHART_PLAN_COLOR = '#DB2777';
+const CHART_PLAN_COLOR = '#2563EB';
 const CHART_NOINVEST_COLOR = '#DC2626';
 const CHART_GOAL_COLOR = '#16A34A';
 
@@ -2469,9 +2469,11 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
       ${pointGoal ? `<div class="ctt-row"><span class="ctt-dot" style="background:${goal.color}"></span>${goal.label}: <span class="ctt-val">${fmtMoney(pointGoal.balance)}</span></div>` : ''}
     `;
     tooltipEl.style.display = 'block';
-    const anchorBalance = pointA ? pointA.balance : pointB.balance;
+    // Pinned to the top of the plot area (not the tapped point's height) so it's never left
+    // sitting under a finger mid-scroll — a touch lower on the chart would otherwise put the
+    // box right where the next drag lands.
     tooltipEl.style.left = ((x / W) * 100) + '%';
-    tooltipEl.style.top = Math.max(4, (yForBalance(anchorBalance) / H) * 100) + '%';
+    tooltipEl.style.top = (padT / H) * 100 + '%';
   }
 
   function hide(){
@@ -2590,8 +2592,8 @@ function renderBalanceChart(){
     const chartNote = document.getElementById('balanceChartNote');
     if(chartNote){
       chartNote.textContent = (additionalInvestingVal === 0)
-        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the pink line is drawn on top of the red one) — they'll split apart as soon as you add some in Step 6.`
-        : `The pink and red lines split apart because your plan includes ${fmtMoney(additionalInvestingVal/12)}/mo of extra investing on top of your 401(k); the red line shows what happens without it. The green line is your goal, spent down the same way once you retire.`;
+        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the blue line is drawn on top of the red one) — they'll split apart as soon as you add some in Step 6.`
+        : `The blue and red lines split apart because your plan includes ${fmtMoney(additionalInvestingVal/12)}/mo of extra investing on top of your 401(k); the red line shows what happens without it. The green line is your goal, spent down the same way once you retire.`;
     }
   }
 }
@@ -3312,8 +3314,8 @@ function renderDriftBalanceChart(){
     const note = document.getElementById('driftOwnBalanceChartNote');
     if(note){
       note.textContent = (driftAdditionalInvestingVal === 0)
-        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the pink line is drawn on top of the red one).`
-        : `The pink and red lines split apart because your plan includes ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k). The green line is your goal, spent down the same way once you retire.`;
+        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the blue line is drawn on top of the red one).`
+        : `The blue and red lines split apart because your plan includes ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k). The green line is your goal, spent down the same way once you retire.`;
     }
   }
 }
