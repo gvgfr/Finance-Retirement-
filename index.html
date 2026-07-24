@@ -596,9 +596,9 @@
       <div class="fi-number" id="driftAutopilotNumber">$0</div>
       <p class="fi-sub" id="driftAutopilotSub">What you'd have saved by your target age — no extra investing added yet.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">A rough spending pace this could support</div><div class="fi-stat-value" id="driftAutopilotIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label">Sustainable spending this could support</div><div class="fi-stat-value" id="driftAutopilotIncome">$0/yr</div></div>
       </div>
-      <p class="field-hint" style="margin-top:10px;">A quick gut-check only — flat 25-year drawdown of this amount alone, no growth, no Social Security. Different, simpler math than your actual retirement target — the two numbers aren't meant to match.</p>
+      <p class="field-hint" style="margin-top:10px;">This keeps growing while you spend it down — bridge-style growth before Social Security starts, long-term growth after, minus your assumed withdrawal tax. Same math as your actual retirement target, just run against this smaller nest egg instead.</p>
     </div>
 
     <div style="margin-top:30px;text-align:center;">
@@ -624,10 +624,10 @@
       <div class="fi-number" id="driftResultNumber">$0</div>
       <p class="fi-sub">By age <span id="driftResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Available per year before Social Security starts</div><div class="fi-stat-value" id="driftResultIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label">Sustainable spending per year</div><div class="fi-stat-value" id="driftResultIncome">$0/yr</div></div>
       </div>
     </div>
-    <p class="field-hint" style="margin-top:10px;">Both numbers above are a simple 25-year straight-line drawdown, no growth assumed — just "how much could I actually spend each year before Social Security helps." Actual results are not guaranteed.</p>
+    <p class="field-hint" style="margin-top:10px;">Both numbers above account for real investment growth throughout retirement and Social Security kicking in at your claiming age — the same math behind your retirement target. Actual results are not guaranteed.</p>
 
     <div class="breakdown" id="breakdownContainer" style="margin-top:30px;"></div>
 
@@ -859,9 +859,9 @@
       <div class="fi-number" id="driftOwnAutopilotNumber">$0</div>
       <p class="fi-sub" id="driftOwnAutopilotSub">By your target age, based on your existing invested assets and current 401(k) contribution.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">A rough spending pace this could support</div><div class="fi-stat-value" id="driftOwnAutopilotIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label">Sustainable spending this could support</div><div class="fi-stat-value" id="driftOwnAutopilotIncome">$0/yr</div></div>
       </div>
-      <p class="field-hint" style="margin-top:10px;">A quick gut-check only — flat 25-year drawdown of this amount alone, no growth, no Social Security. This uses different, simpler math than your actual retirement spending target (coming up next), so the two numbers won't match — that's expected, not an error.</p>
+      <p class="field-hint" style="margin-top:10px;">This keeps growing while you spend it down, using default investing-style assumptions (adjustable in the next step). You haven't set Social Security yet either, so this is preliminary — it'll sharpen up once you do.</p>
     </div>
     <p class="field-hint" style="margin-top:10px;">This isn't "short" or "on track" yet — you haven't told us what retirement you actually want. That's next.</p>
 
@@ -1010,10 +1010,10 @@
       <div class="fi-number" id="driftOwnResultNumber">$0</div>
       <p class="fi-sub">By age <span id="driftOwnResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">A rough spending pace this could support</div><div class="fi-stat-value" id="driftOwnResultIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label">Sustainable spending per year</div><div class="fi-stat-value" id="driftOwnResultIncome">$0/yr</div></div>
       </div>
     </div>
-    <p class="field-hint" style="margin-top:10px;">A quick gut-check only — flat 25-year drawdown, no growth assumed. Actual results are not guaranteed.</p>
+    <p class="field-hint" style="margin-top:10px;">This accounts for real investment growth throughout retirement and Social Security kicking in at your claiming age — the same math behind your retirement target. Actual results are not guaranteed.</p>
 
     <div class="breakdown" id="driftOwnBreakdownContainer" style="margin-top:30px;"></div>
 
@@ -2254,15 +2254,16 @@ function renderStep4(){
   const badDriftAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('driftAgeOrderWarn').classList.toggle('show', badDriftAge);
 
+  const previewRetAge = Number(retireAgeEl.value) || 0;
   const autopilotFV = futureValueOfContributions(retirementContribution(), currentSavingsVal, years, growth);
   document.getElementById('driftAutopilotNumber').textContent = fmtMoney(autopilotFV);
   document.getElementById('driftAutopilotSub').textContent = `By age ${Number(retireAgeEl.value)||'—'} — your current ${fmtMoney(currentSavingsVal)} in invested assets growing, plus your 401(k)/cash balance contribution. No extra investing included.`;
-  document.getElementById('driftAutopilotIncome').textContent = fmtMoney(autopilotFV/25) + "/yr";
+  document.getElementById('driftAutopilotIncome').textContent = fmtMoney(solveSustainableIncome(autopilotFV, previewRetAge)) + "/yr";
 
   const resultFV = futureValueOfContributions(retirementContribution() + additionalInvesting, currentSavingsVal, years, growth);
   document.getElementById('driftResultNumber').textContent = fmtMoney(resultFV);
   document.getElementById('driftResultAge').textContent = Number(retireAgeEl.value)||'—';
-  document.getElementById('driftResultIncome').textContent = fmtMoney(resultFV/25) + "/yr";
+  document.getElementById('driftResultIncome').textContent = fmtMoney(solveSustainableIncome(resultFV, previewRetAge)) + "/yr";
 
   const nextStepsText = document.getElementById('nextStepsText');
   const step6NextBtn = document.getElementById('step6NextBtn');
@@ -2924,12 +2925,13 @@ function renderDriftBudget(){
   const badAge = (Number(driftOwnRetireAgeEl.value)||0) <= (Number(driftOwnCurrentAgeEl.value)||0);
   document.getElementById('driftOwnAgeOrderWarn').classList.toggle('show', badAge);
 
+  const ownPreviewRetAge = Number(driftOwnRetireAgeEl.value) || 0;
   const autopilotFV = futureValueOfContributions(driftRetirementContribution(), driftCurrentSavingsVal, years, growth);
   document.getElementById('driftOwnAutopilotNumber').textContent = fmtMoney(autopilotFV);
   document.getElementById('driftOwnAutopilotSub').textContent = driftCurrentSavingsVal > 0
     ? `By age ${Number(driftOwnRetireAgeEl.value)||'—'} — your current ${fmtMoney(driftCurrentSavingsVal)} in invested assets growing, plus your ongoing 401(k) contribution. No extra investing included.`
     : `By age ${Number(driftOwnRetireAgeEl.value)||'—'}, based on your ongoing 401(k) contribution alone — no extra investing included.`;
-  document.getElementById('driftOwnAutopilotIncome').textContent = fmtMoney(autopilotFV/25) + "/yr";
+  document.getElementById('driftOwnAutopilotIncome').textContent = fmtMoney(driftSolveSustainableIncome(autopilotFV, ownPreviewRetAge)) + "/yr";
 
   // Step 13's own target / saved / gap boxes — same trajectory number as Step 11, just
   // put in direct context against the target right before asking for extra investing.
@@ -2962,7 +2964,7 @@ function renderDriftBudget(){
   const resultFV = futureValueOfContributions(driftRetirementContribution() + additionalInvesting, driftCurrentSavingsVal, years, growth);
   document.getElementById('driftOwnResultNumber').textContent = fmtMoney(resultFV);
   document.getElementById('driftOwnResultAge').textContent = Number(driftOwnRetireAgeEl.value)||'—';
-  document.getElementById('driftOwnResultIncome').textContent = fmtMoney(resultFV/25) + "/yr";
+  document.getElementById('driftOwnResultIncome').textContent = fmtMoney(driftSolveSustainableIncome(resultFV, ownPreviewRetAge)) + "/yr";
 
   const hint = document.getElementById('driftAdditionalInvestingHint');
   if(hint){
