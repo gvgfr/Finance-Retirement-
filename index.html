@@ -466,6 +466,7 @@
       <div class="field"><label>Brokerage account</label><input type="text" id="assetsBrokerageInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="assetsHsaInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="spouseAssets401kInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
@@ -512,14 +513,29 @@
       <div class="field"><label>Gross annual salary</label><input type="text" id="planSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
       <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="k401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year (usually ticks up a bit with inflation each year). Turning 50 or older? You can add a "catch-up" — an extra $8,000/year (total $32,500), or an extra $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="cashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="selfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
+      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="selfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
         <select id="stateSelect"></select>
       </div>
       <div class="field"><label>Rough state tax rate</label><input type="number" id="stateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable. Uses each state's flat rate, or top marginal rate for progressive-bracket states (your effective rate is often lower).</span></div>
     </div>
 
+    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" id="hasSpouseIncome" style="width:16px;height:16px;">
+      + Add a spouse's income
+    </label>
+    <div id="spouseIncomeFields" style="display:none;">
+      <div class="plan-grid">
+        <div class="field"><label>Spouse's gross annual salary</label><input type="text" id="spouseSalaryInput" inputmode="numeric" autocomplete="off" placeholder="e.g. 80,000"></div>
+        <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="spouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
+        <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="spouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
+        <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="spouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
+      </div>
+    </div>
+
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--jade)"></span>Other income sources</div>
-    <p class="field-hint" style="margin-bottom:10px;">Spouse's income, side business, rental, freelance — anything beyond your salary above. Included in federal/state tax, but not Social Security/Medicare tax, since not all of these are wage income.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Side business, rental, freelance, royalties — anything beyond your (and your spouse's, if entered above) salary. Included in federal/state tax, but not Social Security/Medicare tax, since not all of these are wage income.</p>
     <div class="cat-table" id="otherIncomeTable"></div>
     <button class="add-cat-btn" id="addOtherIncomeBtn">+ add income source</button>
 
@@ -527,6 +543,8 @@
       <div><div class="tax-stat-label">Gross pay</div><div class="tax-stat-value" id="totalGrossOut">$0</div></div>
       <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="taxCard401kOut">$0</div></div>
       <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="taxCardSpouseK401Out">$0</div></div>
+      <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="taxCardEmployerMatchOut">$0</div></div>
       <div><div class="tax-stat-label">Taxable income</div><div class="tax-stat-value" id="taxableIncomeOut">$0</div></div>
       <div><div class="tax-stat-label">Federal tax</div><div class="tax-stat-value" id="federalTaxOut">$0</div></div>
       <div><div class="tax-stat-label">FICA (SS + Medicare)</div><div class="tax-stat-value" id="ficaOut">$0</div></div>
@@ -608,6 +626,7 @@
       <div class="field"><label>Brokerage account</label><input type="text" id="assetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="assetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays a monthly amount instead of a lump sum, leave this at 0 and add it as an income source in Step 3 instead.</span></div>
+      <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="spouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotal">$0</b></div>
 
@@ -758,14 +777,29 @@
       <div class="field"><label>Gross annual salary</label><input type="text" id="driftSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
       <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
+      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
         <select id="driftStateSelect"></select>
       </div>
       <div class="field"><label>Rough state tax rate</label><input type="number" id="driftStateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable.</span></div>
     </div>
 
+    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" id="driftHasSpouseIncome" style="width:16px;height:16px;">
+      + Add a spouse's income
+    </label>
+    <div id="driftSpouseIncomeFields" style="display:none;">
+      <div class="plan-grid">
+        <div class="field"><label>Spouse's gross annual salary</label><input type="text" id="driftSpouseSalaryInput" inputmode="numeric" autocomplete="off" placeholder="e.g. 80,000"></div>
+        <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="driftSpouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
+        <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="driftSpouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
+        <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="driftSpouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
+      </div>
+    </div>
+
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--jade)"></span>Other income sources</div>
-    <p class="field-hint" style="margin-bottom:10px;">Spouse's income, side business, rental, freelance — anything beyond your salary above. Included in federal/state tax, but not Social Security/Medicare tax, since not all of these are wage income.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Side business, rental, freelance, royalties — anything beyond your (and your spouse's, if entered above) salary. Included in federal/state tax, but not Social Security/Medicare tax, since not all of these are wage income.</p>
     <div class="cat-table" id="driftOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addDriftOtherIncomeBtn">+ add income source</button>
 
@@ -773,6 +807,8 @@
       <div><div class="tax-stat-label">Gross pay</div><div class="tax-stat-value" id="driftTotalGrossOut">$0</div></div>
       <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="driftTaxCard401kOut">$0</div></div>
       <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="driftTaxCardSpouseK401Out">$0</div></div>
+      <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardEmployerMatchOut">$0</div></div>
       <div><div class="tax-stat-label">Taxable income</div><div class="tax-stat-value" id="driftTaxableIncomeOut">$0</div></div>
       <div><div class="tax-stat-label">Federal tax</div><div class="tax-stat-value" id="driftFederalTaxOut">$0</div></div>
       <div><div class="tax-stat-label">FICA (SS + Medicare)</div><div class="tax-stat-value" id="driftFicaOut">$0</div></div>
@@ -860,6 +896,7 @@
       <div class="field"><label>Brokerage account</label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays monthly instead of a lump sum, leave this at 0 — add it as income in the next steps instead.</span></div>
+      <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="driftSpouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
 
@@ -1185,7 +1222,7 @@ const DEFAULT_SAVINGS_GOALS = [
   { name: "Wedding", target: 20000, years: 2 },
   { name: "Vacation", target: 5000, years: 1 }
 ];
-const DEFAULT_OTHER_INCOME = [ { name: "Spouse's income", annual: 0 } ];
+const DEFAULT_OTHER_INCOME = [ { name: "Side business / freelance income", annual: 0 } ];
 const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental property income", annual: 0 } ];
 
 let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
@@ -1201,12 +1238,35 @@ let currentSavingsVal = 0;
 let targetVal = 0;
 let targetManuallyEdited = false;
 let salaryVal = 0;
-let spouseIncomeVal = 0;
-let lastEarningsBeforeStopVal = 0;
-let spouseLastEarningsBeforeStopVal = 0;
+let spouseSalaryVal = 0;
 let k401Val = 0;
 let cashBalanceVal = 0;
-function retirementContribution(){ return k401Val + cashBalanceVal; }
+let spouseK401Val = 0;
+
+function hasSpouseIncome(){ return hasSpouseIncomeEl.checked; }
+
+function selfEmployerMatchAnnual(){
+  const rate = (Number(selfMatchRatePctEl.value)||0)/100;
+  const cap  = (Number(selfMatchCapPctEl.value)||0)/100;
+  return rate * Math.min(k401Val, salaryVal * cap);
+}
+function spouseEmployerMatchAnnual(){
+  if(!hasSpouseIncome()) return 0;
+  const rate = (Number(spouseMatchRatePctEl.value)||0)/100;
+  const cap  = (Number(spouseMatchCapPctEl.value)||0)/100;
+  return rate * Math.min(spouseK401Val, spouseSalaryVal * cap);
+}
+// Money actually withheld from paychecks — used ONLY for AGI, take-home, and the displayed
+// "401(k) + cash balance" budget row. Employer match was never part of gross pay, so it must
+// never appear to reduce it.
+function personalPreTaxDeferral(){
+  return k401Val + cashBalanceVal + (hasSpouseIncome() ? spouseK401Val : 0);
+}
+// Total $ actually landing in retirement accounts this year — everything else that used to
+// call this function keeps calling it unchanged and automatically gains match + spouse money.
+function retirementContribution(){
+  return personalPreTaxDeferral() + selfEmployerMatchAnnual() + spouseEmployerMatchAnnual();
+}
 let additionalInvestingVal = 0;
 let additionalInvestingManuallyEdited = false;
 let collegeTargetPerKidVal = 100000;
@@ -1216,6 +1276,7 @@ let assetsRothIraVal = 0;
 let assetsBrokerageVal = 0;
 let assetsHsaVal = 0;
 let assetsPensionVal = 0;
+let spouseAssets401kVal = 0;
 let emergencyFundSavedVal = 0;
 
 let currentStep = 0;
@@ -1246,6 +1307,13 @@ const filingStatusEl = document.getElementById('filingStatus');
 const planSalaryEl = document.getElementById('planSalary');
 const k401InputEl = document.getElementById('k401Input');
 const cashBalanceInputEl = document.getElementById('cashBalanceInput');
+const selfMatchRatePctEl = document.getElementById('selfMatchRatePct');
+const selfMatchCapPctEl = document.getElementById('selfMatchCapPct');
+const hasSpouseIncomeEl = document.getElementById('hasSpouseIncome');
+const spouseSalaryEl = document.getElementById('spouseSalaryInput');
+const spouseK401InputEl = document.getElementById('spouseK401Input');
+const spouseMatchRatePctEl = document.getElementById('spouseMatchRatePct');
+const spouseMatchCapPctEl = document.getElementById('spouseMatchCapPct');
 const additionalInvestingInputEl = document.getElementById('additionalInvestingInput');
 const driftRetireAgeEl = document.getElementById('driftRetireAge');
 const driftCurrentAgeEl = document.getElementById('driftCurrentAge');
@@ -1268,6 +1336,8 @@ const assetsRothIraInputAEl = document.getElementById('assetsRothIraInputA');
 const assetsBrokerageInputAEl = document.getElementById('assetsBrokerageInputA');
 const assetsHsaInputAEl = document.getElementById('assetsHsaInputA');
 const assetsPensionInputAEl = document.getElementById('assetsPensionInputA');
+const spouseAssets401kInputEl = document.getElementById('spouseAssets401kInput');
+const spouseAssets401kInputAEl = document.getElementById('spouseAssets401kInputA');
 
 /* ================= STEP NAV ================= */
 function renderJumpNav(){
@@ -1319,10 +1389,10 @@ function resetAllState(){
   targetVal = 0;
   targetManuallyEdited = false;
   salaryVal = 0;
-  spouseIncomeVal = 0;
-  lastEarningsBeforeStopVal = 0;
-  spouseLastEarningsBeforeStopVal = 0;
+  spouseSalaryVal = 0;
   k401Val = 0;
+  cashBalanceVal = 0;
+  spouseK401Val = 0;
   additionalInvestingVal = 0;
   additionalInvestingManuallyEdited = false;
   collegeTargetPerKidVal = 100000;
@@ -1333,6 +1403,7 @@ function resetAllState(){
   assetsBrokerageVal = 0;
   assetsHsaVal = 0;
   assetsPensionVal = 0;
+  spouseAssets401kVal = 0;
   emergencyFundSavedVal = 0;
 
   planGrowthEl.value = 7;
@@ -1346,6 +1417,12 @@ function resetAllState(){
   spouseSsClaimAgeEl.value = '67';
   includeSpouseSSEl.checked = false;
   document.getElementById('spouseSsFields').style.display = 'none';
+  hasSpouseIncomeEl.checked = false;
+  document.getElementById('spouseIncomeFields').style.display = 'none';
+  selfMatchRatePctEl.value = 0;
+  selfMatchCapPctEl.value = 0;
+  spouseMatchRatePctEl.value = 0;
+  spouseMatchCapPctEl.value = 0;
   numKidsEl.value = 0;
   yearsToCollegeEl.value = 10;
   emergencyMonthsEl.value = '3';
@@ -1358,6 +1435,8 @@ function resetAllState(){
   planSalaryEl.value = '';
   k401InputEl.value = '';
   cashBalanceInputEl.value = '';
+  spouseSalaryEl.value = '';
+  spouseK401InputEl.value = '';
   additionalInvestingInputEl.value = '';
   collegeTargetPerKidEl.value = formatNum(collegeTargetPerKidVal);
   emergencyFundSavedEl.value = '';
@@ -1373,6 +1452,8 @@ function resetAllState(){
   assetsBrokerageInputAEl.value = '';
   assetsHsaInputAEl.value = '';
   assetsPensionInputAEl.value = '';
+  spouseAssets401kInputEl.value = '';
+  spouseAssets401kInputAEl.value = '';
 
   renderEssential();
   renderLifestyle();
@@ -1397,8 +1478,10 @@ function resetAllState(){
   driftTargetVal = 0;
   driftTargetManuallyEdited = false;
   driftSalaryVal = 0;
+  driftSpouseSalaryVal = 0;
   driftK401Val = 0;
   driftCashBalanceVal = 0;
+  driftSpouseK401Val = 0;
   driftAdditionalInvestingVal = 0;
   driftCollegeTargetPerKidVal = 100000;
   driftAssets401kVal = 0;
@@ -1407,6 +1490,7 @@ function resetAllState(){
   driftAssetsBrokerageVal = 0;
   driftAssetsHsaVal = 0;
   driftAssetsPensionVal = 0;
+  driftSpouseAssets401kVal = 0;
   driftEmergencyFundSavedVal = 0;
 
   driftOwnCurrentAgeEl.value = 30;
@@ -1422,6 +1506,12 @@ function resetAllState(){
   driftOwnSpouseSsClaimAgeEl.value = '67';
   driftOwnIncludeSpouseSSEl.checked = false;
   document.getElementById('driftOwnSpouseSsFields').style.display = 'none';
+  driftHasSpouseIncomeEl.checked = false;
+  document.getElementById('driftSpouseIncomeFields').style.display = 'none';
+  driftSelfMatchRatePctEl.value = 0;
+  driftSelfMatchCapPctEl.value = 0;
+  driftSpouseMatchRatePctEl.value = 0;
+  driftSpouseMatchCapPctEl.value = 0;
   driftNumKidsEl.value = 0;
   driftYearsToCollegeEl.value = 10;
   driftEmergencyMonthsEl.value = '3';
@@ -1431,6 +1521,8 @@ function resetAllState(){
   driftSalaryEl.value = '';
   driftK401InputEl.value = '';
   driftCashBalanceInputEl.value = '';
+  driftSpouseSalaryEl.value = '';
+  driftSpouseK401InputEl.value = '';
   driftAdditionalInvestingInputEl.value = '';
   driftCollegeTargetPerKidEl.value = formatNum(driftCollegeTargetPerKidVal);
   driftEmergencyFundSavedEl.value = '';
@@ -1440,6 +1532,7 @@ function resetAllState(){
   driftAssetsBrokerageInputEl.value = '';
   driftAssetsHsaInputEl.value = '';
   driftAssetsPensionInputEl.value = '';
+  driftSpouseAssets401kInputEl.value = '';
 
   renderDriftCurrentNeedsTable();
   renderDriftGoalsTable();
@@ -2033,13 +2126,16 @@ function computeFederalTax(agi, status){
   }
   return tax;
 }
-function computeFICA(gross, status){
-  const ss = Math.min(gross, FICA_SS_WAGE_BASE_2026) * 0.062;
-  const medicare = gross * 0.0145;
+function computeHouseholdFICA(selfWage, spouseWage, status){
+  const ss1 = Math.min(selfWage, FICA_SS_WAGE_BASE_2026) * 0.062;
+  const med1 = selfWage * 0.0145;
+  const ss2 = Math.min(spouseWage, FICA_SS_WAGE_BASE_2026) * 0.062;
+  const med2 = spouseWage * 0.0145;
   const threshold = ADDL_MEDICARE_THRESHOLD[status] || 200000;
-  const addl = Math.max(0, gross - threshold) * 0.009;
-  return ss + medicare + addl;
+  const addl = Math.max(0, (selfWage + spouseWage) - threshold) * 0.009;
+  return ss1 + med1 + ss2 + med2 + addl;
 }
+function computeFICA(gross, status){ return computeHouseholdFICA(gross, 0, status); }
 
 function renderCurrentNeedsTable(){ renderCatTable('currentNeedsTable', currentNeeds, renderStep4); }
 function currentNeedsAnnualTotal(){ return currentNeeds.reduce((s,c)=>s+(Number(c.annual)||0),0); }
@@ -2138,7 +2234,7 @@ function getEducationRequiredAnnual(){
 }
 
 function updateAssetsTotal(){
-  const sum = assets401kVal + assetsIraVal + assetsRothIraVal + assetsBrokerageVal + assetsHsaVal + assetsPensionVal;
+  const sum = assets401kVal + assetsIraVal + assetsRothIraVal + assetsBrokerageVal + assetsHsaVal + assetsPensionVal + spouseAssets401kVal;
   document.getElementById('assetsSubtotal').textContent = fmtMoney(sum);
   document.getElementById('assetsSubtotalA').textContent = fmtMoney(sum);
   currentSavingsVal = sum;
@@ -2167,18 +2263,20 @@ function renderStep4(){
   syncPlanTarget();
   const hasRealPlan = hasRealPlanMode();
   const status = filingStatusEl.value;
-  const gross = salaryVal + otherIncomeAnnualTotal();
-  const agi = Math.max(0, gross - retirementContribution());
+  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + otherIncomeAnnualTotal();
+  const agi = Math.max(0, gross - personalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
-  const fica = computeFICA(salaryVal, status);
+  const fica = computeHouseholdFICA(salaryVal, hasSpouseIncome() ? spouseSalaryVal : 0, status);
   const statePct = Number(stateTaxPctEl.value) || 0;
   const stateTax = agi * (statePct/100);
   const totalTax = fedTax + fica + stateTax;
-  const takeHomeCash = gross - retirementContribution() - totalTax;
+  const takeHomeCash = gross - personalPreTaxDeferral() - totalTax;
 
   document.getElementById('totalGrossOut').textContent = fmtMoney(gross);
   document.getElementById('taxCard401kOut').textContent = fmtMoney(k401Val);
   document.getElementById('taxCardCashBalanceOut').textContent = fmtMoney(cashBalanceVal);
+  document.getElementById('taxCardSpouseK401Out').textContent = fmtMoney(hasSpouseIncome() ? spouseK401Val : 0);
+  document.getElementById('taxCardEmployerMatchOut').textContent = fmtMoney(selfEmployerMatchAnnual() + spouseEmployerMatchAnnual());
   document.getElementById('taxableIncomeOut').textContent = fmtMoney(agi);
   document.getElementById('federalTaxOut').textContent = fmtMoney(fedTax);
   document.getElementById('ficaOut').textContent = fmtMoney(fica);
@@ -2218,7 +2316,8 @@ function renderStep4(){
     : "Extra investing beyond 401k";
 
   const rows = [
-    { name: "401(k) + cash balance/profit sharing", value: retirementContribution(), base: gross, color: "#2563EB" },
+    { name: "401(k) + cash balance/profit sharing", value: personalPreTaxDeferral(), base: gross, color: "#2563EB" },
+    { name: "Employer match (you + spouse)", value: selfEmployerMatchAnnual() + spouseEmployerMatchAnnual(), base: gross, color: "#7C3AED" },
     { name: "NEEDS — current non-discretionary", value: needsAnnual, base: gross, color: "#EA580C" },
     { name: "Savings goals (house, car, wedding...)", value: goalsAnnual, base: gross, color: "#D97706" },
     { name: breakdownInvestingLabel, value: additionalInvesting, base: gross, color: "#059669" },
@@ -2718,9 +2817,30 @@ let driftCurrentSavingsVal = 0;
 let driftTargetVal = 0;
 let driftTargetManuallyEdited = false;
 let driftSalaryVal = 0;
+let driftSpouseSalaryVal = 0;
 let driftK401Val = 0;
 let driftCashBalanceVal = 0;
-function driftRetirementContribution(){ return driftK401Val + driftCashBalanceVal; }
+let driftSpouseK401Val = 0;
+
+function driftHasSpouseIncome(){ return driftHasSpouseIncomeEl.checked; }
+
+function driftSelfEmployerMatchAnnual(){
+  const rate = (Number(driftSelfMatchRatePctEl.value)||0)/100;
+  const cap  = (Number(driftSelfMatchCapPctEl.value)||0)/100;
+  return rate * Math.min(driftK401Val, driftSalaryVal * cap);
+}
+function driftSpouseEmployerMatchAnnual(){
+  if(!driftHasSpouseIncome()) return 0;
+  const rate = (Number(driftSpouseMatchRatePctEl.value)||0)/100;
+  const cap  = (Number(driftSpouseMatchCapPctEl.value)||0)/100;
+  return rate * Math.min(driftSpouseK401Val, driftSpouseSalaryVal * cap);
+}
+function driftPersonalPreTaxDeferral(){
+  return driftK401Val + driftCashBalanceVal + (driftHasSpouseIncome() ? driftSpouseK401Val : 0);
+}
+function driftRetirementContribution(){
+  return driftPersonalPreTaxDeferral() + driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual();
+}
 let driftAdditionalInvestingVal = 0;
 let driftCollegeTargetPerKidVal = 100000;
 let driftAssets401kVal = 0;
@@ -2729,6 +2849,7 @@ let driftAssetsRothIraVal = 0;
 let driftAssetsBrokerageVal = 0;
 let driftAssetsHsaVal = 0;
 let driftAssetsPensionVal = 0;
+let driftSpouseAssets401kVal = 0;
 let driftEmergencyFundSavedVal = 0;
 
 const driftOwnCurrentAgeEl = document.getElementById('driftOwnCurrentAge');
@@ -2738,6 +2859,13 @@ const driftFilingStatusEl = document.getElementById('driftFilingStatus');
 const driftSalaryEl = document.getElementById('driftSalary');
 const driftK401InputEl = document.getElementById('driftK401Input');
 const driftCashBalanceInputEl = document.getElementById('driftCashBalanceInput');
+const driftSelfMatchRatePctEl = document.getElementById('driftSelfMatchRatePct');
+const driftSelfMatchCapPctEl = document.getElementById('driftSelfMatchCapPct');
+const driftHasSpouseIncomeEl = document.getElementById('driftHasSpouseIncome');
+const driftSpouseSalaryEl = document.getElementById('driftSpouseSalaryInput');
+const driftSpouseK401InputEl = document.getElementById('driftSpouseK401Input');
+const driftSpouseMatchRatePctEl = document.getElementById('driftSpouseMatchRatePct');
+const driftSpouseMatchCapPctEl = document.getElementById('driftSpouseMatchCapPct');
 const driftStateSelectEl = document.getElementById('driftStateSelect');
 const driftStateTaxPctEl = document.getElementById('driftStateTaxPct');
 const driftNumKidsEl = document.getElementById('driftNumKids');
@@ -2751,6 +2879,7 @@ const driftAssetsRothIraInputEl = document.getElementById('driftAssetsRothIraInp
 const driftAssetsBrokerageInputEl = document.getElementById('driftAssetsBrokerageInput');
 const driftAssetsHsaInputEl = document.getElementById('driftAssetsHsaInput');
 const driftAssetsPensionInputEl = document.getElementById('driftAssetsPensionInput');
+const driftSpouseAssets401kInputEl = document.getElementById('driftSpouseAssets401kInput');
 const driftOwnSsMonthlyEl = document.getElementById('driftOwnSsMonthly');
 const driftOwnSsClaimAgeEl = document.getElementById('driftOwnSsClaimAge');
 const driftBridgeStyleEl = document.getElementById('driftBridgeStyle');
@@ -2987,7 +3116,7 @@ function renderDriftGoalsTable(){
 function renderDriftOtherIncomeTable(){ renderCatTable('driftOtherIncomeTable', driftOtherIncome, renderDriftBudget, true); }
 
 function driftUpdateAssetsTotal(){
-  const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHsaVal + driftAssetsPensionVal;
+  const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHsaVal + driftAssetsPensionVal + driftSpouseAssets401kVal;
   document.getElementById('driftAssetsSubtotal').textContent = fmtMoney(sum);
   driftCurrentSavingsVal = sum;
 }
@@ -3019,18 +3148,20 @@ function driftGetRequiredInvesting(){
 function renderDriftBudget(){
   driftSyncTarget();
   const status = driftFilingStatusEl.value;
-  const gross = driftSalaryVal + driftOtherIncomeAnnualTotal();
-  const agi = Math.max(0, gross - driftRetirementContribution());
+  const gross = driftSalaryVal + (driftHasSpouseIncome() ? driftSpouseSalaryVal : 0) + driftOtherIncomeAnnualTotal();
+  const agi = Math.max(0, gross - driftPersonalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
-  const fica = computeFICA(driftSalaryVal, status);
+  const fica = computeHouseholdFICA(driftSalaryVal, driftHasSpouseIncome() ? driftSpouseSalaryVal : 0, status);
   const statePct = Number(driftStateTaxPctEl.value) || 0;
   const stateTax = agi * (statePct/100);
   const totalTax = fedTax + fica + stateTax;
-  const takeHomeCash = gross - driftRetirementContribution() - totalTax;
+  const takeHomeCash = gross - driftPersonalPreTaxDeferral() - totalTax;
 
   document.getElementById('driftTotalGrossOut').textContent = fmtMoney(gross);
   document.getElementById('driftTaxCard401kOut').textContent = fmtMoney(driftK401Val);
   document.getElementById('driftTaxCardCashBalanceOut').textContent = fmtMoney(driftCashBalanceVal);
+  document.getElementById('driftTaxCardSpouseK401Out').textContent = fmtMoney(driftHasSpouseIncome() ? driftSpouseK401Val : 0);
+  document.getElementById('driftTaxCardEmployerMatchOut').textContent = fmtMoney(driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual());
   document.getElementById('driftTaxableIncomeOut').textContent = fmtMoney(agi);
   document.getElementById('driftFederalTaxOut').textContent = fmtMoney(fedTax);
   document.getElementById('driftFicaOut').textContent = fmtMoney(fica);
@@ -3068,7 +3199,8 @@ function renderDriftBudget(){
   const underfunded = hasTarget && (additionalInvesting < autoAdditional - 1);
 
   const rows = [
-    { name: "401(k) + cash balance/profit sharing", value: driftRetirementContribution(), base: gross, color: "#2563EB" },
+    { name: "401(k) + cash balance/profit sharing", value: driftPersonalPreTaxDeferral(), base: gross, color: "#2563EB" },
+    { name: "Employer match (you + spouse)", value: driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual(), base: gross, color: "#7C3AED" },
     { name: "NEEDS — current non-discretionary", value: needsAnnual, base: gross, color: "#EA580C" },
     { name: "Savings goals (house, car, wedding...)", value: goalsAnnual, base: gross, color: "#D97706" },
     { name: "Extra retirement investing", value: additionalInvesting, base: gross, color: "#059669" },
@@ -3441,6 +3573,7 @@ bindMoneyInput(assetsRothIraInputEl, ()=>assetsRothIraVal, (v)=>{assetsRothIraVa
 bindMoneyInput(assetsBrokerageInputEl, ()=>assetsBrokerageVal, (v)=>{assetsBrokerageVal=v; mirrorAssetValue(assetsBrokerageInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsHsaInputEl, ()=>assetsHsaVal, (v)=>{assetsHsaVal=v; mirrorAssetValue(assetsHsaInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsPensionInputEl, ()=>assetsPensionVal, (v)=>{assetsPensionVal=v; mirrorAssetValue(assetsPensionInputAEl, v);}, onAssetsChange);
+bindMoneyInput(spouseAssets401kInputEl, ()=>spouseAssets401kVal, (v)=>{spouseAssets401kVal=v; mirrorAssetValue(spouseAssets401kInputAEl, v);}, onAssetsChange);
 
 // Step 4 shows the exact same account breakdown as Step 6 — these mirror each other live,
 // each keeping its own input in sync with the other whenever either one changes.
@@ -3450,6 +3583,7 @@ bindMoneyInput(assetsRothIraInputAEl, ()=>assetsRothIraVal, (v)=>{assetsRothIraV
 bindMoneyInput(assetsBrokerageInputAEl, ()=>assetsBrokerageVal, (v)=>{assetsBrokerageVal=v; mirrorAssetValue(assetsBrokerageInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsHsaInputAEl, ()=>assetsHsaVal, (v)=>{assetsHsaVal=v; mirrorAssetValue(assetsHsaInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsPensionInputAEl, ()=>assetsPensionVal, (v)=>{assetsPensionVal=v; mirrorAssetValue(assetsPensionInputEl, v);}, onAssetsChange);
+bindMoneyInput(spouseAssets401kInputAEl, ()=>spouseAssets401kVal, (v)=>{spouseAssets401kVal=v; mirrorAssetValue(spouseAssets401kInputEl, v);}, onAssetsChange);
 bindMoneyInput(emergencyFundSavedEl, ()=>emergencyFundSavedVal, (v)=>{emergencyFundSavedVal=v;}, updateEmergencyFund);
 emergencyMonthsEl.addEventListener('change', updateEmergencyFund);
 bindMoneyInput(planTargetEl, ()=>targetVal, (v)=>{targetVal=v; targetManuallyEdited=true;}, renderContribution);
@@ -3478,6 +3612,13 @@ function setRetireAge(value){
 bindMoneyInput(planSalaryEl, ()=>salaryVal, (v)=>{salaryVal=v;}, renderStep4);
 bindMoneyInput(k401InputEl, ()=>k401Val, (v)=>{k401Val=v;}, renderStep4);
 bindMoneyInput(cashBalanceInputEl, ()=>cashBalanceVal, (v)=>{cashBalanceVal=v;}, renderStep4);
+bindMoneyInput(spouseSalaryEl, ()=>spouseSalaryVal, (v)=>{spouseSalaryVal=v;}, renderStep4);
+bindMoneyInput(spouseK401InputEl, ()=>spouseK401Val, (v)=>{spouseK401Val=v;}, renderStep4);
+[selfMatchRatePctEl, selfMatchCapPctEl, spouseMatchRatePctEl, spouseMatchCapPctEl].forEach(el => el.addEventListener('input', renderStep4));
+hasSpouseIncomeEl.addEventListener('change', () => {
+  document.getElementById('spouseIncomeFields').style.display = hasSpouseIncomeEl.checked ? 'block' : 'none';
+  renderStep4();
+});
 bindMoneyInput(additionalInvestingInputEl, ()=>Math.round(additionalInvestingVal/12), (v)=>{additionalInvestingVal=v*12; additionalInvestingManuallyEdited=true;}, renderStep4);
 filingStatusEl.addEventListener('change', renderStep4);
 stateTaxPctEl.addEventListener('input', renderStep4);
@@ -3530,12 +3671,20 @@ bindMoneyInput(driftAssetsRothIraInputEl, ()=>driftAssetsRothIraVal, (v)=>{drift
 bindMoneyInput(driftAssetsBrokerageInputEl, ()=>driftAssetsBrokerageVal, (v)=>{driftAssetsBrokerageVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsHsaInputEl, ()=>driftAssetsHsaVal, (v)=>{driftAssetsHsaVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsPensionInputEl, ()=>driftAssetsPensionVal, (v)=>{driftAssetsPensionVal=v;}, onDriftAssetsChange);
+bindMoneyInput(driftSpouseAssets401kInputEl, ()=>driftSpouseAssets401kVal, (v)=>{driftSpouseAssets401kVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftEmergencyFundSavedEl, ()=>driftEmergencyFundSavedVal, (v)=>{driftEmergencyFundSavedVal=v;}, driftUpdateEmergencyFund);
 driftEmergencyMonthsEl.addEventListener('change', driftUpdateEmergencyFund);
 
 bindMoneyInput(driftSalaryEl, ()=>driftSalaryVal, (v)=>{driftSalaryVal=v;}, renderDriftBudget);
 bindMoneyInput(driftK401InputEl, ()=>driftK401Val, (v)=>{driftK401Val=v;}, renderDriftBudget);
 bindMoneyInput(driftCashBalanceInputEl, ()=>driftCashBalanceVal, (v)=>{driftCashBalanceVal=v;}, renderDriftBudget);
+bindMoneyInput(driftSpouseSalaryEl, ()=>driftSpouseSalaryVal, (v)=>{driftSpouseSalaryVal=v;}, renderDriftBudget);
+bindMoneyInput(driftSpouseK401InputEl, ()=>driftSpouseK401Val, (v)=>{driftSpouseK401Val=v;}, renderDriftBudget);
+[driftSelfMatchRatePctEl, driftSelfMatchCapPctEl, driftSpouseMatchRatePctEl, driftSpouseMatchCapPctEl].forEach(el => el.addEventListener('input', renderDriftBudget));
+driftHasSpouseIncomeEl.addEventListener('change', () => {
+  document.getElementById('driftSpouseIncomeFields').style.display = driftHasSpouseIncomeEl.checked ? 'block' : 'none';
+  renderDriftBudget();
+});
 bindMoneyInput(driftAdditionalInvestingInputEl, ()=>Math.round(driftAdditionalInvestingVal/12), (v)=>{driftAdditionalInvestingVal=v*12;}, renderDriftBudget);
 driftFilingStatusEl.addEventListener('change', renderDriftBudget);
 driftStateTaxPctEl.addEventListener('input', renderDriftBudget);
