@@ -2356,9 +2356,57 @@ function computeBalanceSeries(annualContribution){
   return points;
 }
 
+// The retirement-goal line as its own trajectory rather than a flat reference: flat while
+// you're still building toward it (that's what a target is), then spent down after retirement
+// using the exact same bridge/long-term/Social-Security/withdrawal-tax math solveRetirementTarget
+// used to solve for it in the first place — so it declines to roughly $0 right around age 95,
+// by construction, the same way the target itself was derived.
+function computeGoalSeries(minAge, retAge, target){
+  const points = [];
+  if(target <= 0 || retAge <= 0){
+    points.push({ age: minAge, balance: 0, phase: 'accumulate' });
+    return points;
+  }
+  for(let age = minAge; age <= retAge; age++){
+    points.push({ age, balance: target, phase: 'accumulate' });
+  }
+  const spend = totalRetirementAnnualSpend();
+  const otherInc = otherRetirementIncomeAnnualTotal();
+  const ssAmt = annualSSBenefit();
+  const spouseAmt = spouseAnnualSSBenefit();
+  let claim1Age, claim2Age, benefit1, benefit2;
+  if(hasSpouseSS()){
+    claim1Age = Math.min(socialSecurityClaimAge(), spouseSSClaimAge());
+    claim2Age = Math.max(socialSecurityClaimAge(), spouseSSClaimAge());
+    benefit1 = (socialSecurityClaimAge() <= spouseSSClaimAge()) ? ssAmt : spouseAmt;
+    benefit2 = (socialSecurityClaimAge() <= spouseSSClaimAge()) ? spouseAmt : ssAmt;
+  } else {
+    claim1Age = socialSecurityClaimAge();
+    claim2Age = socialSecurityClaimAge();
+    benefit1 = ssAmt;
+    benefit2 = 0;
+  }
+  const bRate = bridgeGrowthRate(), ltRate = longtermGrowthRate();
+  const taxRate = Math.min(0.5, Math.max(0, (Number(withdrawalTaxPctEl.value)||0)/100));
+  let balance = target;
+  const endAge = 95;
+  for(let age = retAge+1; age <= endAge; age++){
+    const rate = age < claim1Age ? bRate : ltRate;
+    let income = otherInc;
+    if(age >= claim1Age) income += benefit1;
+    if(age >= claim2Age) income += benefit2;
+    const rawNeed = Math.max(0, spend - income);
+    const need = rawNeed / (1 - taxRate);
+    balance = Math.max(0, balance * (1 + rate) - need);
+    points.push({ age, balance, phase: 'spend' });
+    if(balance <= 0) break;
+  }
+  return points;
+}
+
 // Balance-chart line colors — bold and distinct from the app's teal/clay accent palette so
 // the three lines read clearly against each other: pink for the funded plan, red for the
-// no-extra-investing comparison, green for the flat retirement-goal reference line.
+// no-extra-investing comparison, green for the retirement-goal trajectory.
 const CHART_PLAN_COLOR = '#DB2777';
 const CHART_NOINVEST_COLOR = '#DC2626';
 const CHART_GOAL_COLOR = '#16A34A';
@@ -2392,7 +2440,8 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
 
     const pointA = pointAt(seriesA, age);
     const pointB = pointAt(seriesB, age);
-    if(!pointA && !pointB) return;
+    const pointGoal = goal ? pointAt(goal.series, age) : null;
+    if(!pointA && !pointB && !pointGoal) return;
 
     const x = xForAge(age);
     if(guideline){
@@ -2408,8 +2457,8 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
       dotB.setAttribute('cx', x); dotB.setAttribute('cy', yForBalance(pointB.balance));
       dotB.setAttribute('visibility', 'visible');
     }
-    if(dotGoal && goal && goal.value > 0){
-      dotGoal.setAttribute('cx', x); dotGoal.setAttribute('cy', yForBalance(goal.value));
+    if(dotGoal && pointGoal){
+      dotGoal.setAttribute('cx', x); dotGoal.setAttribute('cy', yForBalance(pointGoal.balance));
       dotGoal.setAttribute('visibility', 'visible');
     }
 
@@ -2417,7 +2466,7 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
       <div class="ctt-age">Age ${age}</div>
       ${pointA ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorA}"></span>${labelA}: <span class="ctt-val">${fmtMoney(pointA.balance)}</span></div>` : ''}
       ${pointB ? `<div class="ctt-row"><span class="ctt-dot" style="background:${colorB}"></span>${labelB}: <span class="ctt-val">${fmtMoney(pointB.balance)}</span></div>` : ''}
-      ${goal && goal.value > 0 ? `<div class="ctt-row"><span class="ctt-dot" style="background:${goal.color}"></span>${goal.label}: <span class="ctt-val">${fmtMoney(goal.value)}</span></div>` : ''}
+      ${pointGoal ? `<div class="ctt-row"><span class="ctt-dot" style="background:${goal.color}"></span>${goal.label}: <span class="ctt-val">${fmtMoney(pointGoal.balance)}</span></div>` : ''}
     `;
     tooltipEl.style.display = 'block';
     const anchorBalance = pointA ? pointA.balance : pointB.balance;
@@ -2455,11 +2504,12 @@ function renderBalanceChart(){
   const planSeries = computeBalanceSeries(planInvestedAnnually);
   const driftSeries = computeBalanceSeries(retirementContribution());
   const retAge = Number(retireAgeEl.value) || 0;
+  const goalSeries = computeGoalSeries(planSeries[0].age, retAge, targetVal);
 
-  const allBalances = planSeries.concat(driftSeries).map(p => p.balance).concat([targetVal]);
+  const allBalances = planSeries.concat(driftSeries).concat(goalSeries).map(p => p.balance);
   const maxBalance = Math.max(1, ...allBalances);
   const minAge = planSeries[0].age;
-  const maxAge = Math.max(planSeries[planSeries.length-1].age, driftSeries[driftSeries.length-1].age);
+  const maxAge = Math.max(planSeries[planSeries.length-1].age, driftSeries[driftSeries.length-1].age, goalSeries[goalSeries.length-1].age);
 
   const W = 720, H = 560;
   const padL = 95, padR = 20, padT = 30, padB = 60;
@@ -2494,10 +2544,10 @@ function renderBalanceChart(){
   svgContent += `<line x1="${retX}" y1="${padT}" x2="${retX}" y2="${H-padB}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,4"/>`;
   svgContent += `<text x="${retX}" y="${padT-6}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="26" fill="var(--gold)">retire @ ${retAge}</text>`;
 
-  // Retirement-goal reference line — flat, since the goal is a single target amount, not a trajectory
+  // Retirement-goal line — flat while you're saving toward it, then spent down after
+  // retirement using the same math the target itself was solved with.
   if(targetVal > 0){
-    const goalY = yForBalance(targetVal);
-    svgContent += `<line x1="${padL}" y1="${goalY}" x2="${W-padR}" y2="${goalY}" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
+    svgContent += `<path d="${pathFor(goalSeries)}" fill="none" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
   }
 
   // Drift line (drawn first, underneath)
@@ -2510,6 +2560,10 @@ function renderBalanceChart(){
   const driftEnd = driftSeries[driftSeries.length-1];
   svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="${CHART_PLAN_COLOR}"/>`;
   svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="${CHART_NOINVEST_COLOR}"/>`;
+  if(targetVal > 0){
+    const goalEnd = goalSeries[goalSeries.length-1];
+    svgContent += `<circle cx="${xForAge(goalEnd.age)}" cy="${yForBalance(goalEnd.balance)}" r="4" fill="${CHART_GOAL_COLOR}"/>`;
+  }
 
   // Hover/tap overlay — hidden until attachChartHover positions it
   svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
@@ -2521,22 +2575,23 @@ function renderBalanceChart(){
   attachChartHover(svg, document.getElementById('balanceChartTooltip'), planSeries, driftSeries,
     'Your plan', '401(k) only', CHART_PLAN_COLOR, CHART_NOINVEST_COLOR,
     { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H },
-    { label: 'Retirement goal', color: CHART_GOAL_COLOR, value: targetVal });
+    targetVal > 0 ? { label: 'Retirement goal', color: CHART_GOAL_COLOR, series: goalSeries } : null);
 
   const legend = document.getElementById('balanceChartLegend');
   if(legend){
     const planDepletedAt = planSeries.find(p => p.phase==='spend' && p.balance<=0);
     const driftDepletedAt = driftSeries.find(p => p.phase==='spend' && p.balance<=0);
+    const goalDepletedAt = goalSeries.find(p => p.phase==='spend' && p.balance<=0);
     legend.innerHTML = `
       <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_PLAN_COLOR}"></span>Your plan (401(k) + extra investing)</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
       <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_NOINVEST_COLOR}"></span>401(k) only, no extra investing</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
-      ${targetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal</span><span>${fmtMoney(targetVal)}</span></div>` : ''}
+      ${targetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal (${fmtMoney(targetVal)} at retirement)</span><span>${goalDepletedAt ? 'lasts to about age '+goalDepletedAt.age : 'lasts through age 95+'}</span></div>` : ''}
     `;
     const chartNote = document.getElementById('balanceChartNote');
     if(chartNote){
       chartNote.textContent = (additionalInvestingVal === 0)
-        ? `You haven't added any extra investing, so both lines are identical right now — they'll split apart as soon as you add some in Step 6.`
-        : `The two lines split apart because your plan includes ${fmtMoney(additionalInvestingVal/12)}/mo of extra investing on top of your 401(k); the second line shows what happens without it.`;
+        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the pink line is drawn on top of the red one) — they'll split apart as soon as you add some in Step 6.`
+        : `The pink and red lines split apart because your plan includes ${fmtMoney(additionalInvestingVal/12)}/mo of extra investing on top of your 401(k); the red line shows what happens without it. The green line is your goal, spent down the same way once you retire.`;
     }
   }
 }
@@ -3150,6 +3205,47 @@ function driftComputeBalanceSeries(annualContribution){
   return points;
 }
 
+function driftComputeGoalSeries(minAge, retAge, target){
+  const points = [];
+  if(target <= 0 || retAge <= 0){
+    points.push({ age: minAge, balance: 0, phase: 'accumulate' });
+    return points;
+  }
+  for(let age = minAge; age <= retAge; age++){
+    points.push({ age, balance: target, phase: 'accumulate' });
+  }
+  const spend = driftTotalRetirementAnnualSpend();
+  const otherInc = driftOtherRetirementIncomeAnnualTotal();
+  const ssAmt = driftAnnualSSBenefit();
+  const spouseAmt = driftSpouseAnnualSSBenefit();
+  let claim1Age, claim2Age, benefit1, benefit2;
+  if(driftHasSpouseSS()){
+    claim1Age = Math.min(driftSocialSecurityClaimAge(), driftSpouseSSClaimAge());
+    claim2Age = Math.max(driftSocialSecurityClaimAge(), driftSpouseSSClaimAge());
+    benefit1 = (driftSocialSecurityClaimAge() <= driftSpouseSSClaimAge()) ? ssAmt : spouseAmt;
+    benefit2 = (driftSocialSecurityClaimAge() <= driftSpouseSSClaimAge()) ? spouseAmt : ssAmt;
+  } else {
+    claim1Age = driftSocialSecurityClaimAge(); claim2Age = driftSocialSecurityClaimAge();
+    benefit1 = ssAmt; benefit2 = 0;
+  }
+  const bRate = driftBridgeGrowthRate(), ltRate = driftLongtermGrowthRate();
+  const taxRate = Math.min(0.5, Math.max(0, (Number(driftWithdrawalTaxPctEl.value)||0)/100));
+  let balance = target;
+  const endAge = 95;
+  for(let age = retAge+1; age <= endAge; age++){
+    const rate = age < claim1Age ? bRate : ltRate;
+    let income = otherInc;
+    if(age >= claim1Age) income += benefit1;
+    if(age >= claim2Age) income += benefit2;
+    const rawNeed = Math.max(0, spend - income);
+    const need = rawNeed / (1 - taxRate);
+    balance = Math.max(0, balance * (1 + rate) - need);
+    points.push({ age, balance, phase: 'spend' });
+    if(balance <= 0) break;
+  }
+  return points;
+}
+
 function renderDriftBalanceChart(){
   const svg = document.getElementById('driftOwnBalanceChart');
   if(!svg) return;
@@ -3157,10 +3253,11 @@ function renderDriftBalanceChart(){
   const planSeries = driftComputeBalanceSeries(planInvestedAnnually);
   const driftOnlySeries = driftComputeBalanceSeries(driftRetirementContribution());
   const retAge = Number(driftOwnRetireAgeEl.value) || 0;
-  const allBalances = planSeries.concat(driftOnlySeries).map(p => p.balance).concat([driftTargetVal]);
+  const goalSeries = driftComputeGoalSeries(planSeries[0].age, retAge, driftTargetVal);
+  const allBalances = planSeries.concat(driftOnlySeries).concat(goalSeries).map(p => p.balance);
   const maxBalance = Math.max(1, ...allBalances);
   const minAge = planSeries[0].age;
-  const maxAge = Math.max(planSeries[planSeries.length-1].age, driftOnlySeries[driftOnlySeries.length-1].age);
+  const maxAge = Math.max(planSeries[planSeries.length-1].age, driftOnlySeries[driftOnlySeries.length-1].age, goalSeries[goalSeries.length-1].age);
   const W = 720, H = 560, padL = 95, padR = 20, padT = 30, padB = 60;
   const plotW = W - padL - padR, plotH = H - padT - padB;
   function xForAge(age){ return padL + ((age - minAge) / Math.max(1,(maxAge - minAge))) * plotW; }
@@ -3182,14 +3279,17 @@ function renderDriftBalanceChart(){
   svgContent += `<line x1="${retX}" y1="${padT}" x2="${retX}" y2="${H-padB}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,4"/>`;
   svgContent += `<text x="${retX}" y="${padT-6}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="26" fill="var(--gold)">retire @ ${retAge}</text>`;
   if(driftTargetVal > 0){
-    const goalY = yForBalance(driftTargetVal);
-    svgContent += `<line x1="${padL}" y1="${goalY}" x2="${W-padR}" y2="${goalY}" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
+    svgContent += `<path d="${pathFor(goalSeries)}" fill="none" stroke="${CHART_GOAL_COLOR}" stroke-width="3"/>`;
   }
   svgContent += `<path d="${pathFor(driftOnlySeries)}" fill="none" stroke="${CHART_NOINVEST_COLOR}" stroke-width="3.5"/>`;
   svgContent += `<path d="${pathFor(planSeries)}" fill="none" stroke="${CHART_PLAN_COLOR}" stroke-width="3.5"/>`;
   const planEnd = planSeries[planSeries.length-1], driftEnd = driftOnlySeries[driftOnlySeries.length-1];
   svgContent += `<circle cx="${xForAge(planEnd.age)}" cy="${yForBalance(planEnd.balance)}" r="4" fill="${CHART_PLAN_COLOR}"/>`;
   svgContent += `<circle cx="${xForAge(driftEnd.age)}" cy="${yForBalance(driftEnd.balance)}" r="4" fill="${CHART_NOINVEST_COLOR}"/>`;
+  if(driftTargetVal > 0){
+    const goalEnd = goalSeries[goalSeries.length-1];
+    svgContent += `<circle cx="${xForAge(goalEnd.age)}" cy="${yForBalance(goalEnd.balance)}" r="4" fill="${CHART_GOAL_COLOR}"/>`;
+  }
   svgContent += `<line class="hover-guideline" x1="0" y1="0" x2="0" y2="0" stroke="var(--paper-dim)" stroke-width="1" stroke-dasharray="3,3" visibility="hidden"/>`;
   svgContent += `<circle class="hover-dot-a" cx="0" cy="0" r="5" fill="${CHART_PLAN_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
   svgContent += `<circle class="hover-dot-b" cx="0" cy="0" r="5" fill="${CHART_NOINVEST_COLOR}" stroke="var(--bg)" stroke-width="2" visibility="hidden"/>`;
@@ -3198,21 +3298,22 @@ function renderDriftBalanceChart(){
   attachChartHover(svg, document.getElementById('driftOwnBalanceChartTooltip'), planSeries, driftOnlySeries,
     'With extra investing', '401(k) only', CHART_PLAN_COLOR, CHART_NOINVEST_COLOR,
     { xForAge, yForBalance, minAge, maxAge, padL, padR, padT, padB, plotW, W, H },
-    { label: 'Retirement goal', color: CHART_GOAL_COLOR, value: driftTargetVal });
+    driftTargetVal > 0 ? { label: 'Retirement goal', color: CHART_GOAL_COLOR, series: goalSeries } : null);
   const legend = document.getElementById('driftOwnBalanceChartLegend');
   if(legend){
     const planDepletedAt = planSeries.find(p => p.phase==='spend' && p.balance<=0);
     const driftDepletedAt = driftOnlySeries.find(p => p.phase==='spend' && p.balance<=0);
+    const goalDepletedAt = goalSeries.find(p => p.phase==='spend' && p.balance<=0);
     legend.innerHTML = `
       <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_PLAN_COLOR}"></span>With extra investing</span><span>${planDepletedAt ? 'runs out at age '+planDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
       <div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_NOINVEST_COLOR}"></span>401(k) only</span><span>${driftDepletedAt ? 'runs out at age '+driftDepletedAt.age : 'lasts 35+ years post-retirement'}</span></div>
-      ${driftTargetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal</span><span>${fmtMoney(driftTargetVal)}</span></div>` : ''}
+      ${driftTargetVal > 0 ? `<div class="plan-legend-item"><span class="lname"><span class="dot" style="background:${CHART_GOAL_COLOR}"></span>Retirement goal (${fmtMoney(driftTargetVal)} at retirement)</span><span>${goalDepletedAt ? 'lasts to about age '+goalDepletedAt.age : 'lasts through age 95+'}</span></div>` : ''}
     `;
     const note = document.getElementById('driftOwnBalanceChartNote');
     if(note){
       note.textContent = (driftAdditionalInvestingVal === 0)
-        ? `You haven't added any extra investing, so both lines are identical right now.`
-        : `The two lines split apart because your plan includes ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k).`;
+        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the pink line is drawn on top of the red one).`
+        : `The pink and red lines split apart because your plan includes ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k). The green line is your goal, spent down the same way once you retire.`;
     }
   }
 }
