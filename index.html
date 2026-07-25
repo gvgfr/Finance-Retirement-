@@ -2589,7 +2589,7 @@ function renderStep4(){
     } else if(additionalInvesting >= autoAdditional - 1){
       planGoalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
     } else {
-      planGoalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about ${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo (${fmtMoney(autoAdditional-additionalInvesting)}/yr) of extra investing beyond your 401(k) — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+      planGoalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about <b style="color:var(--paper);">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(autoAdditional-additionalInvesting)}/yr</b>) of extra investing beyond your 401(k) — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
     }
   }
 
@@ -2822,7 +2822,11 @@ function computeGoalSeries(minAge, retAge, target){
     points.push({ age: minAge, balance: 0, phase: 'accumulate' });
     return points;
   }
-  for(let age = minAge; age <= retAge; age++){
+  // Spend-down starts AT retAge (not retAge+1) to match solveRetirementTarget's own "survives"
+  // loop exactly -- otherwise this line depicts one fewer year of withdrawals than the target
+  // was actually solved for, making it look like there's leftover cushion at the end age that
+  // isn't really there.
+  for(let age = minAge; age < retAge; age++){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = totalRetirementAnnualSpend();
@@ -2845,7 +2849,7 @@ function computeGoalSeries(minAge, retAge, target){
   const taxRate = Math.min(0.5, Math.max(0, (Number(withdrawalTaxPctEl.value)||0)/100));
   let balance = target;
   const endAge = 95;
-  for(let age = retAge+1; age <= endAge; age++){
+  for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
     let income = otherInc + altInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
@@ -3121,7 +3125,7 @@ function renderComparison(){
     const nestEggShortfall = Math.max(0, targetVal - planNestEgg);
     const fullyRequiredAnnual = requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
     const additionalAnnualNeeded = Math.max(0, fullyRequiredAnnual - planInvestedAnnually);
-    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your ${fmtMoney(targetVal)} goal by age ${retAge}. To close that gap, you'd need to invest an additional ${fmtMoney(additionalAnnualNeeded/12)}/mo (${fmtMoney(additionalAnnualNeeded)}/yr) beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the ${fmtMoney(spend)}/yr you said you'll need — ${planGapPct}% of your goal.`;
+    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(targetVal)}</b> goal by age ${retAge}. To close that gap, you'd need to invest an additional <b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded)}/yr</b>) beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${planGapPct}% of your goal.`;
     actionsEl.style.display = 'block';
     actionsEl.innerHTML = `
       <div class="shortfall-action" onclick="goTo(6)">
@@ -3565,7 +3569,7 @@ function renderDriftBudget(){
     } else if(additionalInvesting >= autoAdditional - 1){
       goalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
     } else {
-      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about ${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo (${fmtMoney(autoAdditional-additionalInvesting)}/yr) of extra investing beyond your 401(k) — every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${driftGetYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about <b style="color:var(--paper);">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(autoAdditional-additionalInvesting)}/yr</b>) of extra investing beyond your 401(k) — every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${driftGetYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
     }
   }
 
@@ -3789,7 +3793,9 @@ function driftComputeGoalSeries(minAge, retAge, target){
     points.push({ age: minAge, balance: 0, phase: 'accumulate' });
     return points;
   }
-  for(let age = minAge; age <= retAge; age++){
+  // Spend-down starts AT retAge (not retAge+1) to match driftSolveRetirementTarget's own
+  // "survives" loop exactly -- see computeGoalSeries for why.
+  for(let age = minAge; age < retAge; age++){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = driftTotalRetirementAnnualSpend();
@@ -3810,7 +3816,7 @@ function driftComputeGoalSeries(minAge, retAge, target){
   const taxRate = Math.min(0.5, Math.max(0, (Number(driftWithdrawalTaxPctEl.value)||0)/100));
   let balance = target;
   const endAge = 95;
-  for(let age = retAge+1; age <= endAge; age++){
+  for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
     let income = otherInc + driftAltInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
@@ -3945,7 +3951,7 @@ function renderDriftResults(){
     const totalShortfall = Math.max(0, driftTargetVal - nestEgg);
     const fullyRequired = requiredAnnualContribution(driftTargetVal, driftCurrentSavingsVal, years, growth);
     const additionalNeeded = Math.max(0, fullyRequired - planInvestedAnnually);
-    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your ${fmtMoney(driftTargetVal)} goal by age ${retAge}. To close that gap, you'd need to invest an additional ${fmtMoney(additionalNeeded/12)}/mo (${fmtMoney(additionalNeeded)}/yr) beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the ${fmtMoney(spend)}/yr you said you'll need — ${gapPct}% of your goal.`;
+    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(driftTargetVal)}</b> goal by age ${retAge}. To close that gap, you'd need to invest an additional <b style="color:var(--paper);">${fmtMoney(additionalNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalNeeded)}/yr</b>) beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${gapPct}% of your goal.`;
     actionsEl.style.display = 'block';
     actionsEl.innerHTML = `
       <div class="shortfall-action" onclick="goTo(13)">
