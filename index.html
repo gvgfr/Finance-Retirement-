@@ -1858,6 +1858,12 @@ function otherRetirementIncomeAnnualTotal(){ return otherRetirementIncome.reduce
 function allAltInvestmentItems(){
   return [...altRealEstate, ...altBusiness, ...altOtherInvestments, ...altAnnuities, ...altOtherIncome];
 }
+// Current (pre-retirement) income these items are already producing — flows straight into gross
+// pay/tax, same as the flat "Other income sources" table, and unconditionally (not age-windowed
+// like retirement income, since it's happening now).
+function altInvestmentCurrentIncomeTotal(){
+  return allAltInvestmentItems().reduce((sum, it) => sum + (Number(it.currentIncome)||0), 0);
+}
 // Sums retirement income for items whose [startAge, endAge] window contains `age` — called from
 // every existing age-by-age retirement loop alongside the flat otherRetirementIncomeAnnualTotal().
 function altInvestmentIncomeAt(age, retireAge){
@@ -2327,6 +2333,7 @@ function renderInvestmentTable(tableId, list, onChange){
     const bottom2 = document.createElement('div');
     bottom2.className = 'cat-row-bottom';
     bottom2.style.marginTop = '10px';
+    bottom2.appendChild(makeMoneyField('Current income (optional)', () => list[i].currentIncome, (v)=>{list[i].currentIncome=v;}));
     bottom2.appendChild(makeMoneyField('Retirement income (optional)', () => list[i].retirementIncome, (v)=>{list[i].retirementIncome=v;}));
     bottom2.appendChild(makeAgeField('Start age', () => list[i].startAge, (v)=>{list[i].startAge=v;}, 'retirement age'));
     bottom2.appendChild(makeAgeField('End age (optional)', () => list[i].endAge, (v)=>{list[i].endAge=v;}, 'for life'));
@@ -2339,7 +2346,7 @@ function renderInvestmentTable(tableId, list, onChange){
   onChange();
 }
 function newAltInvestmentItem(name){
-  return { name, currentValue: 0, annualContribution: 0, returnPct: 0, retirementIncome: 0, startAge: null, endAge: null };
+  return { name, currentValue: 0, annualContribution: 0, returnPct: 0, currentIncome: 0, retirementIncome: 0, startAge: null, endAge: null };
 }
 
 function renderGoalsTable(){
@@ -2470,7 +2477,7 @@ function renderStep4(){
   syncPlanTarget();
   const hasRealPlan = hasRealPlanMode();
   const status = filingStatusEl.value;
-  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + otherIncomeAnnualTotal();
+  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + otherIncomeAnnualTotal() + altInvestmentCurrentIncomeTotal();
   const agi = Math.max(0, gross - personalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
   const fica = computeHouseholdFICA(salaryVal, hasSpouseIncome() ? spouseSalaryVal : 0, status);
@@ -3128,6 +3135,9 @@ function driftOtherRetirementIncomeAnnualTotal(){ return driftOtherRetirementInc
 function driftAllAltInvestmentItems(){
   return [...driftAltRealEstate, ...driftAltBusiness, ...driftAltOtherInvestments, ...driftAltAnnuities, ...driftAltOtherIncome];
 }
+function driftAltInvestmentCurrentIncomeTotal(){
+  return driftAllAltInvestmentItems().reduce((sum, it) => sum + (Number(it.currentIncome)||0), 0);
+}
 function driftAltInvestmentIncomeAt(age, retireAge){
   return driftAllAltInvestmentItems().reduce((sum, it) => {
     const start = it.startAge || retireAge;
@@ -3389,7 +3399,7 @@ function driftGetRequiredInvesting(){
 function renderDriftBudget(){
   driftSyncTarget();
   const status = driftFilingStatusEl.value;
-  const gross = driftSalaryVal + (driftHasSpouseIncome() ? driftSpouseSalaryVal : 0) + driftOtherIncomeAnnualTotal();
+  const gross = driftSalaryVal + (driftHasSpouseIncome() ? driftSpouseSalaryVal : 0) + driftOtherIncomeAnnualTotal() + driftAltInvestmentCurrentIncomeTotal();
   const agi = Math.max(0, gross - driftPersonalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
   const fica = computeHouseholdFICA(driftSalaryVal, driftHasSpouseIncome() ? driftSpouseSalaryVal : 0, status);
