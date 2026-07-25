@@ -22,6 +22,7 @@
   :root{
     --bg:#F7F7F8; --bg-card:#FFFFFF; --paper:#16181D; --paper-dim:#6B7280;
     --gold:#2563EB; --jade:#0F766E; --teal:#059669; --clay:#EA580C;
+    --violet:#7C3AED; --sky:#0284C7; --rose:#DB2777; --amber:#D97706;
     --line:#D1D5DB; --numgreen:#2563EB;
   }
   *{box-sizing:border-box;}
@@ -38,7 +39,12 @@
   .eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);}
   h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(28px,7vw,40px);line-height:1.1;margin:0 0 14px;letter-spacing:-0.01em;}
   h2{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(23px,6vw,30px);line-height:1.15;margin:0 0 8px;}
-  h2 em, h1 em{font-style:italic;color:var(--teal);}
+  h2 em{font-style:italic;color:var(--teal);}
+  h1 em{
+    font-style:italic;
+    background:linear-gradient(135deg, var(--teal), var(--sky) 55%, var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
   .sub{color:var(--paper-dim);font-size:16.5px;line-height:1.6;margin:0 0 24px;}
 
   /* Jump nav */
@@ -62,7 +68,11 @@
     display:inline-flex;align-items:center;gap:8px;width:100%;justify-content:center;
   }
   .btn:active{transform:scale(0.98);}
-  .btn-primary{background:var(--teal);color:var(--bg);font-weight:600;}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--teal), var(--jade));color:#fff;font-weight:600;
+    box-shadow:0 4px 14px rgba(5,150,105,0.28);
+  }
+  .btn-primary:active{box-shadow:0 2px 8px rgba(5,150,105,0.22);}
   .btn-ghost{background:transparent;color:var(--paper-dim);border:1px solid var(--line);width:auto;}
   .btn-ghost:hover{color:var(--paper);border-color:var(--paper-dim);}
   .nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:32px;padding-top:20px;border-top:1px solid var(--line);}
@@ -165,7 +175,7 @@
   .good-box{margin-top:16px;padding:12px 14px;border-radius:8px;background:rgba(4,120,87,0.08);border:1px solid rgba(4,120,87,0.35);color:var(--paper);font-weight:700;font-size:14.5px;line-height:1.5;display:none;}
   .good-box.show{display:block;}
 
-  .result-hero{margin-top:22px;text-align:center;background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:32px 20px;}
+  .result-hero{margin-top:22px;text-align:center;background:linear-gradient(160deg, rgba(37,99,235,0.06), rgba(124,58,237,0.04)), var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:32px 20px;}
   .result-hero .fi-label{justify-content:center;display:flex;}
   .result-hero .fi-number{font-size:clamp(30px,8vw,40px);}
 
@@ -174,8 +184,8 @@
   .duo-card{
     border-radius:12px;padding:16px 12px;border:1px solid var(--line);background:var(--bg-card);text-align:center;
   }
-  .duo-card.plan{border-color:rgba(5,150,105,0.4);}
-  .duo-card.drift{border-color:rgba(234,88,12,0.45);}
+  .duo-card.plan{border-color:rgba(5,150,105,0.4);background:linear-gradient(160deg, rgba(5,150,105,0.08), rgba(15,118,110,0.02)), var(--bg-card);}
+  .duo-card.drift{border-color:rgba(234,88,12,0.45);background:linear-gradient(160deg, rgba(234,88,12,0.08), rgba(217,119,6,0.02)), var(--bg-card);}
   .duo-card .duo-label{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13.5px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;}
   .duo-card.plan .duo-label{color:var(--teal);}
   .duo-card.drift .duo-label{color:var(--clay);}
@@ -200,10 +210,10 @@
     margin:18px 0 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:14px;
     font-weight:700;letter-spacing:0.04em;color:var(--paper);
   }
-  .tap-card-cta span{display:inline-block;padding:10px 16px;border-radius:999px;border:1px solid var(--gold);background:rgba(37,99,235,0.08);}
+  .tap-card-cta span{display:inline-block;padding:10px 16px;border-radius:999px;border:1px solid var(--gold);background:linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.08));}
 
   .shortfall-hero{
-    text-align:center;background:var(--bg-card);border:1px solid rgba(220,38,38,0.45);border-radius:14px;
+    text-align:center;background:linear-gradient(160deg, rgba(220,38,38,0.06), rgba(220,38,38,0.01)), var(--bg-card);border:1px solid rgba(220,38,38,0.45);border-radius:14px;
     padding:32px 20px;margin-bottom:20px;
   }
   .shortfall-hero .fi-label{color:#B91C1C;justify-content:center;display:flex;}
@@ -222,7 +232,7 @@
   .shortfall-action .txt b{color:var(--gold);}
 
   .share-banner{
-    background:linear-gradient(160deg, rgba(37,99,235,0.06), rgba(5,150,105,0.07));
+    background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.06) 50%, rgba(5,150,105,0.08));
     border:1px solid var(--line);border-radius:16px;padding:26px 20px 22px;text-align:center;margin-bottom:22px;
   }
   .share-icons{width:100%;max-width:220px;height:auto;margin:0 auto 12px;display:block;}
@@ -481,22 +491,22 @@
     <div class="cat-table" id="altRealEstateTable"></div>
     <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Business Income</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
     <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
     <div class="cat-table" id="altBusinessTable"></div>
     <button class="add-cat-btn" id="addAltBusinessBtn">+ add business</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Investments</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
     <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
     <div class="cat-table" id="altOtherInvestmentsTable"></div>
     <button class="add-cat-btn" id="addAltOtherInvestmentsBtn">+ add investment</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Annuities</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
     <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
     <div class="cat-table" id="altAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Income</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
     <p class="field-hint" style="margin-bottom:10px;">Catch-all for any income that doesn't fit the categories above.</p>
     <div class="cat-table" id="altOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
@@ -611,7 +621,7 @@
     <div class="subtotal-line">Subtotal — NEEDS: <b id="needsSubtotal">$0</b>/yr</div>
 
     <div class="section-header">
-      <span class="icon" style="background:rgba(217,119,6,0.14);color:#D97706;">🎯</span>
+      <span class="icon" style="background:rgba(217,119,6,0.14);color:var(--amber);">🎯</span>
       <span class="label">SAVINGS GOALS</span>
     </div>
     <p class="field-hint" style="margin-bottom:10px;">House, car, wedding, vacation — the stuff life costs before retirement even comes into it. Set a target and a timeline; we'll tell you the monthly.</p>
@@ -619,7 +629,7 @@
     <button class="add-cat-btn" id="addGoalBtn">+ add a goal</button>
     <div class="subtotal-line">Subtotal — SAVINGS GOALS: <b id="goalsSubtotal">$0</b>/yr</div>
 
-    <div class="group-label" style="margin-top:26px;"><span class="swatch" style="background:var(--gold)"></span>Kids' education fund <span style="opacity:.6;">(optional)</span></div>
+    <div class="group-label" style="margin-top:26px;"><span class="swatch" style="background:var(--violet)"></span>Kids' education fund <span style="opacity:.6;">(optional)</span></div>
     <div class="plan-grid">
       <div class="field"><label># of kids</label><input type="number" id="numKids" value="0" min="0" step="1"></div>
       <div class="field"><label>Years until college</label><input type="number" id="yearsToCollege" value="10" min="1" step="1"></div>
@@ -627,7 +637,7 @@
     </div>
 
     <div class="section-header" style="margin-top:30px;">
-      <span class="icon" style="background:rgba(37,99,235,0.1);color:var(--gold);">🛟</span>
+      <span class="icon" style="background:rgba(2,132,199,0.12);color:var(--sky);">🛟</span>
       <span class="label">EMERGENCY FUND</span>
     </div>
     <p class="field-hint" style="margin-bottom:10px;">The standard recommendation is 3–6 months of essential expenses, kept liquid — not invested. This scales automatically with your NEEDS total above.</p>
@@ -877,7 +887,7 @@
     <div class="subtotal-line">Subtotal — NEEDS: <b id="driftNeedsSubtotal">$0</b>/yr</div>
 
     <div class="section-header">
-      <span class="icon" style="background:rgba(217,119,6,0.14);color:#D97706;">🎯</span>
+      <span class="icon" style="background:rgba(217,119,6,0.14);color:var(--amber);">🎯</span>
       <span class="label">SAVINGS GOALS</span>
     </div>
     <p class="field-hint" style="margin-bottom:10px;">House, car, wedding, vacation. Set a target and a timeline; we'll tell you the monthly.</p>
@@ -885,7 +895,7 @@
     <button class="add-cat-btn" id="addDriftGoalBtn">+ add a goal</button>
     <div class="subtotal-line">Subtotal — SAVINGS GOALS: <b id="driftGoalsSubtotal">$0</b>/yr</div>
 
-    <div class="group-label" style="margin-top:26px;"><span class="swatch" style="background:var(--gold)"></span>Kids' education fund <span style="opacity:.6;">(optional)</span></div>
+    <div class="group-label" style="margin-top:26px;"><span class="swatch" style="background:var(--violet)"></span>Kids' education fund <span style="opacity:.6;">(optional)</span></div>
     <div class="plan-grid">
       <div class="field"><label># of kids</label><input type="number" id="driftNumKids" value="0" min="0" step="1"></div>
       <div class="field"><label>Years until college</label><input type="number" id="driftYearsToCollege" value="10" min="1" step="1"></div>
@@ -893,7 +903,7 @@
     </div>
 
     <div class="section-header" style="margin-top:30px;">
-      <span class="icon" style="background:rgba(37,99,235,0.1);color:var(--gold);">🛟</span>
+      <span class="icon" style="background:rgba(2,132,199,0.12);color:var(--sky);">🛟</span>
       <span class="label">EMERGENCY FUND</span>
     </div>
     <p class="field-hint" style="margin-bottom:10px;">The standard recommendation is 3–6 months of essential expenses, kept liquid — not invested.</p>
@@ -948,22 +958,22 @@
     <div class="cat-table" id="driftAltRealEstateTable"></div>
     <button class="add-cat-btn" id="addDriftAltRealEstateBtn">+ add property</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Business Income</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
     <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
     <div class="cat-table" id="driftAltBusinessTable"></div>
     <button class="add-cat-btn" id="addDriftAltBusinessBtn">+ add business</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Investments</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
     <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
     <div class="cat-table" id="driftAltOtherInvestmentsTable"></div>
     <button class="add-cat-btn" id="addDriftAltOtherInvestmentsBtn">+ add investment</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Annuities</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
     <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
     <div class="cat-table" id="driftAltAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addDriftAltAnnuitiesBtn">+ add annuity</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Income</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
     <p class="field-hint" style="margin-bottom:10px;">Catch-all for any income that doesn't fit the categories above.</p>
     <div class="cat-table" id="driftAltOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addDriftAltOtherIncomeBtn">+ add income source</button>
@@ -1033,7 +1043,7 @@
     <button class="add-cat-btn" id="addDriftEssentialBtn">+ add category</button>
     <div class="subtotal-line">Essential total: <b id="driftEssentialTotal">$0</b>/yr</div>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--gold)"></span>Lifestyle</div>
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Lifestyle</div>
     <p class="field-hint" style="margin-bottom:10px;">Travel, dining, hobbies, gifts, family support — the life you're retiring into.</p>
     <div class="cat-table" id="driftLifestyleTable"></div>
     <button class="add-cat-btn" id="addDriftLifestyleBtn">+ add category</button>
