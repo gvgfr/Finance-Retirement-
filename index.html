@@ -470,6 +470,31 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
+    <p class="field-hint" style="margin-bottom:10px;">Properties that both produce income and appreciate as an asset — different from a brokerage account on both counts.</p>
+    <div class="cat-table" id="altRealEstateTable"></div>
+    <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Business Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">A business you own — its equity value and/or what it pays you in retirement.</p>
+    <div class="cat-table" id="altBusinessTable"></div>
+    <button class="add-cat-btn" id="addAltBusinessBtn">+ add business</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Investments</div>
+    <p class="field-hint" style="margin-bottom:10px;">REITs, private equity, crypto, and anything else that doesn't fit the accounts above.</p>
+    <div class="cat-table" id="altOtherInvestmentsTable"></div>
+    <button class="add-cat-btn" id="addAltOtherInvestmentsBtn">+ add investment</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Annuities</div>
+    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — set a start age if payouts begin later than retirement.</p>
+    <div class="cat-table" id="altAnnuitiesTable"></div>
+    <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">Catch-all for anything that grows and/or pays retirement income but doesn't fit the categories above.</p>
+    <div class="cat-table" id="altOtherIncomeTable"></div>
+    <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
+
     <div class="plan-grid" style="margin-top:22px;">
       <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint">auto-filled from your retirement target — editable</span><span class="field-hint" id="planTargetEditedNote" style="display:none;color:#9A3412;"></span></div>
     </div>
@@ -521,8 +546,8 @@
       <div class="field"><label>Rough state tax rate</label><input type="number" id="stateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable. Uses each state's flat rate, or top marginal rate for progressive-bracket states (your effective rate is often lower).</span></div>
     </div>
 
-    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
-      <input type="checkbox" id="hasSpouseIncome" style="width:16px;height:16px;">
+    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--paper);margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" id="hasSpouseIncome" style="width:18px;height:18px;">
       + Add a spouse's income
     </label>
     <div id="spouseIncomeFields" style="display:none;">
@@ -785,8 +810,8 @@
       <div class="field"><label>Rough state tax rate</label><input type="number" id="driftStateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable.</span></div>
     </div>
 
-    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
-      <input type="checkbox" id="driftHasSpouseIncome" style="width:16px;height:16px;">
+    <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--paper);margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" id="driftHasSpouseIncome" style="width:18px;height:18px;">
       + Add a spouse's income
     </label>
     <div id="driftSpouseIncomeFields" style="display:none;">
@@ -899,6 +924,31 @@
       <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="driftSpouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
+    <p class="field-hint" style="margin-bottom:10px;">Properties that both produce income and appreciate as an asset — different from a brokerage account on both counts.</p>
+    <div class="cat-table" id="driftAltRealEstateTable"></div>
+    <button class="add-cat-btn" id="addDriftAltRealEstateBtn">+ add property</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Business Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">A business you own — its equity value and/or what it pays you in retirement.</p>
+    <div class="cat-table" id="driftAltBusinessTable"></div>
+    <button class="add-cat-btn" id="addDriftAltBusinessBtn">+ add business</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Investments</div>
+    <p class="field-hint" style="margin-bottom:10px;">REITs, private equity, crypto, and anything else that doesn't fit the accounts above.</p>
+    <div class="cat-table" id="driftAltOtherInvestmentsTable"></div>
+    <button class="add-cat-btn" id="addDriftAltOtherInvestmentsBtn">+ add investment</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Annuities</div>
+    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — set a start age if payouts begin later than retirement.</p>
+    <div class="cat-table" id="driftAltAnnuitiesTable"></div>
+    <button class="add-cat-btn" id="addDriftAltAnnuitiesBtn">+ add annuity</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Other Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">Catch-all for anything that grows and/or pays retirement income but doesn't fit the categories above.</p>
+    <div class="cat-table" id="driftAltOtherIncomeTable"></div>
+    <button class="add-cat-btn" id="addDriftAltOtherIncomeBtn">+ add income source</button>
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
@@ -1232,6 +1282,15 @@ let savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
 let otherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
 let otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
 
+// Alternative-investment categories — each item can grow at its own rate (unlike the flat
+// current-invested-assets lump) and optionally pay a windowed retirement income. Start empty:
+// this is an opt-in section, not pre-seeded like the categories above.
+let altRealEstate = [];
+let altBusiness = [];
+let altOtherInvestments = [];
+let altAnnuities = [];
+let altOtherIncome = [];
+
 let ssMonthlyVal = 0;
 let spouseSsMonthlyVal = 0;
 let currentSavingsVal = 0;
@@ -1382,6 +1441,11 @@ function resetAllState(){
   savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
   otherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
   otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
+  altRealEstate = [];
+  altBusiness = [];
+  altOtherInvestments = [];
+  altAnnuities = [];
+  altOtherIncome = [];
 
   ssMonthlyVal = 0;
   spouseSsMonthlyVal = 0;
@@ -1461,6 +1525,11 @@ function resetAllState(){
   renderGoalsTable();
   renderOtherIncomeTable();
   renderOtherRetIncomeTable();
+  renderAltRealEstate();
+  renderAltBusiness();
+  renderAltOtherInvestments();
+  renderAltAnnuities();
+  renderAltOtherIncome();
   syncPlanTarget();
   updateAssetsTotal();
   updateEmergencyFund();
@@ -1472,6 +1541,11 @@ function resetAllState(){
   driftSavingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
   driftOtherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
   driftOtherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
+  driftAltRealEstate = [];
+  driftAltBusiness = [];
+  driftAltOtherInvestments = [];
+  driftAltAnnuities = [];
+  driftAltOtherIncome = [];
   driftSsMonthlyVal = 0;
   driftSpouseSsMonthlyVal = 0;
   driftCurrentSavingsVal = 0;
@@ -1538,6 +1612,11 @@ function resetAllState(){
   renderDriftGoalsTable();
   renderDriftOtherIncomeTable();
   renderDriftOtherRetIncomeTable();
+  renderDriftAltRealEstate();
+  renderDriftAltBusiness();
+  renderDriftAltOtherInvestments();
+  renderDriftAltAnnuities();
+  renderDriftAltOtherIncome();
   driftUpdateAssetsTotal();
   driftUpdateEmergencyFund();
 }
@@ -1776,6 +1855,25 @@ function totalRetirementAnnualSpend(){
 function annualSSBenefit(){ return ssMonthlyVal * 12; }
 function otherRetirementIncomeAnnualTotal(){ return otherRetirementIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
 
+function allAltInvestmentItems(){
+  return [...altRealEstate, ...altBusiness, ...altOtherInvestments, ...altAnnuities, ...altOtherIncome];
+}
+// Sums retirement income for items whose [startAge, endAge] window contains `age` — called from
+// every existing age-by-age retirement loop alongside the flat otherRetirementIncomeAnnualTotal().
+function altInvestmentIncomeAt(age, retireAge){
+  return allAltInvestmentItems().reduce((sum, it) => {
+    const start = it.startAge || retireAge;
+    const end = it.endAge || Infinity;
+    return (age >= start && age <= end) ? sum + (Number(it.retirementIncome)||0) : sum;
+  }, 0);
+}
+// Each item's own future value, compounded at its own rate — reuses futureValueOfContributions
+// as-is (defined below) rather than duplicating the compounding math.
+function altInvestmentFutureValue(years){
+  return allAltInvestmentItems().reduce((sum, it) =>
+    sum + futureValueOfContributions(Number(it.annualContribution)||0, Number(it.currentValue)||0, years, Number(it.returnPct)||0), 0);
+}
+
 function socialSecurityClaimAge(){ return Number(ssClaimAgeEl.value) || 67; }
 function plannedRetirementAge(){ return Number(retireAgeEl.value) || 0; }
 function hasSpouseSS(){ return includeSpouseSSEl.checked; }
@@ -1816,7 +1914,7 @@ function solveRetirementTarget(retireAge, endAge){
     let balance = starting;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other;
+      let income = other + altInvestmentIncomeAt(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -1854,7 +1952,7 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
     let balance = nestEgg;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other;
+      let income = other + altInvestmentIncomeAt(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -1897,7 +1995,7 @@ function retirementTargetPhaseBreakdown(retireAge, endAge){
 
   let balance = target;
   for(let age = retireAge; age < claim1; age++){
-    const rawNeed = Math.max(0, spend - other);
+    const rawNeed = Math.max(0, spend - other - altInvestmentIncomeAt(age, retireAge));
     balance = balance * (1 + bRate) - (rawNeed / (1 - taxRate));
   }
   const balanceAtSS = Math.max(0, balance);
@@ -1982,7 +2080,8 @@ function futureValueOfContributions(annualContribution, current, years, rate){
 function getRequiredInvesting(){
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
-  return requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
+  const remainingTarget = Math.max(0, targetVal - altInvestmentFutureValue(years));
+  return requiredAnnualContribution(remainingTarget, currentSavingsVal, years, growth);
 }
 
 function updateGoalReminders(){
@@ -2140,6 +2239,109 @@ function computeFICA(gross, status){ return computeHouseholdFICA(gross, 0, statu
 function renderCurrentNeedsTable(){ renderCatTable('currentNeedsTable', currentNeeds, renderStep4); }
 function currentNeedsAnnualTotal(){ return currentNeeds.reduce((s,c)=>s+(Number(c.annual)||0),0); }
 
+// Shared by both paths — renders one row per alt-investment item with all 6 fields. Modeled on
+// renderGoalsTable below (hand-rolled, not the generic renderCatTable, since the {name, annual}
+// shape that helper expects can't hold this many fields per row).
+function renderInvestmentTable(tableId, list, onChange){
+  const table = document.getElementById(tableId);
+  table.innerHTML = "";
+
+  function makeMoneyField(labelText, getVal, setVal){
+    const field = document.createElement('div');
+    field.className = 'cat-field';
+    const label = document.createElement('div');
+    label.className = 'cat-field-label';
+    label.textContent = labelText;
+    const wrap = document.createElement('div');
+    wrap.className = 'cat-input-wrap';
+    const dollar = document.createElement('span'); dollar.textContent = '$';
+    const input = document.createElement('input');
+    input.className = 'cat-input';
+    input.setAttribute('inputmode','numeric');
+    wrap.appendChild(dollar);
+    wrap.appendChild(input);
+    field.appendChild(label);
+    field.appendChild(wrap);
+    bindMoneyInput(input, getVal, setVal, onChange);
+    return field;
+  }
+  function makeAgeField(labelText, getVal, setVal, placeholder){
+    const field = document.createElement('div');
+    field.className = 'cat-field';
+    const label = document.createElement('div');
+    label.className = 'cat-field-label';
+    label.textContent = labelText;
+    const input = document.createElement('input');
+    input.className = 'cat-input';
+    input.type = 'number';
+    input.min = 0; input.step = 1;
+    if(placeholder) input.placeholder = placeholder;
+    const v = getVal();
+    input.value = (v === null || v === undefined) ? '' : v;
+    input.addEventListener('input', (e) => {
+      const raw = e.target.value;
+      setVal(raw === '' ? null : Number(raw));
+      onChange();
+    });
+    field.appendChild(label);
+    field.appendChild(input);
+    return field;
+  }
+
+  list.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const top = document.createElement('div');
+    top.className = 'cat-row-top';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name';
+    nameInput.value = item.name;
+    nameInput.addEventListener('input', (e) => { list[i].name = e.target.value; });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cat-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', () => { list.splice(i,1); renderInvestmentTable(tableId, list, onChange); });
+    top.appendChild(nameInput);
+    top.appendChild(delBtn);
+
+    const bottom1 = document.createElement('div');
+    bottom1.className = 'cat-row-bottom';
+    bottom1.appendChild(makeMoneyField('Current value', () => list[i].currentValue, (v)=>{list[i].currentValue=v;}));
+    bottom1.appendChild(makeMoneyField('Annual contribution', () => list[i].annualContribution, (v)=>{list[i].annualContribution=v;}));
+    const returnField = document.createElement('div');
+    returnField.className = 'cat-field';
+    const returnLabel = document.createElement('div');
+    returnLabel.className = 'cat-field-label';
+    returnLabel.textContent = 'Expected return (%)';
+    const returnInput = document.createElement('input');
+    returnInput.className = 'cat-input';
+    returnInput.type = 'number'; returnInput.step = 0.5; returnInput.min = 0; returnInput.max = 30;
+    returnInput.value = item.returnPct || 0;
+    returnInput.addEventListener('input', (e) => { list[i].returnPct = Number(e.target.value)||0; onChange(); });
+    returnField.appendChild(returnLabel);
+    returnField.appendChild(returnInput);
+    bottom1.appendChild(returnField);
+
+    const bottom2 = document.createElement('div');
+    bottom2.className = 'cat-row-bottom';
+    bottom2.style.marginTop = '10px';
+    bottom2.appendChild(makeMoneyField('Retirement income (optional)', () => list[i].retirementIncome, (v)=>{list[i].retirementIncome=v;}));
+    bottom2.appendChild(makeAgeField('Start age', () => list[i].startAge, (v)=>{list[i].startAge=v;}, 'retirement age'));
+    bottom2.appendChild(makeAgeField('End age (optional)', () => list[i].endAge, (v)=>{list[i].endAge=v;}, 'for life'));
+
+    row.appendChild(top);
+    row.appendChild(bottom1);
+    row.appendChild(bottom2);
+    table.appendChild(row);
+  });
+  onChange();
+}
+function newAltInvestmentItem(name){
+  return { name, currentValue: 0, annualContribution: 0, returnPct: 0, retirementIncome: 0, startAge: null, endAge: null };
+}
+
 function renderGoalsTable(){
   const table = document.getElementById('goalsTable');
   table.innerHTML = "";
@@ -2222,6 +2424,11 @@ function goalsAnnualTotal(){
   return savingsGoals.reduce((s,g) => s + ((Number(g.target)||0) / Math.max(1, Number(g.years)||1)), 0);
 }
 function renderOtherIncomeTable(){ renderCatTable('otherIncomeTable', otherIncome, renderStep4, true); }
+function renderAltRealEstate(){ renderInvestmentTable('altRealEstateTable', altRealEstate, renderStep4); }
+function renderAltBusiness(){ renderInvestmentTable('altBusinessTable', altBusiness, renderStep4); }
+function renderAltOtherInvestments(){ renderInvestmentTable('altOtherInvestmentsTable', altOtherInvestments, renderStep4); }
+function renderAltAnnuities(){ renderInvestmentTable('altAnnuitiesTable', altAnnuities, renderStep4); }
+function renderAltOtherIncome(){ renderInvestmentTable('altOtherIncomeTable', altOtherIncome, renderStep4); }
 function otherIncomeAnnualTotal(){ return otherIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
 
 function getEducationRequiredAnnual(){
@@ -2378,12 +2585,12 @@ function renderStep4(){
   document.getElementById('driftAgeOrderWarn').classList.toggle('show', badDriftAge);
 
   const previewRetAge = Number(retireAgeEl.value) || 0;
-  const autopilotFV = futureValueOfContributions(retirementContribution(), currentSavingsVal, years, growth);
+  const autopilotFV = futureValueOfContributions(retirementContribution(), currentSavingsVal, years, growth) + altInvestmentFutureValue(years);
   document.getElementById('driftAutopilotNumber').textContent = fmtMoney(autopilotFV);
   document.getElementById('driftAutopilotSub').textContent = `By age ${Number(retireAgeEl.value)||'—'} — your current ${fmtMoney(currentSavingsVal)} in invested assets growing, plus your 401(k)/cash balance contribution. No extra investing included.`;
   document.getElementById('driftAutopilotIncome').textContent = fmtMoney(solveSustainableIncome(autopilotFV, previewRetAge)) + "/yr";
 
-  const resultFV = futureValueOfContributions(retirementContribution() + additionalInvesting, currentSavingsVal, years, growth);
+  const resultFV = futureValueOfContributions(retirementContribution() + additionalInvesting, currentSavingsVal, years, growth) + altInvestmentFutureValue(years);
   document.getElementById('driftResultNumber').textContent = fmtMoney(resultFV);
   document.getElementById('driftResultAge').textContent = Number(retireAgeEl.value)||'—';
   document.getElementById('driftResultIncome').textContent = fmtMoney(solveSustainableIncome(resultFV, previewRetAge)) + "/yr";
@@ -2445,28 +2652,37 @@ function computeBalanceSeries(annualContribution){
     benefit2 = 0;
   }
 
+  // Alt-investment items grow alongside the main lump but each at its own rate, so they're
+  // tracked as separate sub-balances during accumulation and folded into one total at every
+  // point — including at retirement, where that combined total becomes the spend-down balance.
+  const items = allAltInvestmentItems();
+  let streamBalances = items.map(it => Number(it.currentValue)||0);
+  function combinedTotal(mainBalance){ return mainBalance + streamBalances.reduce((a,b)=>a+b,0); }
+
   const points = [];
   let balance = currentSavingsVal;
-  points.push({ age: curAge, balance, phase: 'accumulate' });
+  points.push({ age: curAge, balance: combinedTotal(balance), phase: 'accumulate' });
 
   for(let age = curAge+1; age <= retAge; age++){
     balance = balance*(1+g) + annualContribution;
-    points.push({ age, balance, phase: 'accumulate' });
+    streamBalances = streamBalances.map((bal,i) => bal*(1+(Number(items[i].returnPct)||0)/100) + (Number(items[i].annualContribution)||0));
+    points.push({ age, balance: combinedTotal(balance), phase: 'accumulate' });
   }
 
+  let spendBalance = combinedTotal(balance);
   const maxAge = retAge + 35;
   const bRate = bridgeGrowthRate(), ltRate = longtermGrowthRate();
   const taxRate = Math.min(0.5, Math.max(0, (Number(withdrawalTaxPctEl.value)||0)/100));
   for(let age = retAge+1; age <= maxAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc;
+    let income = otherInc + altInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
     const need = rawNeed / (1 - taxRate);
-    balance = Math.max(0, balance * (1 + rate) - need);
-    points.push({ age, balance, phase: 'spend' });
-    if(balance <= 0) break;
+    spendBalance = Math.max(0, spendBalance * (1 + rate) - need);
+    points.push({ age, balance: spendBalance, phase: 'spend' });
+    if(spendBalance <= 0) break;
   }
   return points;
 }
@@ -2507,7 +2723,7 @@ function computeGoalSeries(minAge, retAge, target){
   const endAge = 95;
   for(let age = retAge+1; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc;
+    let income = otherInc + altInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
@@ -2751,7 +2967,7 @@ function renderComparison(){
   const r = growth/100;
   const fvExistingAssets = currentSavingsVal * Math.pow(1+r, years);
   const fvNewContributions = r === 0 ? planInvestedAnnually*years : planInvestedAnnually * ((Math.pow(1+r, years) - 1) / r);
-  const planNestEgg = fvExistingAssets + fvNewContributions;
+  const planNestEgg = fvExistingAssets + fvNewContributions + altInvestmentFutureValue(years);
   const planIncome = solveSustainableIncome(planNestEgg, retAgeNum);
   const planGapPct = spend > 0 ? Math.round((planIncome/spend)*100) : 100;
   const planShortfall = Math.max(0, spend - planIncome);
@@ -2780,7 +2996,7 @@ function renderComparison(){
   } else {
     shortBox.classList.add('show');
     const nestEggShortfall = Math.max(0, targetVal - planNestEgg);
-    const fullyRequiredAnnual = requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
+    const fullyRequiredAnnual = requiredAnnualContribution(Math.max(0, targetVal - altInvestmentFutureValue(years)), currentSavingsVal, years, growth);
     const additionalAnnualNeeded = Math.max(0, fullyRequiredAnnual - planInvestedAnnually);
     shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your ${fmtMoney(targetVal)} goal by age ${retAge}. To close that gap, you'd need to invest an additional ${fmtMoney(additionalAnnualNeeded/12)}/mo (${fmtMoney(additionalAnnualNeeded)}/yr) beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the ${fmtMoney(spend)}/yr you said you'll need — ${planGapPct}% of your goal.`;
     actionsEl.style.display = 'block';
@@ -2810,6 +3026,11 @@ let driftCurrentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
 let driftSavingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
 let driftOtherIncome = DEFAULT_OTHER_INCOME.map(c => ({...c}));
 let driftOtherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
+let driftAltRealEstate = [];
+let driftAltBusiness = [];
+let driftAltOtherInvestments = [];
+let driftAltAnnuities = [];
+let driftAltOtherIncome = [];
 
 let driftSsMonthlyVal = 0;
 let driftSpouseSsMonthlyVal = 0;
@@ -2904,6 +3125,20 @@ function driftTotalRetirementAnnualSpend(){
 }
 function driftAnnualSSBenefit(){ return driftSsMonthlyVal * 12; }
 function driftOtherRetirementIncomeAnnualTotal(){ return driftOtherRetirementIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
+function driftAllAltInvestmentItems(){
+  return [...driftAltRealEstate, ...driftAltBusiness, ...driftAltOtherInvestments, ...driftAltAnnuities, ...driftAltOtherIncome];
+}
+function driftAltInvestmentIncomeAt(age, retireAge){
+  return driftAllAltInvestmentItems().reduce((sum, it) => {
+    const start = it.startAge || retireAge;
+    const end = it.endAge || Infinity;
+    return (age >= start && age <= end) ? sum + (Number(it.retirementIncome)||0) : sum;
+  }, 0);
+}
+function driftAltInvestmentFutureValue(years){
+  return driftAllAltInvestmentItems().reduce((sum, it) =>
+    sum + futureValueOfContributions(Number(it.annualContribution)||0, Number(it.currentValue)||0, years, Number(it.returnPct)||0), 0);
+}
 function driftSocialSecurityClaimAge(){ return Number(driftOwnSsClaimAgeEl.value) || 67; }
 function driftPlannedRetirementAge(){ return Number(driftOwnRetireAgeEl.value) || 0; }
 function driftHasSpouseSS(){ return driftOwnIncludeSpouseSSEl.checked; }
@@ -2930,7 +3165,7 @@ function driftSolveRetirementTarget(retireAge, endAge){
     let balance = starting;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other;
+      let income = other + driftAltInvestmentIncomeAt(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -2964,7 +3199,7 @@ function driftSolveSustainableIncome(nestEgg, retireAge, endAge){
     let balance = nestEgg;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other;
+      let income = other + driftAltInvestmentIncomeAt(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -3004,7 +3239,7 @@ function driftRetirementTargetPhaseBreakdown(retireAge, endAge){
 
   let balance = target;
   for(let age = retireAge; age < claim1; age++){
-    const rawNeed = Math.max(0, spend - other);
+    const rawNeed = Math.max(0, spend - other - driftAltInvestmentIncomeAt(age, retireAge));
     balance = balance * (1 + bRate) - (rawNeed / (1 - taxRate));
   }
   const balanceAtSS = Math.max(0, balance);
@@ -3114,6 +3349,11 @@ function renderDriftGoalsTable(){
   });
 }
 function renderDriftOtherIncomeTable(){ renderCatTable('driftOtherIncomeTable', driftOtherIncome, renderDriftBudget, true); }
+function renderDriftAltRealEstate(){ renderInvestmentTable('driftAltRealEstateTable', driftAltRealEstate, renderDriftBudget); }
+function renderDriftAltBusiness(){ renderInvestmentTable('driftAltBusinessTable', driftAltBusiness, renderDriftBudget); }
+function renderDriftAltOtherInvestments(){ renderInvestmentTable('driftAltOtherInvestmentsTable', driftAltOtherInvestments, renderDriftBudget); }
+function renderDriftAltAnnuities(){ renderInvestmentTable('driftAltAnnuitiesTable', driftAltAnnuities, renderDriftBudget); }
+function renderDriftAltOtherIncome(){ renderInvestmentTable('driftAltOtherIncomeTable', driftAltOtherIncome, renderDriftBudget); }
 
 function driftUpdateAssetsTotal(){
   const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHsaVal + driftAssetsPensionVal + driftSpouseAssets401kVal;
@@ -3140,7 +3380,8 @@ function driftUpdateEmergencyFund(){
 
 function driftGetRequiredInvesting(){
   const years = driftGetYearsToRetirement();
-  return requiredAnnualContribution(driftTargetVal, driftCurrentSavingsVal, years, Number(driftGrowthEl.value)||0);
+  const remainingTarget = Math.max(0, driftTargetVal - driftAltInvestmentFutureValue(years));
+  return requiredAnnualContribution(remainingTarget, driftCurrentSavingsVal, years, Number(driftGrowthEl.value)||0);
 }
 
 // Drift's own version of the tax/budget/trajectory/gap-closing engine — parallels renderStep4()
@@ -3250,7 +3491,7 @@ function renderDriftBudget(){
   document.getElementById('driftOwnAgeOrderWarn').classList.toggle('show', badAge);
 
   const ownPreviewRetAge = Number(driftOwnRetireAgeEl.value) || 0;
-  const autopilotFV = futureValueOfContributions(driftRetirementContribution(), driftCurrentSavingsVal, years, growth);
+  const autopilotFV = futureValueOfContributions(driftRetirementContribution(), driftCurrentSavingsVal, years, growth) + driftAltInvestmentFutureValue(years);
   document.getElementById('driftOwnAutopilotNumber').textContent = fmtMoney(autopilotFV);
   document.getElementById('driftOwnAutopilotSub').textContent = driftCurrentSavingsVal > 0
     ? `By age ${Number(driftOwnRetireAgeEl.value)||'—'} — your current ${fmtMoney(driftCurrentSavingsVal)} in invested assets growing, plus your ongoing 401(k) contribution. No extra investing included.`
@@ -3285,7 +3526,7 @@ function renderDriftBudget(){
     }
   }
 
-  const resultFV = futureValueOfContributions(driftRetirementContribution() + additionalInvesting, driftCurrentSavingsVal, years, growth);
+  const resultFV = futureValueOfContributions(driftRetirementContribution() + additionalInvesting, driftCurrentSavingsVal, years, growth) + driftAltInvestmentFutureValue(years);
   document.getElementById('driftOwnResultNumber').textContent = fmtMoney(resultFV);
   document.getElementById('driftOwnResultAge').textContent = Number(driftOwnRetireAgeEl.value)||'—';
   document.getElementById('driftOwnResultIncome').textContent = fmtMoney(driftSolveSustainableIncome(resultFV, ownPreviewRetAge)) + "/yr";
@@ -3336,26 +3577,32 @@ function driftComputeBalanceSeries(annualContribution){
     claim1Age = driftSocialSecurityClaimAge(); claim2Age = driftSocialSecurityClaimAge();
     benefit1 = ssAmt; benefit2 = 0;
   }
+  const items = driftAllAltInvestmentItems();
+  let streamBalances = items.map(it => Number(it.currentValue)||0);
+  function combinedTotal(mainBalance){ return mainBalance + streamBalances.reduce((a,b)=>a+b,0); }
+
   const points = [];
   let balance = driftCurrentSavingsVal;
-  points.push({ age: curAge, balance, phase: 'accumulate' });
+  points.push({ age: curAge, balance: combinedTotal(balance), phase: 'accumulate' });
   for(let age = curAge+1; age <= retAge; age++){
     balance = balance*(1+g) + annualContribution;
-    points.push({ age, balance, phase: 'accumulate' });
+    streamBalances = streamBalances.map((bal,i) => bal*(1+(Number(items[i].returnPct)||0)/100) + (Number(items[i].annualContribution)||0));
+    points.push({ age, balance: combinedTotal(balance), phase: 'accumulate' });
   }
+  let spendBalance = combinedTotal(balance);
   const maxAge = retAge + 35;
   const bRate = driftBridgeGrowthRate(), ltRate = driftLongtermGrowthRate();
   const taxRate = Math.min(0.5, Math.max(0, (Number(driftWithdrawalTaxPctEl.value)||0)/100));
   for(let age = retAge+1; age <= maxAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc;
+    let income = otherInc + driftAltInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
     const need = rawNeed / (1 - taxRate);
-    balance = Math.max(0, balance * (1 + rate) - need);
-    points.push({ age, balance, phase: 'spend' });
-    if(balance <= 0) break;
+    spendBalance = Math.max(0, spendBalance * (1 + rate) - need);
+    points.push({ age, balance: spendBalance, phase: 'spend' });
+    if(spendBalance <= 0) break;
   }
   return points;
 }
@@ -3389,7 +3636,7 @@ function driftComputeGoalSeries(minAge, retAge, target){
   const endAge = 95;
   for(let age = retAge+1; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc;
+    let income = otherInc + driftAltInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
@@ -3492,7 +3739,7 @@ function renderDriftResults(){
   const r = growth/100;
   const fvExistingAssets = driftCurrentSavingsVal * Math.pow(1+r, years);
   const fvNewContributions = r === 0 ? planInvestedAnnually*years : planInvestedAnnually * ((Math.pow(1+r, years) - 1) / r);
-  const nestEgg = fvExistingAssets + fvNewContributions;
+  const nestEgg = fvExistingAssets + fvNewContributions + driftAltInvestmentFutureValue(years);
   const income = driftSolveSustainableIncome(nestEgg, retAgeNum);
   const gapPct = spend > 0 ? Math.round((income/spend)*100) : 100;
   const shortfallAmt = Math.max(0, spend - income);
@@ -3521,7 +3768,7 @@ function renderDriftResults(){
   } else {
     shortBox.classList.add('show');
     const totalShortfall = Math.max(0, driftTargetVal - nestEgg);
-    const fullyRequired = requiredAnnualContribution(driftTargetVal, driftCurrentSavingsVal, years, growth);
+    const fullyRequired = requiredAnnualContribution(Math.max(0, driftTargetVal - driftAltInvestmentFutureValue(years)), driftCurrentSavingsVal, years, growth);
     const additionalNeeded = Math.max(0, fullyRequired - planInvestedAnnually);
     shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your ${fmtMoney(driftTargetVal)} goal by age ${retAge}. To close that gap, you'd need to invest an additional ${fmtMoney(additionalNeeded/12)}/mo (${fmtMoney(additionalNeeded)}/yr) beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the ${fmtMoney(spend)}/yr you said you'll need — ${gapPct}% of your goal.`;
     actionsEl.style.display = 'block';
@@ -3550,6 +3797,11 @@ document.getElementById('addLifestyleBtn').addEventListener('click', () => { lif
 document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
 document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
 document.getElementById('addOtherIncomeBtn').addEventListener('click', () => { otherIncome.push({name:"New income source", annual:0}); renderOtherIncomeTable(); });
+document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { altRealEstate.push(newAltInvestmentItem('New property')); renderAltRealEstate(); });
+document.getElementById('addAltBusinessBtn').addEventListener('click', () => { altBusiness.push(newAltInvestmentItem('New business')); renderAltBusiness(); });
+document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { altOtherInvestments.push(newAltInvestmentItem('New investment')); renderAltOtherInvestments(); });
+document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { altAnnuities.push(newAltInvestmentItem('New annuity')); renderAltAnnuities(); });
+document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { altOtherIncome.push(newAltInvestmentItem('New income source')); renderAltOtherIncome(); });
 document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:"New income source", annual:0}); renderOtherRetIncomeTable(); });
 
 bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, updateFiCard);
@@ -3650,6 +3902,11 @@ document.getElementById('addDriftLifestyleBtn').addEventListener('click', () => 
 document.getElementById('addDriftCurrentNeedBtn').addEventListener('click', () => { driftCurrentNeeds.push({name:"New category", annual:0}); renderDriftCurrentNeedsTable(); });
 document.getElementById('addDriftGoalBtn').addEventListener('click', () => { driftSavingsGoals.push({name:"New goal", target:0, years:1}); renderDriftGoalsTable(); renderDriftBudget(); });
 document.getElementById('addDriftOtherIncomeBtn').addEventListener('click', () => { driftOtherIncome.push({name:"New income source", annual:0}); renderDriftOtherIncomeTable(); });
+document.getElementById('addDriftAltRealEstateBtn').addEventListener('click', () => { driftAltRealEstate.push(newAltInvestmentItem('New property')); renderDriftAltRealEstate(); });
+document.getElementById('addDriftAltBusinessBtn').addEventListener('click', () => { driftAltBusiness.push(newAltInvestmentItem('New business')); renderDriftAltBusiness(); });
+document.getElementById('addDriftAltOtherInvestmentsBtn').addEventListener('click', () => { driftAltOtherInvestments.push(newAltInvestmentItem('New investment')); renderDriftAltOtherInvestments(); });
+document.getElementById('addDriftAltAnnuitiesBtn').addEventListener('click', () => { driftAltAnnuities.push(newAltInvestmentItem('New annuity')); renderDriftAltAnnuities(); });
+document.getElementById('addDriftAltOtherIncomeBtn').addEventListener('click', () => { driftAltOtherIncome.push(newAltInvestmentItem('New income source')); renderDriftAltOtherIncome(); });
 document.getElementById('addDriftOtherRetIncomeBtn').addEventListener('click', () => { driftOtherRetirementIncome.push({name:"New income source", annual:0}); renderDriftOtherRetIncomeTable(); });
 
 bindMoneyInput(driftOwnSsMonthlyEl, ()=>driftSsMonthlyVal, (v)=>{driftSsMonthlyVal=v;}, updateDriftFiCard);
@@ -3735,11 +3992,21 @@ renderCurrentNeedsTable();
 renderGoalsTable();
 renderOtherIncomeTable();
 renderOtherRetIncomeTable();
+renderAltRealEstate();
+renderAltBusiness();
+renderAltOtherInvestments();
+renderAltAnnuities();
+renderAltOtherIncome();
 syncPlanTarget();
 renderDriftCurrentNeedsTable();
 renderDriftGoalsTable();
 renderDriftOtherIncomeTable();
 renderDriftOtherRetIncomeTable();
+renderDriftAltRealEstate();
+renderDriftAltBusiness();
+renderDriftAltOtherInvestments();
+renderDriftAltAnnuities();
+renderDriftAltOtherIncome();
 renderJumpNav();
 loadFromSheet();
 setupReveals();
