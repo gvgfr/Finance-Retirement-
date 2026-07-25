@@ -3172,8 +3172,25 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
     // Pinned to the top of the plot area (not the tapped point's height) so it's never left
     // sitting under a finger mid-scroll — a touch lower on the chart would otherwise put the
     // box right where the next drag lands.
-    tooltipEl.style.left = ((x / W) * 100) + '%';
     tooltipEl.style.top = (padT / H) * 100 + '%';
+
+    // Horizontal position: the box is naturally centered on the hovered point (via the CSS
+    // translateX(-50%)), which overflows off-screen on narrow/mobile widths whenever the point
+    // is near either edge of the curve. Measure the tooltip's actual rendered width against the
+    // chart's actual rendered width (rect.width, same value used for svgX above) and nudge the
+    // box back inside those bounds — the hover guideline/dot still mark the true x position, only
+    // the text box itself shifts.
+    const xPct = (x / W) * 100;
+    tooltipEl.style.left = xPct + '%';
+    tooltipEl.style.transform = 'translate(-50%, -100%)';
+    const tooltipWidth = tooltipEl.offsetWidth;
+    const desiredCenterPx = (xPct / 100) * rect.width;
+    const halfW = tooltipWidth / 2;
+    const clampedCenterPx = Math.max(halfW, Math.min(rect.width - halfW, desiredCenterPx));
+    const shiftPx = clampedCenterPx - desiredCenterPx;
+    if(shiftPx !== 0){
+      tooltipEl.style.transform = `translate(calc(-50% + ${shiftPx}px), -100%)`;
+    }
   }
 
   function hide(){
