@@ -371,7 +371,7 @@
   <div class="step" data-step="3">
     <div class="eyebrow">Your target</div>
     <h2>What's your <em>nest egg</em> target?</h2>
-    <p class="sub">How much you need to save — accounting for the part Social Security will cover once it starts.</p>
+    <p class="sub">How much you need to save — accounting for Social Security and any other retirement income you add below.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Before Social Security starts</label>
@@ -427,9 +427,37 @@
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income — entered once, on the next step, and used everywhere it matters. This is a summary, not an input.</p>
-    <div id="incomeSourcesSummary"></div>
-    <button class="btn btn-ghost" type="button" style="margin-top:10px;" onclick="goTo(4)">Edit income sources →</button>
+    <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income. <b style="color:var(--paper);">Retirement income</b> here directly reduces your retirement target below — watch the number change as you type. <b style="color:var(--paper);">Current income</b> only affects your take-home pay (see Step 4). Enter each source only once. Most sources start when you retire — only touch "starts at a different age" if one begins earlier or later (e.g. a pension starting at 65 when you retire at 60).</p>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
+    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
+    <div class="cat-table" id="altRealEstateTable"></div>
+    <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
+    <div class="cat-table" id="altBusinessTable"></div>
+    <button class="add-cat-btn" id="addAltBusinessBtn">+ add business</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
+    <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
+    <div class="cat-table" id="altOtherInvestmentsTable"></div>
+    <button class="add-cat-btn" id="addAltOtherInvestmentsBtn">+ add investment</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
+    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
+    <div class="cat-table" id="altAnnuitiesTable"></div>
+    <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:#0D9488"></span>Pension</div>
+    <p class="field-hint" style="margin-bottom:10px;">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" on Step 4). Often starts at a different age than when you actually retire.</p>
+    <div class="cat-table" id="altPensionTable"></div>
+    <button class="add-cat-btn" id="addAltPensionBtn">+ add pension</button>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
+    <p class="field-hint" style="margin-bottom:10px;">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
+    <div class="cat-table" id="altOtherIncomeTable"></div>
+    <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
 
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
@@ -459,8 +487,8 @@
   <!-- STEP 4: CONTRIBUTION CALCULATOR -->
   <div class="step" data-step="4">
     <div class="eyebrow">The plan</div>
-    <h2><em>Assets, Contributions</em> & Other Income</h2>
-    <p class="sub">What you've already got working for you, what you're adding, and every other income source — entered once, here, and used everywhere it matters (including the Step 3 summary).</p>
+    <h2><em>Assets & Contributions</em></h2>
+    <p class="sub">What you've already got working for you, and what you're adding toward your target.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Current age</label><input type="number" id="currentAge" value="35" min="0" step="1"></div>
@@ -484,37 +512,16 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years. Set a retirement start age if it begins later than your retirement date (e.g. a pension that starts at 65 when you retire at 60), and an end age if it stops (optional).</p>
+    <div class="group-label" style="margin-top:18px;"><span class="swatch" style="background:var(--jade)"></span>Other income sources</div>
+    <p class="field-hint" style="margin-bottom:10px;">Rental, business, pension, annuities, and other income are entered on Step 3, right next to your retirement target, so you can watch the target update live. This just shows what's there.</p>
+    <div id="incomeSourcesSummary"></div>
+    <button class="btn btn-ghost" type="button" style="margin-top:10px;" onclick="goTo(3)">Edit income sources →</button>
 
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
-    <div class="cat-table" id="altRealEstateTable"></div>
-    <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
-
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
-    <div class="cat-table" id="altBusinessTable"></div>
-    <button class="add-cat-btn" id="addAltBusinessBtn">+ add business</button>
-
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
-    <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
-    <div class="cat-table" id="altOtherInvestmentsTable"></div>
-    <button class="add-cat-btn" id="addAltOtherInvestmentsBtn">+ add investment</button>
-
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
-    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
-    <div class="cat-table" id="altAnnuitiesTable"></div>
-    <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
-
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:#0D9488"></span>Pension</div>
-    <p class="field-hint" style="margin-bottom:10px;">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" above). Often starts at a different age than when you actually retire.</p>
-    <div class="cat-table" id="altPensionTable"></div>
-    <button class="add-cat-btn" id="addAltPensionBtn">+ add pension</button>
-
-    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
-    <div class="cat-table" id="altOtherIncomeTable"></div>
-    <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
+    <div class="fi-card" id="currentIncomeImpactCard" style="margin-top:16px;display:none;">
+      <div class="fi-label">What your current income from these sources does for you</div>
+      <div class="fi-number" id="currentIncomeImpactAmount" style="color:#059669;">$0/mo</div>
+      <p class="fi-sub" id="currentIncomeImpactSub">—</p>
+    </div>
 
     <div class="plan-grid" style="margin-top:22px;">
       <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint">auto-filled from your retirement target — editable</span><span class="field-hint" id="planTargetEditedNote" style="display:none;color:#9A3412;"></span></div>
@@ -1339,10 +1346,11 @@ let savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
 
 // ============ CANONICAL INCOME-SOURCE MODEL (single source of truth) ============
 // Every non-employment income source — rental, business, pension, annuity, dividends, etc. —
-// lives in this one array, entered once on Step 4 ("Assets, Contributions & Other Income").
-// Step 3's "other retirement income" section is a read-only summary of this same array; it
-// has no editable state of its own. Current and retirement amounts are independent (a source
-// can have one, both, or neither), and retirement income only counts in the years between
+// lives in this one array, entered once on Step 3 ("What's your nest egg target?"), right next
+// to the target it affects, so the number visibly updates live as you type. Step 4's "Other
+// income sources" section is a read-only summary of this same array; it has no editable state
+// of its own. Current and retirement amounts are independent (a source can have one, both, or
+// neither), and retirement income only counts in the years between
 // retirementStartAge (defaults to the plan's retirement age) and retirementEndAge (defaults
 // to no end) — see getRetirementIncomeAtAge().
 const INCOME_TYPE_LABELS = {
@@ -2306,6 +2314,17 @@ function futureValueOfContributions(annualContribution, current, years, rate){
   const fvContrib = r === 0 ? annualContribution*years : annualContribution * ((Math.pow(1+r, years) - 1) / r);
   return fvCurrent + fvContrib;
 }
+// Inverse of futureValueOfContributions: how many years (capped at 100) until this starting
+// balance + annual contribution reaches target. Used for the "retire sooner" estimate on the
+// current-income-impact card — a simple year-by-year search is plenty precise for a number
+// that's already just an illustrative estimate.
+function yearsToReachTarget(target, current, annualContribution, rate){
+  if(target <= 0 || current >= target) return 0;
+  for(let y = 1; y <= 100; y++){
+    if(futureValueOfContributions(annualContribution, current, y, rate) >= target) return y;
+  }
+  return 100;
+}
 
 function getRequiredInvesting(){
   const years = getYearsToRetirement();
@@ -2725,12 +2744,31 @@ function renderIncomeSourceTable(tableId, types, onChange, opts){
     const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; });
     const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; });
     bottom2.style.marginTop = '10px';
-    const ageRow = makeAgeRow(item);
 
     row.appendChild(top);
     row.appendChild(bottom1);
     row.appendChild(bottom2);
-    row.appendChild(ageRow);
+
+    // Retirement age already lives on Step 4 — every source defaults to starting/ending there,
+    // so showing two more age inputs on every single row (for every source) is noise for the
+    // common case. Only show them once they're actually needed: either the item already has a
+    // custom age set, or the user explicitly asked to customize it (item._ageExpanded is a
+    // transient UI-only flag, not part of the canonical model).
+    if(item._ageExpanded || item.retirementStartAge != null || item.retirementEndAge != null){
+      row.appendChild(makeAgeRow(item));
+    } else {
+      const toggle = document.createElement('a');
+      toggle.href = '#';
+      toggle.textContent = 'Starts at a different age than retirement? →';
+      toggle.style.cssText = 'display:inline-block;margin-top:8px;font-size:12px;color:var(--paper-dim);text-decoration:underline;';
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        item._ageExpanded = true;
+        renderIncomeSourceTable(tableId, types, onChange, opts);
+      });
+      row.appendChild(toggle);
+    }
+
     table.appendChild(row);
   });
   onChange();
@@ -2936,6 +2974,46 @@ function renderStep4(){
   document.getElementById('ficaOut').textContent = fmtMoney(fica);
   document.getElementById('stateTaxOut').textContent = fmtMoney(stateTax);
   document.getElementById('takeHomeOut').textContent = fmtMoney(takeHomeCash);
+
+  // What the current-income portion of the income sources on Step 3 is actually worth: rerun
+  // the same take-home math with it zeroed out and take the difference, so this is the real
+  // after-tax number (not the gross figure) — then, if there's a retirement target, show how
+  // much sooner that money could get you there if invested instead of spent.
+  const currentOtherIncome = getCurrentOtherIncome();
+  const impactCard = document.getElementById('currentIncomeImpactCard');
+  if(impactCard){
+    if(currentOtherIncome > 0){
+      const grossWithout = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0);
+      const agiWithout = Math.max(0, grossWithout - personalPreTaxDeferral());
+      const fedTaxWithout = computeFederalTax(agiWithout, status);
+      const stateTaxWithout = agiWithout * (statePct/100);
+      const totalTaxWithout = fedTaxWithout + fica + stateTaxWithout; // FICA doesn't depend on other income
+      const takeHomeWithout = grossWithout - personalPreTaxDeferral() - rothContrib - totalTaxWithout;
+      const afterTaxImpact = Math.max(0, takeHomeCash - takeHomeWithout);
+
+      impactCard.style.display = 'block';
+      document.getElementById('currentIncomeImpactAmount').textContent = fmtMoney(afterTaxImpact/12) + '/mo';
+      let sub = `About ${fmtMoney(afterTaxImpact)}/yr in extra after-tax cash from your current income sources — already helping cover expenses. If you redirected it into investing instead,`;
+
+      const growth = Number(planGrowthEl.value) || 0;
+      const baseAnnualInvesting = retirementContribution() + additionalInvestingVal;
+      const yearsAtCurrentPace = yearsToReachTarget(targetVal, currentSavingsVal, baseAnnualInvesting, growth);
+      const yearsWithExtra = yearsToReachTarget(targetVal, currentSavingsVal, baseAnnualInvesting + afterTaxImpact, growth);
+      const yearsSaved = Math.max(0, yearsAtCurrentPace - yearsWithExtra);
+      const curAgeNum = Number(currentAgeEl.value) || 0;
+
+      if(targetVal > 0 && yearsSaved > 0 && yearsAtCurrentPace < 100){
+        sub += ` you could reach your retirement goal about <b style="color:#059669;">${yearsSaved} year${yearsSaved===1?'':'s'} sooner</b> — around age ${curAgeNum + yearsWithExtra} instead of ${curAgeNum + yearsAtCurrentPace}.`;
+      } else if(targetVal > 0){
+        sub += ` it would still help close the gap toward your ${fmtMoney(targetVal)} goal.`;
+      } else {
+        sub += ` set a retirement goal in Step 3 to see how much sooner you could get there.`;
+      }
+      document.getElementById('currentIncomeImpactSub').innerHTML = sub;
+    } else {
+      impactCard.style.display = 'none';
+    }
+  }
 
   const needsAnnual = currentNeedsAnnualTotal();
   const goalsAnnual = goalsAnnualTotal();
