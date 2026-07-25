@@ -427,9 +427,9 @@
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental property, pensions, part-time work, royalties — anything besides Social Security and your portfolio.</p>
-    <div class="cat-table" id="otherRetIncomeTable"></div>
-    <button class="add-cat-btn" id="addOtherRetIncomeBtn">+ add income source</button>
+    <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income — entered once, on the next step, and used everywhere it matters. This is a summary, not an input.</p>
+    <div id="incomeSourcesSummary"></div>
+    <button class="btn btn-ghost" type="button" style="margin-top:10px;" onclick="goTo(4)">Edit income sources →</button>
 
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
@@ -459,8 +459,8 @@
   <!-- STEP 4: CONTRIBUTION CALCULATOR -->
   <div class="step" data-step="4">
     <div class="eyebrow">The plan</div>
-    <h2>How much to <em>put away</em> monthly?</h2>
-    <p class="sub">Working backward from your target, your timeline, and an assumed investment return.</p>
+    <h2><em>Assets, Contributions</em> & Other Income</h2>
+    <p class="sub">What you've already got working for you, what you're adding, and every other income source — entered once, here, and used everywhere it matters (including the Step 3 summary).</p>
 
     <div class="plan-grid">
       <div class="field"><label>Current age</label><input type="number" id="currentAge" value="35" min="0" step="1"></div>
@@ -484,7 +484,7 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">For each source below, "Current income" adds to your take-home pay right now; "Retirement income" reduces how big a nest egg (and 401(k) contribution) you need to hit your target. Both are optional and independent — fill in whichever applies.</p>
+    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years. Set a retirement start age if it begins later than your retirement date (e.g. a pension that starts at 65 when you retire at 60), and an end age if it stops (optional).</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
     <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
@@ -506,8 +506,13 @@
     <div class="cat-table" id="altAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
 
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:#0D9488"></span>Pension</div>
+    <p class="field-hint" style="margin-bottom:10px;">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" above). Often starts at a different age than when you actually retire.</p>
+    <div class="cat-table" id="altPensionTable"></div>
+    <button class="add-cat-btn" id="addAltPensionBtn">+ add pension</button>
+
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Catch-all for any income that doesn't fit the categories above.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
     <div class="cat-table" id="altOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
 
@@ -555,6 +560,12 @@
       <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="k401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year (usually ticks up a bit with inflation each year). Turning 50 or older? You can add a "catch-up" — an extra $8,000/year (total $32,500), or an extra $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="rothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
       <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="cashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="iraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
+      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="hsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
+      <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
+        <input type="checkbox" id="hsaFamilyCoverage" style="width:16px;height:16px;">
+        This HSA has family coverage (raises the limit above)
+      </label>
       <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="selfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
       <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="selfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
@@ -573,6 +584,7 @@
         <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="spouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
         <div class="field full"><label>Spouse's Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="spouseRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="field full"><label>Spouse's Cash balance / profit sharing (annual)</label><input type="text" id="spouseCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="spouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
         <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="spouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
         <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="spouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
       </div>
@@ -585,6 +597,7 @@
       <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="taxCard401kOut">$0</div></div>
       <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="taxCardRothOut">$0</div></div>
+      <div><div class="tax-stat-label">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="taxCardIraHsaOut">$0</div></div>
       <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="taxCardSpouseK401Out">$0</div></div>
       <div><div class="tax-stat-label">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardSpouseCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="taxCardEmployerMatchOut">$0</div></div>
@@ -824,6 +837,12 @@
       <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
       <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
+      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
+      <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
+        <input type="checkbox" id="driftHsaFamilyCoverage" style="width:16px;height:16px;">
+        This HSA has family coverage (raises the limit above)
+      </label>
       <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
       <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
@@ -842,6 +861,7 @@
         <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="driftSpouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
         <div class="field full"><label>Spouse's Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftSpouseRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="field full"><label>Spouse's Cash balance / profit sharing (annual)</label><input type="text" id="driftSpouseCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="driftSpouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
         <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="driftSpouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
         <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="driftSpouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
       </div>
@@ -854,6 +874,7 @@
       <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="driftTaxCard401kOut">$0</div></div>
       <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardRothOut">$0</div></div>
+      <div><div class="tax-stat-label">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardIraHsaOut">$0</div></div>
       <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="driftTaxCardSpouseK401Out">$0</div></div>
       <div><div class="tax-stat-label">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardSpouseCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardEmployerMatchOut">$0</div></div>
@@ -951,7 +972,7 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">For each source below, "Current income" adds to your take-home pay right now; "Retirement income" reduces how big a nest egg (and 401(k) contribution) you need to hit your target. Both are optional and independent — fill in whichever applies.</p>
+    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years.</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
     <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
@@ -1306,6 +1327,8 @@ const DEFAULT_SAVINGS_GOALS = [
   { name: "Wedding", target: 20000, years: 2 },
   { name: "Vacation", target: 5000, years: 1 }
 ];
+// Used only by the (unaffected) Drift/Budget-first flow's own separate "other retirement
+// income" table — the Plan flow below uses the canonical incomeSources model instead.
 const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental Real Estate", annual: 0 } ];
 const OTHER_RET_INCOME_NAMES = ["Rental Real Estate", "Business Income", "Other Investments", "Annuities", "Other Income"];
 
@@ -1313,16 +1336,44 @@ let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
 let lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
 let currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
 let savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
-let otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
 
-// Alternative-investment categories — each item can grow at its own rate (unlike the flat
-// current-invested-assets lump) and optionally pay a windowed retirement income. Start empty:
-// this is an opt-in section, not pre-seeded like the categories above.
-let altRealEstate = [];
-let altBusiness = [];
-let altOtherInvestments = [];
-let altAnnuities = [];
-let altOtherIncome = [];
+// ============ CANONICAL INCOME-SOURCE MODEL (single source of truth) ============
+// Every non-employment income source — rental, business, pension, annuity, dividends, etc. —
+// lives in this one array, entered once on Step 4 ("Assets, Contributions & Other Income").
+// Step 3's "other retirement income" section is a read-only summary of this same array; it
+// has no editable state of its own. Current and retirement amounts are independent (a source
+// can have one, both, or neither), and retirement income only counts in the years between
+// retirementStartAge (defaults to the plan's retirement age) and retirementEndAge (defaults
+// to no end) — see getRetirementIncomeAtAge().
+const INCOME_TYPE_LABELS = {
+  rental: "Rental",
+  business: "Business",
+  consulting: "Consulting",
+  dividends: "Dividends",
+  royalties: "Royalties",
+  annuity: "Annuity",
+  pension: "Pension",
+  otherInvestment: "Other Investment",
+  other: "Other"
+};
+// Types shown/editable under the catch-all "Other Income" section on Step 4.
+const OTHER_INCOME_TYPES = ["other", "consulting", "dividends", "royalties"];
+
+let incomeSourceIdSeq = 1;
+function nextIncomeSourceId(){ return "source-" + (incomeSourceIdSeq++); }
+function newIncomeSource(type, name){
+  return {
+    id: nextIncomeSourceId(),
+    type,
+    name,
+    currentAnnualIncome: 0,
+    retirementAnnualIncome: 0,
+    retirementStartAge: null, // null = defaults to the plan's retirement age
+    retirementEndAge: null    // null = no end (lasts the rest of retirement)
+  };
+}
+let incomeSources = [];
+function incomeSourcesOfTypes(types){ return incomeSources.filter(s => types.includes(s.type)); }
 
 let ssMonthlyVal = 0;
 let spouseSsMonthlyVal = 0;
@@ -1334,9 +1385,12 @@ let spouseSalaryVal = 0;
 let k401Val = 0;
 let cashBalanceVal = 0;
 let rothContribVal = 0;
+let iraContribVal = 0;
+let hsaContribVal = 0;
 let spouseK401Val = 0;
 let spouseCashBalanceVal = 0;
 let spouseRothContribVal = 0;
+let spouseIraContribVal = 0;
 
 function hasSpouseIncome(){ return hasSpouseIncomeEl.checked; }
 
@@ -1365,10 +1419,53 @@ function personalPreTaxDeferral(){
 function rothRetirementContribution(){
   return rothContribVal + (hasSpouseIncome() ? spouseRothContribVal : 0);
 }
+// IRA + HSA contributions — a separate account from the 401(k)/Roth above, so also excluded
+// from personalPreTaxDeferral/AGI (no payroll withholding involved), but still real money
+// landing in a tax-advantaged account this year. Simplification: bucketed alongside the
+// tax-deferred 401(k) money in the balance projection rather than modeling HSA's actual
+// triple-tax-advantaged status as a 4th tier.
+function iraAndHsaContribution(){
+  return iraContribVal + (hasSpouseIncome() ? spouseIraContribVal : 0) + hsaContribVal;
+}
 // Total $ actually landing in retirement accounts this year — everything else that used to
 // call this function keeps calling it unchanged and automatically gains match + spouse money.
 function retirementContribution(){
-  return personalPreTaxDeferral() + selfEmployerMatchAnnual() + spouseEmployerMatchAnnual() + rothRetirementContribution();
+  return personalPreTaxDeferral() + selfEmployerMatchAnnual() + spouseEmployerMatchAnnual() + rothRetirementContribution() + iraAndHsaContribution();
+}
+
+// 2026 IRS contribution limits (same figures as the 401(k) field's hint, index.html).
+const CONTRIB_LIMIT_2026 = {
+  k401Base: 24500, k401Catchup50: 8000, k401Catchup60to63: 11250,
+  iraBase: 7500, iraCatchup50: 1100,
+  hsaSelfBase: 4400, hsaFamilyBase: 8750, hsaCatchup55: 1000
+};
+function k401DeferralLimit(age){
+  if(age >= 60 && age <= 63) return CONTRIB_LIMIT_2026.k401Base + CONTRIB_LIMIT_2026.k401Catchup60to63;
+  if(age >= 50) return CONTRIB_LIMIT_2026.k401Base + CONTRIB_LIMIT_2026.k401Catchup50;
+  return CONTRIB_LIMIT_2026.k401Base;
+}
+function iraContributionLimit(age){
+  return CONTRIB_LIMIT_2026.iraBase + (age >= 50 ? CONTRIB_LIMIT_2026.iraCatchup50 : 0);
+}
+function hsaContributionLimit(age, isFamily){
+  const base = isFamily ? CONTRIB_LIMIT_2026.hsaFamilyBase : CONTRIB_LIMIT_2026.hsaSelfBase;
+  return base + (age >= 55 ? CONTRIB_LIMIT_2026.hsaCatchup55 : 0);
+}
+// How much unused room is left this year across every tax-advantaged bucket, in the order
+// you'd normally want to fill them (401(k) elective deferral, then IRA, then HSA) before any
+// extra investing goes to a plain taxable account. Uses your own current age for both spouses'
+// catch-up eligibility since the app doesn't collect a separate spouse age.
+function getTaxAdvantagedRoomRemaining(){
+  const age = Number(currentAgeEl.value) || 0;
+  const selfK401Used = k401Val + rothContribVal;
+  const selfK401Room = Math.max(0, k401DeferralLimit(age) - selfK401Used);
+  const spouseK401Used = spouseK401Val + spouseRothContribVal;
+  const spouseK401Room = hasSpouseIncome() ? Math.max(0, k401DeferralLimit(age) - spouseK401Used) : 0;
+  const selfIraRoom = Math.max(0, iraContributionLimit(age) - iraContribVal);
+  const spouseIraRoom = hasSpouseIncome() ? Math.max(0, iraContributionLimit(age) - spouseIraContribVal) : 0;
+  const hsaRoom = Math.max(0, hsaContributionLimit(age, hsaFamilyCoverageEl.checked) - hsaContribVal);
+  const total = selfK401Room + spouseK401Room + selfIraRoom + spouseIraRoom + hsaRoom;
+  return { selfK401Room, spouseK401Room, selfIraRoom, spouseIraRoom, hsaRoom, total };
 }
 let additionalInvestingVal = 0;
 let additionalInvestingManuallyEdited = false;
@@ -1414,6 +1511,10 @@ const planSalaryEl = document.getElementById('planSalary');
 const k401InputEl = document.getElementById('k401Input');
 const cashBalanceInputEl = document.getElementById('cashBalanceInput');
 const rothContribInputEl = document.getElementById('rothContribInput');
+const iraContribInputEl = document.getElementById('iraContribInput');
+const hsaContribInputEl = document.getElementById('hsaContribInput');
+const hsaFamilyCoverageEl = document.getElementById('hsaFamilyCoverage');
+const spouseIraContribInputEl = document.getElementById('spouseIraContribInput');
 const selfMatchRatePctEl = document.getElementById('selfMatchRatePct');
 const selfMatchCapPctEl = document.getElementById('selfMatchCapPct');
 const hasSpouseIncomeEl = document.getElementById('hasSpouseIncome');
@@ -1495,12 +1596,8 @@ function resetAllState(){
   lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
   currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
   savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
-  otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
-  altRealEstate = [];
-  altBusiness = [];
-  altOtherInvestments = [];
-  altAnnuities = [];
-  altOtherIncome = [];
+  incomeSources = [];
+  incomeSourceIdSeq = 1;
 
   ssMonthlyVal = 0;
   spouseSsMonthlyVal = 0;
@@ -1512,9 +1609,12 @@ function resetAllState(){
   k401Val = 0;
   cashBalanceVal = 0;
   rothContribVal = 0;
+  iraContribVal = 0;
+  hsaContribVal = 0;
   spouseK401Val = 0;
   spouseCashBalanceVal = 0;
   spouseRothContribVal = 0;
+  spouseIraContribVal = 0;
   additionalInvestingVal = 0;
   additionalInvestingManuallyEdited = false;
   collegeTargetPerKidVal = 100000;
@@ -1561,10 +1661,14 @@ function resetAllState(){
   k401InputEl.value = '';
   cashBalanceInputEl.value = '';
   rothContribInputEl.value = '';
+  iraContribInputEl.value = '';
+  hsaContribInputEl.value = '';
+  hsaFamilyCoverageEl.checked = false;
   spouseSalaryEl.value = '';
   spouseK401InputEl.value = '';
   spouseCashBalanceInputEl.value = '';
   spouseRothContribInputEl.value = '';
+  spouseIraContribInputEl.value = '';
   additionalInvestingInputEl.value = '';
   collegeTargetPerKidEl.value = formatNum(collegeTargetPerKidVal);
   emergencyFundSavedEl.value = '';
@@ -1593,12 +1697,13 @@ function resetAllState(){
   renderLifestyle();
   renderCurrentNeedsTable();
   renderGoalsTable();
-  renderOtherRetIncomeTable();
   renderAltRealEstate();
   renderAltBusiness();
+  renderAltPension();
   renderAltOtherInvestments();
   renderAltAnnuities();
   renderAltOtherIncome();
+  renderIncomeSourcesSummary();
   syncPlanTarget();
   updateAssetsTotal();
   updateEmergencyFund();
@@ -1624,9 +1729,12 @@ function resetAllState(){
   driftK401Val = 0;
   driftCashBalanceVal = 0;
   driftRothContribVal = 0;
+  driftIraContribVal = 0;
+  driftHsaContribVal = 0;
   driftSpouseK401Val = 0;
   driftSpouseCashBalanceVal = 0;
   driftSpouseRothContribVal = 0;
+  driftSpouseIraContribVal = 0;
   driftAdditionalInvestingVal = 0;
   driftCollegeTargetPerKidVal = 100000;
   driftAssets401kVal = 0;
@@ -1670,10 +1778,14 @@ function resetAllState(){
   driftK401InputEl.value = '';
   driftCashBalanceInputEl.value = '';
   driftRothContribInputEl.value = '';
+  driftIraContribInputEl.value = '';
+  driftHsaContribInputEl.value = '';
+  driftHsaFamilyCoverageEl.checked = false;
   driftSpouseSalaryEl.value = '';
   driftSpouseK401InputEl.value = '';
   driftSpouseCashBalanceInputEl.value = '';
   driftSpouseRothContribInputEl.value = '';
+  driftSpouseIraContribInputEl.value = '';
   driftAdditionalInvestingInputEl.value = '';
   driftCollegeTargetPerKidEl.value = formatNum(driftCollegeTargetPerKidVal);
   driftEmergencyFundSavedEl.value = '';
@@ -1736,10 +1848,10 @@ function goTo(step, opts){
   document.getElementById('footStartOver').style.display = (step === 0) ? 'none' : 'inline';
   window.scrollTo({top:0, behavior:'smooth'});
   if(step === 3){
-    updateFiCard();
+    recalculatePlan();
   }
   if(step === 4){
-    syncPlanTarget(); renderContribution();
+    recalculatePlan();
     const nextBtn = document.getElementById('planFinishBtn');
     if(nextBtn) nextBtn.textContent = returnToCompareAfterPlan ? "Finish: compare both paths →" : "Next: today's income →";
   }
@@ -1932,24 +2044,22 @@ function totalRetirementAnnualSpend(){
 
 /* ================= STEP 2: NEST EGG + SOCIAL SECURITY ================= */
 function annualSSBenefit(){ return ssMonthlyVal * 12; }
-function otherRetirementIncomeAnnualTotal(){ return otherRetirementIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
 
-function allAltInvestmentItems(){
-  return [...altRealEstate, ...altBusiness, ...altOtherInvestments, ...altAnnuities, ...altOtherIncome];
+// Current (pre-retirement) income every income source is already producing — flows straight
+// into gross pay/tax on Step 4/5, unconditionally (not age-windowed like retirement income,
+// since it's happening now).
+function getCurrentOtherIncome(){
+  return incomeSources.reduce((sum, s) => sum + (Number(s.currentAnnualIncome)||0), 0);
 }
-// Current (pre-retirement) income these items are already producing — flows straight into gross
-// pay/tax, same as the flat "Other income sources" table, and unconditionally (not age-windowed
-// like retirement income, since it's happening now).
-function altInvestmentCurrentIncomeTotal(){
-  return allAltInvestmentItems().reduce((sum, it) => sum + (Number(it.currentIncome)||0), 0);
-}
-// Sums retirement income for items whose [startAge, endAge] window contains `age` — called from
-// every existing age-by-age retirement loop alongside the flat otherRetirementIncomeAnnualTotal().
-function altInvestmentIncomeAt(age, retireAge){
-  return allAltInvestmentItems().reduce((sum, it) => {
-    const start = it.startAge || retireAge;
-    const end = it.endAge || Infinity;
-    return (age >= start && age <= end) ? sum + (Number(it.retirementIncome)||0) : sum;
+// Sums retirement income for every source whose [retirementStartAge, retirementEndAge] window
+// contains `age` — the ONE function every age-by-age retirement calculation (target, sustainable
+// income, phase breakdown, balance/goal charts) calls to find out how much non-Social-Security,
+// non-portfolio income is landing in a given retirement year.
+function getRetirementIncomeAtAge(age, retireAge){
+  return incomeSources.reduce((sum, s) => {
+    const start = (s.retirementStartAge != null && s.retirementStartAge !== '') ? Number(s.retirementStartAge) : retireAge;
+    const end = (s.retirementEndAge != null && s.retirementEndAge !== '') ? Number(s.retirementEndAge) : Infinity;
+    return (age >= start && age <= end) ? sum + (Number(s.retirementAnnualIncome)||0) : sum;
   }, 0);
 }
 
@@ -1960,7 +2070,6 @@ function spouseSSClaimAge(){ return Number(spouseSsClaimAgeEl.value) || 67; }
 function spouseAnnualSSBenefit(){ return hasSpouseSS() ? spouseSsMonthlyVal * 12 : 0; }
 
 function bridgeYears(){ return Math.max(0, socialSecurityClaimAge() - plannedRetirementAge()); }
-function bridgeAnnualNeed(){ return Math.max(0, totalRetirementAnnualSpend() - otherRetirementIncomeAnnualTotal()); }
 
 // Bridge money (before Social Security starts) is kept more conservative since it's needed
 // soon; long-term money has decades to compound, so it can afford more growth-oriented
@@ -1980,7 +2089,6 @@ function solveRetirementTarget(retireAge, endAge){
   endAge = endAge || 95;
   const spend = totalRetirementAnnualSpend();
   if(retireAge <= 0 || retireAge >= endAge || spend <= 0) return 0;
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -1993,7 +2101,7 @@ function solveRetirementTarget(retireAge, endAge){
     let balance = starting;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other + altInvestmentIncomeAt(age, retireAge);
+      let income = getRetirementIncomeAtAge(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -2018,7 +2126,6 @@ function solveRetirementTarget(retireAge, endAge){
 function solveSustainableIncome(nestEgg, retireAge, endAge){
   endAge = endAge || 95;
   if(retireAge <= 0 || retireAge >= endAge) return 0;
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -2031,7 +2138,7 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
     let balance = nestEgg;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other + altInvestmentIncomeAt(age, retireAge);
+      let income = getRetirementIncomeAtAge(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -2042,7 +2149,8 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
     }
     return true;
   }
-  let lo = 0, hi = Math.max(1, nestEgg + other + ss + spouseSS);
+  const maxOtherIncomePotential = incomeSources.reduce((sum,s)=> sum + (Number(s.retirementAnnualIncome)||0), 0);
+  let lo = 0, hi = Math.max(1, nestEgg + maxOtherIncomePotential + ss + spouseSS);
   for(let i = 0; i < 50; i++){
     const mid = (lo + hi) / 2;
     if(survives(mid)) lo = mid; else hi = mid;
@@ -2051,6 +2159,7 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
 }
 
 function calculatedRetirementTarget(){ return solveRetirementTarget(plannedRetirementAge()); }
+function calculateRetirementTarget(){ return calculatedRetirementTarget(); }
 
 // Given the solved target, reports how much of it gets spent down before Social Security
 // starts vs. how much is still working for you once it kicks in — by simulating forward with
@@ -2062,7 +2171,6 @@ function retirementTargetPhaseBreakdown(retireAge, endAge){
   if(retireAge <= 0 || retireAge >= endAge || spend <= 0 || target <= 0){
     return { target: 0, beforeSS: 0, afterSS: 0, years: Math.max(0, socialSecurityClaimAge() - retireAge) };
   }
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -2074,14 +2182,57 @@ function retirementTargetPhaseBreakdown(retireAge, endAge){
 
   let balance = target;
   for(let age = retireAge; age < claim1; age++){
-    const rawNeed = Math.max(0, spend - other - altInvestmentIncomeAt(age, retireAge));
+    const rawNeed = Math.max(0, spend - getRetirementIncomeAtAge(age, retireAge));
     balance = balance * (1 + bRate) - (rawNeed / (1 - taxRate));
   }
   const balanceAtSS = Math.max(0, balance);
   return { target, beforeSS: Math.max(0, target - balanceAtSS), afterSS: balanceAtSS, years: Math.max(0, claim1 - retireAge) };
 }
 
-function renderOtherRetIncomeTable(){ renderCatTable('otherRetIncomeTable', otherRetirementIncome, updateFiCard); }
+// Step 3's "other retirement income" block is read-only — it just reflects whatever is
+// currently in the canonical incomeSources array (edited only on Step 4).
+function renderIncomeSourcesSummary(){
+  const container = document.getElementById('incomeSourcesSummary');
+  if(!container) return;
+  container.innerHTML = "";
+  const entered = incomeSources.filter(s => (Number(s.retirementAnnualIncome)||0) > 0);
+
+  if(entered.length === 0){
+    const p = document.createElement('p');
+    p.className = 'field-hint';
+    p.textContent = "No retirement income sources entered yet — add rental, business, pension, annuity, or other income on the next step.";
+    container.appendChild(p);
+    return;
+  }
+
+  const label = document.createElement('div');
+  label.className = 'field-hint';
+  label.style.marginBottom = '6px';
+  label.textContent = 'Other retirement income entered:';
+  container.appendChild(label);
+
+  let total = 0;
+  entered.forEach(s => {
+    total += Number(s.retirementAnnualIncome) || 0;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px;color:var(--paper-dim);';
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = s.name || INCOME_TYPE_LABELS[s.type] || 'Income source';
+    const valSpan = document.createElement('span');
+    valSpan.style.color = 'var(--paper)';
+    valSpan.innerHTML = `<b>${fmtMoney(s.retirementAnnualIncome)}</b>/year`;
+    row.appendChild(nameSpan);
+    row.appendChild(valSpan);
+    container.appendChild(row);
+  });
+
+  const totalRow = document.createElement('div');
+  totalRow.style.cssText = 'display:flex;justify-content:space-between;gap:12px;padding:8px 0 0;border-top:1px solid var(--line);margin-top:6px;font-weight:700;font-size:13.5px;';
+  const totalLabel = document.createElement('span'); totalLabel.textContent = 'Total';
+  const totalVal = document.createElement('span'); totalVal.textContent = fmtMoney(total) + '/year';
+  totalRow.appendChild(totalLabel); totalRow.appendChild(totalVal);
+  container.appendChild(totalRow);
+}
 
 function updateFiCard(){
   const spend = totalRetirementAnnualSpend();
@@ -2160,6 +2311,17 @@ function getRequiredInvesting(){
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
   return requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
+}
+function calculateRequiredAnnualInvesting(){ return getRequiredInvesting(); }
+
+// Single entry point for "something that affects the plan changed" — refreshes the retirement
+// target, the Step 3 income summary, and everything on Step 4 (current income/tax, required
+// investing, budget breakdown) from the same underlying incomeSources + plan state, so Step 3
+// and Step 4 can never show inconsistent numbers.
+function recalculatePlan(){
+  updateFiCard();
+  renderIncomeSourcesSummary();
+  renderStep4(); // also calls syncPlanTarget() + renderContribution()
 }
 
 function updateGoalReminders(){
@@ -2429,6 +2591,151 @@ function newAltInvestmentItem(name){
   return { name, currentIncome: 0, retirementIncome: 0 };
 }
 
+// Renders one section of the canonical incomeSources array (Step 4 only — Step 3 is a
+// read-only summary, see renderIncomeSourcesSummary). `types` selects which items appear here;
+// `opts.typeOptions`, if given, adds a per-row type dropdown (used by the "Other Income"
+// catch-all so consulting/dividends/royalties/other can share one section).
+function renderIncomeSourceTable(tableId, types, onChange, opts){
+  opts = opts || {};
+  const table = document.getElementById(tableId);
+  table.innerHTML = "";
+  const items = incomeSourcesOfTypes(types);
+
+  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual){
+    const wrap = document.createElement('div');
+    const heading = document.createElement('div');
+    heading.className = 'cat-field-label';
+    heading.style.color = 'var(--paper-dim)';
+    heading.style.marginBottom = '6px';
+    heading.textContent = labelText;
+    wrap.appendChild(heading);
+
+    const row = document.createElement('div');
+    row.className = 'cat-row-bottom';
+
+    const monthlyField = document.createElement('div');
+    monthlyField.className = 'cat-field';
+    const monthlyLabel = document.createElement('div');
+    monthlyLabel.className = 'cat-field-label';
+    monthlyLabel.textContent = 'Monthly';
+    const monthlyWrap = document.createElement('div');
+    monthlyWrap.className = 'cat-input-wrap';
+    const mDollar = document.createElement('span'); mDollar.textContent = '$';
+    const monthlyInput = document.createElement('input');
+    monthlyInput.className = 'cat-input';
+    monthlyInput.setAttribute('inputmode','numeric');
+    monthlyWrap.appendChild(mDollar);
+    monthlyWrap.appendChild(monthlyInput);
+    monthlyField.appendChild(monthlyLabel);
+    monthlyField.appendChild(monthlyWrap);
+
+    const annualField = document.createElement('div');
+    annualField.className = 'cat-field';
+    const annualLabel = document.createElement('div');
+    annualLabel.className = 'cat-field-label';
+    annualLabel.textContent = 'Annual';
+    const annualWrap = document.createElement('div');
+    annualWrap.className = 'cat-input-wrap';
+    const aDollar = document.createElement('span'); aDollar.textContent = '$';
+    const annualInput = document.createElement('input');
+    annualInput.className = 'cat-input';
+    annualInput.setAttribute('inputmode','numeric');
+    annualWrap.appendChild(aDollar);
+    annualWrap.appendChild(annualInput);
+    annualField.appendChild(annualLabel);
+    annualField.appendChild(annualWrap);
+
+    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, onChange);
+    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, onChange);
+
+    row.appendChild(monthlyField);
+    row.appendChild(annualField);
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  function makeAgeRow(item){
+    const wrap = document.createElement('div');
+    wrap.className = 'cat-row-bottom';
+    wrap.style.marginTop = '10px';
+
+    function ageField(labelText, placeholder, getAge, setAge){
+      const field = document.createElement('div');
+      field.className = 'cat-field';
+      const label = document.createElement('div');
+      label.className = 'cat-field-label';
+      label.textContent = labelText;
+      const input = document.createElement('input');
+      input.className = 'cat-input';
+      input.type = 'number';
+      input.min = 0; input.step = 1;
+      input.placeholder = placeholder;
+      input.value = getAge() != null ? getAge() : '';
+      input.addEventListener('input', () => {
+        setAge(input.value === '' ? null : Number(input.value));
+        onChange();
+      });
+      field.appendChild(label);
+      field.appendChild(input);
+      return field;
+    }
+
+    wrap.appendChild(ageField('Retirement start age', 'at retirement', () => item.retirementStartAge, (v) => { item.retirementStartAge = v; }));
+    wrap.appendChild(ageField('Retirement end age (optional)', 'no end', () => item.retirementEndAge, (v) => { item.retirementEndAge = v; }));
+    return wrap;
+  }
+
+  items.forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const top = document.createElement('div');
+    top.className = 'cat-row-top';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name';
+    nameInput.value = item.name;
+    nameInput.addEventListener('input', (e) => { item.name = e.target.value; onChange(); });
+    top.appendChild(nameInput);
+
+    if(opts.typeOptions){
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'cat-input';
+      typeSelect.style.maxWidth = '150px';
+      typeSelect.style.marginRight = '6px';
+      opts.typeOptions.forEach(o => {
+        const optEl = document.createElement('option');
+        optEl.value = o.value; optEl.textContent = o.label;
+        if(item.type === o.value) optEl.selected = true;
+        typeSelect.appendChild(optEl);
+      });
+      typeSelect.addEventListener('change', () => { item.type = typeSelect.value; onChange(); });
+      top.appendChild(typeSelect);
+    }
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cat-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', () => {
+      incomeSources.splice(incomeSources.indexOf(item), 1);
+      renderIncomeSourceTable(tableId, types, onChange, opts);
+    });
+    top.appendChild(delBtn);
+
+    const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; });
+    const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; });
+    bottom2.style.marginTop = '10px';
+    const ageRow = makeAgeRow(item);
+
+    row.appendChild(top);
+    row.appendChild(bottom1);
+    row.appendChild(bottom2);
+    row.appendChild(ageRow);
+    table.appendChild(row);
+  });
+  onChange();
+}
+
 function renderGoalsTable(){
   const table = document.getElementById('goalsTable');
   table.innerHTML = "";
@@ -2510,11 +2817,18 @@ function renderGoalsTable(){
 function goalsAnnualTotal(){
   return savingsGoals.reduce((s,g) => s + ((Number(g.target)||0) / Math.max(1, Number(g.years)||1)), 0);
 }
-function renderAltRealEstate(){ renderInvestmentTable('altRealEstateTable', altRealEstate, renderStep4); }
-function renderAltBusiness(){ renderInvestmentTable('altBusinessTable', altBusiness, renderStep4); }
-function renderAltOtherInvestments(){ renderInvestmentTable('altOtherInvestmentsTable', altOtherInvestments, renderStep4); }
-function renderAltAnnuities(){ renderInvestmentTable('altAnnuitiesTable', altAnnuities, renderStep4); }
-function renderAltOtherIncome(){ renderInvestmentTable('altOtherIncomeTable', altOtherIncome, renderStep4); }
+const OTHER_INCOME_TYPE_OPTIONS = [
+  { value: 'other', label: 'Other' },
+  { value: 'consulting', label: 'Consulting' },
+  { value: 'dividends', label: 'Dividends' },
+  { value: 'royalties', label: 'Royalties' }
+];
+function renderAltRealEstate(){ renderIncomeSourceTable('altRealEstateTable', ['rental'], recalculatePlan); }
+function renderAltBusiness(){ renderIncomeSourceTable('altBusinessTable', ['business'], recalculatePlan); }
+function renderAltOtherInvestments(){ renderIncomeSourceTable('altOtherInvestmentsTable', ['otherInvestment'], recalculatePlan); }
+function renderAltAnnuities(){ renderIncomeSourceTable('altAnnuitiesTable', ['annuity'], recalculatePlan); }
+function renderAltPension(){ renderIncomeSourceTable('altPensionTable', ['pension'], recalculatePlan); }
+function renderAltOtherIncome(){ renderIncomeSourceTable('altOtherIncomeTable', OTHER_INCOME_TYPES, recalculatePlan, { typeOptions: OTHER_INCOME_TYPE_OPTIONS }); }
 
 function getEducationRequiredAnnual(){
   const kids = Math.max(0, Number(numKidsEl.value) || 0);
@@ -2551,12 +2865,42 @@ function updateEmergencyFund(){
   }
 }
 
+// Single source of truth for "you're short — here's exactly what to do" messaging: fill unused
+// 401(k)/IRA/HSA room (tax-advantaged) before recommending plain taxable "extra investing" for
+// whatever's left over. Reused by the Step 4 goal-met line, the Step 4 warning box, and the
+// "next steps" narrative so all three always agree on the split. `gap` is the total annual
+// shortfall beyond what's currently contributed (401(k)/Roth/cash-balance/IRA/HSA + today's
+// extra investing).
+function shortfallRecommendationHtml(gap, opts){
+  opts = opts || {};
+  const room = getTaxAdvantagedRoomRemaining().total;
+  const fillFirst = Math.min(gap, room);
+  const stillNeeded = Math.max(0, gap - room);
+  const years = getYearsToRetirement();
+  const ageRange = `every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${years} year${years===1?'':'s'})`;
+  const linkDirection = opts.linkDirection || 'below ↓';
+
+  let html = '';
+  if(fillFirst > 0){
+    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — fill that first since it's tax-advantaged. `;
+  }
+  if(stillNeeded > 0){
+    html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
+    if(opts.withLink){
+      html += ` <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing ${linkDirection}</a>`;
+    }
+  } else if(fillFirst > 0){
+    html += `That fully covers the gap — no taxable "extra investing" needed.`;
+  }
+  return html;
+}
+
 function renderStep4(){
   syncPlanTarget();
   renderContribution();
   const hasRealPlan = hasRealPlanMode();
   const status = filingStatusEl.value;
-  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + altInvestmentCurrentIncomeTotal();
+  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + getCurrentOtherIncome();
   const agi = Math.max(0, gross - personalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
   const fica = computeHouseholdFICA(salaryVal, hasSpouseIncome() ? spouseSalaryVal : 0, status);
@@ -2570,6 +2914,7 @@ function renderStep4(){
   document.getElementById('taxCard401kOut').textContent = fmtMoney(k401Val);
   document.getElementById('taxCardCashBalanceOut').textContent = fmtMoney(cashBalanceVal);
   document.getElementById('taxCardRothOut').textContent = fmtMoney(rothContrib);
+  document.getElementById('taxCardIraHsaOut').textContent = fmtMoney(iraAndHsaContribution());
   document.getElementById('taxCardSpouseK401Out').textContent = fmtMoney(hasSpouseIncome() ? spouseK401Val : 0);
   document.getElementById('taxCardSpouseCashBalanceOut').textContent = fmtMoney(hasSpouseIncome() ? spouseCashBalanceVal : 0);
   document.getElementById('taxCardEmployerMatchOut').textContent = fmtMoney(selfEmployerMatchAnnual() + spouseEmployerMatchAnnual());
@@ -2599,7 +2944,8 @@ function renderStep4(){
     } else if(additionalInvesting >= autoAdditional - 1){
       planGoalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
     } else {
-      planGoalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about <b style="color:var(--paper);">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(autoAdditional-additionalInvesting)}/yr</b>) of extra investing beyond your 401(k) — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+      const gap = autoAdditional - additionalInvesting;
+      planGoalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — ${shortfallRecommendationHtml(gap, {withLink:true, linkDirection:'below ↓'})}`;
     }
   }
 
@@ -2607,8 +2953,10 @@ function renderStep4(){
   const leftover = takeHomeCash - committed;
   const shortfall = committed > takeHomeCash ? committed - takeHomeCash : 0;
   const underfunded = hasRealPlan && (additionalInvesting < autoAdditional - 1);
+  const taxAdvRoomForLabel = getTaxAdvantagedRoomRemaining().total;
+  const stillNeededTaxableForLabel = Math.max(0, autoAdditional - taxAdvRoomForLabel);
   const breakdownInvestingLabel = hasRealPlan
-    ? "Extra investing beyond 401k (would need " + fmtMoney(autoAdditional) + "/yr to hit your retirement target)"
+    ? "Extra investing beyond 401k (would need " + fmtMoney(stillNeededTaxableForLabel) + "/yr in taxable investing, after maxing 401(k)/IRA/HSA room, to hit your retirement target)"
     : "Extra investing beyond 401k";
 
   const rows = [
@@ -2651,11 +2999,11 @@ function renderStep4(){
     warnBox.textContent = `Needs plus your investing amount exceed take-home pay by ${fmtMoney(shortfall)}/yr (${fmtMoney(shortfall/12)}/mo). Extend your timeline, raise expected growth, trim needs, lower your target, or type in a smaller investing amount above.`;
   } else if(underfunded){
     warnBox.classList.add('show');
-    const monthlyGap = (autoAdditional - additionalInvesting) / 12;
-    const message = additionalInvesting <= 0
-      ? `To hit your retirement target, you'd need to add about <b style="color:#DC2626;font-size:15px;">${fmtMoney(autoAdditional/12)}/mo</b> (${fmtMoney(autoAdditional)}/yr) of extra investing beyond your 401(k) — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). You haven't added any extra investing yet.`
-      : `Your extra investing above is currently ${fmtMoney(additionalInvesting/12)}/mo (${fmtMoney(additionalInvesting)}/yr) — you'd need about ${fmtMoney(autoAdditional/12)}/mo (${fmtMoney(autoAdditional)}/yr) to hit your retirement target, so you're <b style="color:#DC2626;font-size:15px;">${fmtMoney(monthlyGap)}/mo short</b>, every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years).`;
-    warnBox.innerHTML = `${message} <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing above ↑</a>`;
+    const gap = autoAdditional - additionalInvesting;
+    const prefix = additionalInvesting <= 0
+      ? `To hit your retirement target, `
+      : `Your extra investing above is currently ${fmtMoney(additionalInvesting/12)}/mo (${fmtMoney(additionalInvesting)}/yr), but that's not enough — `;
+    warnBox.innerHTML = `${prefix}${shortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})}`;
   } else {
     goodBox.classList.add('show');
     goodBox.textContent = hasRealPlan
@@ -2669,7 +3017,6 @@ function renderStep4(){
   /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
-  const ss = annualSSBenefit() + spouseAnnualSSBenefit() + otherRetirementIncomeAnnualTotal();
 
   const badDriftAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('driftAgeOrderWarn').classList.toggle('show', badDriftAge);
@@ -2709,7 +3056,8 @@ function renderStep4(){
   } else if(!hasRealPlan){
     nextStepsText.innerHTML = `Your budget works today. Next: <a href="#" onclick="buildPlanFromDrift();return false;" style="color:var(--gold);font-weight:700;">build your real retirement plan</a> to see if it's actually enough.`;
   } else if(underfunded){
-    nextStepsText.innerHTML = `Your spending and current investing fit within your take-home pay, but you're still <b style="color:#DC2626;font-size:15px;">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo short</b> of your retirement target — every year from age ${Number(currentAgeEl.value)||'—'} to ${Number(retireAgeEl.value)||'—'} (${getYearsToRetirement()} years). <a href="#" onclick="document.getElementById('additionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('additionalInvestingInput').focus();return false;" style="color:var(--gold);font-weight:700;">Change Extra investing above to ${fmtMoney(autoAdditional/12)}/mo ↑</a> to hit your goal, or revisit your target in earlier steps.`;
+    const gap = autoAdditional - additionalInvesting;
+    nextStepsText.innerHTML = `Your spending and current investing fit within your take-home pay, but you're still short of your retirement target. ${shortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})} Or revisit your target in earlier steps.`;
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
@@ -2725,7 +3073,6 @@ function computeBalanceSeries(includeExtra){
   const retAge = Number(retireAgeEl.value) || 0;
   const g = (Number(planGrowthEl.value) || 0) / 100;
   const spend = totalRetirementAnnualSpend();
-  const otherInc = otherRetirementIncomeAnnualTotal();
   const ssAmt = annualSSBenefit();
   const spouseAmt = spouseAnnualSSBenefit();
 
@@ -2770,7 +3117,7 @@ function computeBalanceSeries(includeExtra){
     taxDeferredBal *= (1+rate);
     taxFreeBal *= (1+rate);
 
-    let income = otherInc + altInvestmentIncomeAt(age, retAge);
+    let income = getRetirementIncomeAtAge(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income); // after-tax cash need for the year
@@ -2840,7 +3187,6 @@ function computeGoalSeries(minAge, retAge, target){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = totalRetirementAnnualSpend();
-  const otherInc = otherRetirementIncomeAnnualTotal();
   const ssAmt = annualSSBenefit();
   const spouseAmt = spouseAnnualSSBenefit();
   let claim1Age, claim2Age, benefit1, benefit2;
@@ -2861,7 +3207,7 @@ function computeGoalSeries(minAge, retAge, target){
   const endAge = 95;
   for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc + altInvestmentIncomeAt(age, retAge);
+    let income = getRetirementIncomeAtAge(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
@@ -2941,8 +3287,25 @@ function attachChartHover(svg, tooltipEl, seriesA, seriesB, labelA, labelB, colo
     // Pinned to the top of the plot area (not the tapped point's height) so it's never left
     // sitting under a finger mid-scroll — a touch lower on the chart would otherwise put the
     // box right where the next drag lands.
-    tooltipEl.style.left = ((x / W) * 100) + '%';
     tooltipEl.style.top = (padT / H) * 100 + '%';
+
+    // Horizontal position: the box is naturally centered on the hovered point (via the CSS
+    // translateX(-50%)), which overflows off-screen on narrow/mobile widths whenever the point
+    // is near either edge of the curve. Measure the tooltip's actual rendered width against the
+    // chart's actual rendered width (rect.width, same value used for svgX above) and nudge the
+    // box back inside those bounds — the hover guideline/dot still mark the true x position, only
+    // the text box itself shifts.
+    const xPct = (x / W) * 100;
+    tooltipEl.style.left = xPct + '%';
+    tooltipEl.style.transform = 'translate(-50%, -100%)';
+    const tooltipWidth = tooltipEl.offsetWidth;
+    const desiredCenterPx = (xPct / 100) * rect.width;
+    const halfW = tooltipWidth / 2;
+    const clampedCenterPx = Math.max(halfW, Math.min(rect.width - halfW, desiredCenterPx));
+    const shiftPx = clampedCenterPx - desiredCenterPx;
+    if(shiftPx !== 0){
+      tooltipEl.style.transform = `translate(calc(-50% + ${shiftPx}px), -100%)`;
+    }
   }
 
   function hide(){
@@ -3135,22 +3498,26 @@ function renderComparison(){
     const nestEggShortfall = Math.max(0, targetVal - planNestEgg);
     const fullyRequiredAnnual = requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
     const additionalAnnualNeeded = Math.max(0, fullyRequiredAnnual - planInvestedAnnually);
-    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(targetVal)}</b> goal by age ${retAge}. To close that gap, you'd need to invest an additional <b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded)}/yr</b>) beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${planGapPct}% of your goal.`;
+    const taxAdvRoom = getTaxAdvantagedRoomRemaining().total;
+    const fillFirst = Math.min(additionalAnnualNeeded, taxAdvRoom);
+    const stillNeededTaxable = Math.max(0, additionalAnnualNeeded - taxAdvRoom);
+    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(targetVal)}</b> goal by age ${retAge}. To close that gap, you'd need an additional <b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded)}/yr</b>) invested beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'})${fillFirst > 0 ? ` — ${fmtMoney(fillFirst)}/yr of that can go into unused 401(k)/IRA/HSA room before any taxable investing` : ''}. That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${planGapPct}% of your goal.`;
     actionsEl.style.display = 'block';
-    actionsEl.innerHTML = `
-      <div class="shortfall-action" onclick="goTo(6)">
-        <div class="num">1</div>
-        <div class="txt">Add <b>${fmtMoney(additionalAnnualNeeded/12)}/mo more</b>, beyond your 401(k) →</div>
+    const actionItems = [];
+    if(fillFirst > 0){
+      actionItems.push({ step: 5, txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+    }
+    if(stillNeededTaxable > 0){
+      actionItems.push({ step: 6, txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+    }
+    actionItems.push({ step: 4, txt: `Push your <b>retirement age</b> out, or raise your growth assumption →` });
+    actionItems.push({ step: 1, txt: `Lower your <b>retirement spending target</b> →` });
+    actionsEl.innerHTML = actionItems.map((item, i) => `
+      <div class="shortfall-action" onclick="goTo(${item.step})">
+        <div class="num">${i+1}</div>
+        <div class="txt">${item.txt}</div>
       </div>
-      <div class="shortfall-action" onclick="goTo(4)">
-        <div class="num">2</div>
-        <div class="txt">Push your <b>retirement age</b> out, or raise your growth assumption →</div>
-      </div>
-      <div class="shortfall-action" onclick="goTo(1)">
-        <div class="num">3</div>
-        <div class="txt">Lower your <b>retirement spending target</b> →</div>
-      </div>
-    `;
+    `).join('');
   }
 
   renderBalanceChart();
@@ -3178,9 +3545,12 @@ let driftSpouseSalaryVal = 0;
 let driftK401Val = 0;
 let driftCashBalanceVal = 0;
 let driftRothContribVal = 0;
+let driftIraContribVal = 0;
+let driftHsaContribVal = 0;
 let driftSpouseK401Val = 0;
 let driftSpouseCashBalanceVal = 0;
 let driftSpouseRothContribVal = 0;
+let driftSpouseIraContribVal = 0;
 
 function driftHasSpouseIncome(){ return driftHasSpouseIncomeEl.checked; }
 
@@ -3201,8 +3571,51 @@ function driftPersonalPreTaxDeferral(){
 function driftRothRetirementContribution(){
   return driftRothContribVal + (driftHasSpouseIncome() ? driftSpouseRothContribVal : 0);
 }
+// See iraAndHsaContribution() for the Plan-flow equivalent and the same bucketing simplification.
+function driftIraAndHsaContribution(){
+  return driftIraContribVal + (driftHasSpouseIncome() ? driftSpouseIraContribVal : 0) + driftHsaContribVal;
+}
 function driftRetirementContribution(){
-  return driftPersonalPreTaxDeferral() + driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual() + driftRothRetirementContribution();
+  return driftPersonalPreTaxDeferral() + driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual() + driftRothRetirementContribution() + driftIraAndHsaContribution();
+}
+// Same 2026 limits as the Plan flow (getTaxAdvantagedRoomRemaining) — real IRS limits don't
+// depend on which flow of the app you're in — just reading Drift's own age/contribution state.
+function getDriftTaxAdvantagedRoomRemaining(){
+  const age = Number(driftOwnCurrentAgeEl.value) || 0;
+  const selfK401Used = driftK401Val + driftRothContribVal;
+  const selfK401Room = Math.max(0, k401DeferralLimit(age) - selfK401Used);
+  const spouseK401Used = driftSpouseK401Val + driftSpouseRothContribVal;
+  const spouseK401Room = driftHasSpouseIncome() ? Math.max(0, k401DeferralLimit(age) - spouseK401Used) : 0;
+  const selfIraRoom = Math.max(0, iraContributionLimit(age) - driftIraContribVal);
+  const spouseIraRoom = driftHasSpouseIncome() ? Math.max(0, iraContributionLimit(age) - driftSpouseIraContribVal) : 0;
+  const hsaRoom = Math.max(0, hsaContributionLimit(age, driftHsaFamilyCoverageEl.checked) - driftHsaContribVal);
+  const total = selfK401Room + spouseK401Room + selfIraRoom + spouseIraRoom + hsaRoom;
+  return { selfK401Room, spouseK401Room, selfIraRoom, spouseIraRoom, hsaRoom, total };
+}
+// Drift-flow mirror of shortfallRecommendationHtml() — same tax-advantaged-first ordering,
+// using Drift's own age fields and room calculation.
+function driftShortfallRecommendationHtml(gap, opts){
+  opts = opts || {};
+  const room = getDriftTaxAdvantagedRoomRemaining().total;
+  const fillFirst = Math.min(gap, room);
+  const stillNeeded = Math.max(0, gap - room);
+  const years = driftGetYearsToRetirement();
+  const ageRange = `every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${years} year${years===1?'':'s'})`;
+  const linkDirection = opts.linkDirection || 'below ↓';
+
+  let html = '';
+  if(fillFirst > 0){
+    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — fill that first since it's tax-advantaged. `;
+  }
+  if(stillNeeded > 0){
+    html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
+    if(opts.withLink){
+      html += ` <a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing ${linkDirection}</a>`;
+    }
+  } else if(fillFirst > 0){
+    html += `That fully covers the gap — no taxable "extra investing" needed.`;
+  }
+  return html;
 }
 let driftAdditionalInvestingVal = 0;
 let driftCollegeTargetPerKidVal = 100000;
@@ -3226,6 +3639,10 @@ const driftSalaryEl = document.getElementById('driftSalary');
 const driftK401InputEl = document.getElementById('driftK401Input');
 const driftCashBalanceInputEl = document.getElementById('driftCashBalanceInput');
 const driftRothContribInputEl = document.getElementById('driftRothContribInput');
+const driftIraContribInputEl = document.getElementById('driftIraContribInput');
+const driftHsaContribInputEl = document.getElementById('driftHsaContribInput');
+const driftHsaFamilyCoverageEl = document.getElementById('driftHsaFamilyCoverage');
+const driftSpouseIraContribInputEl = document.getElementById('driftSpouseIraContribInput');
 const driftSelfMatchRatePctEl = document.getElementById('driftSelfMatchRatePct');
 const driftSelfMatchCapPctEl = document.getElementById('driftSelfMatchCapPct');
 const driftHasSpouseIncomeEl = document.getElementById('driftHasSpouseIncome');
@@ -3550,6 +3967,7 @@ function renderDriftBudget(){
   document.getElementById('driftTaxCard401kOut').textContent = fmtMoney(driftK401Val);
   document.getElementById('driftTaxCardCashBalanceOut').textContent = fmtMoney(driftCashBalanceVal);
   document.getElementById('driftTaxCardRothOut').textContent = fmtMoney(rothContrib);
+  document.getElementById('driftTaxCardIraHsaOut').textContent = fmtMoney(driftIraAndHsaContribution());
   document.getElementById('driftTaxCardSpouseK401Out').textContent = fmtMoney(driftHasSpouseIncome() ? driftSpouseK401Val : 0);
   document.getElementById('driftTaxCardSpouseCashBalanceOut').textContent = fmtMoney(driftHasSpouseIncome() ? driftSpouseCashBalanceVal : 0);
   document.getElementById('driftTaxCardEmployerMatchOut').textContent = fmtMoney(driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual());
@@ -3579,7 +3997,8 @@ function renderDriftBudget(){
     } else if(additionalInvesting >= autoAdditional - 1){
       goalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
     } else {
-      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about <b style="color:var(--paper);">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(autoAdditional-additionalInvesting)}/yr</b>) of extra investing beyond your 401(k) — every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${driftGetYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+      const gap = autoAdditional - additionalInvesting;
+      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'below ↓'})}`;
     }
   }
 
@@ -3702,7 +4121,8 @@ function renderDriftBudget(){
   } else if(!hasTarget){
     nextStepsText.innerHTML = `Your budget works today. <a href="#" onclick="driftGoToAndFocus(12,'driftOwnSsMonthly');return false;" style="color:var(--gold);font-weight:700;">Define your retirement</a> to see if it's actually enough.`;
   } else if(underfunded){
-    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently <b style="color:#B91C1C;">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo short</b>. <a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Change Extra investing above to ${fmtMoney(autoAdditional/12)}/mo ↑</a>, or <a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">increase your 401(k) →</a>`;
+    const gap = autoAdditional - additionalInvesting;
+    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently short. ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})} <a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">Go increase 401(k)/IRA/HSA contributions →</a>`;
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
@@ -3961,19 +4381,24 @@ function renderDriftResults(){
     const totalShortfall = Math.max(0, driftTargetVal - nestEgg);
     const fullyRequired = requiredAnnualContribution(driftTargetVal, driftCurrentSavingsVal, years, growth);
     const additionalNeeded = Math.max(0, fullyRequired - planInvestedAnnually);
-    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(driftTargetVal)}</b> goal by age ${retAge}. To close that gap, you'd need to invest an additional <b style="color:var(--paper);">${fmtMoney(additionalNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalNeeded)}/yr</b>) beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${gapPct}% of your goal.`;
+    const taxAdvRoom = getDriftTaxAdvantagedRoomRemaining().total;
+    const fillFirst = Math.min(additionalNeeded, taxAdvRoom);
+    const stillNeededTaxable = Math.max(0, additionalNeeded - taxAdvRoom);
+    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(driftTargetVal)}</b> goal by age ${retAge}. To close that gap, you'd need an additional <b style="color:var(--paper);">${fmtMoney(additionalNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalNeeded)}/yr</b>) invested beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'})${fillFirst > 0 ? ` — ${fmtMoney(fillFirst)}/yr of that can go into unused 401(k)/IRA/HSA room before any taxable investing` : ''}. That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${gapPct}% of your goal.`;
     actionsEl.style.display = 'block';
-    actionsEl.innerHTML = `
-      <div class="shortfall-action" onclick="goTo(13)">
-        <div class="num">1</div><div class="txt">Add <b>${fmtMoney(additionalNeeded/12)}/mo more</b>, beyond your 401(k) →</div>
+    const actionItems = [];
+    if(fillFirst > 0){
+      actionItems.push({ onclick: "driftGoToAndFocus(8,'driftK401Input')", txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+    }
+    if(stillNeededTaxable > 0){
+      actionItems.push({ onclick: "goTo(13)", txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+    }
+    actionItems.push({ onclick: "driftGoToAndFocus(12,'driftOwnSsMonthly')", txt: `Revisit your <b>retirement expenses</b> →` });
+    actionsEl.innerHTML = actionItems.map((item, i) => `
+      <div class="shortfall-action" onclick="${item.onclick}">
+        <div class="num">${i+1}</div><div class="txt">${item.txt}</div>
       </div>
-      <div class="shortfall-action" onclick="driftGoToAndFocus(8,'driftK401Input')">
-        <div class="num">2</div><div class="txt">Increase your <b>401(k) contribution</b> →</div>
-      </div>
-      <div class="shortfall-action" onclick="driftGoToAndFocus(12,'driftOwnSsMonthly')">
-        <div class="num">3</div><div class="txt">Revisit your <b>retirement expenses</b> →</div>
-      </div>
-    `;
+    `).join('');
   }
 
   const reminder = document.getElementById('driftOwnGoalReminder');
@@ -3987,24 +4412,28 @@ document.getElementById('addEssentialBtn').addEventListener('click', () => { ess
 document.getElementById('addLifestyleBtn').addEventListener('click', () => { lifestyle.push({name:"New category", annual:0}); renderLifestyle(); });
 document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
 document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
-document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { altRealEstate.push(newAltInvestmentItem('New property')); renderAltRealEstate(); });
-document.getElementById('addAltBusinessBtn').addEventListener('click', () => { altBusiness.push(newAltInvestmentItem('New business')); renderAltBusiness(); });
-document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { altOtherInvestments.push(newAltInvestmentItem('New investment')); renderAltOtherInvestments(); });
-document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { altAnnuities.push(newAltInvestmentItem('New annuity')); renderAltAnnuities(); });
-document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { altOtherIncome.push(newAltInvestmentItem('New income source')); renderAltOtherIncome(); });
-document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:OTHER_RET_INCOME_NAMES[otherRetirementIncome.length % OTHER_RET_INCOME_NAMES.length], annual:0}); renderOtherRetIncomeTable(); });
+document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', 'New property')); renderAltRealEstate(); });
+document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', 'New business')); renderAltBusiness(); });
+document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', 'New investment')); renderAltOtherInvestments(); });
+document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', 'New annuity')); renderAltAnnuities(); });
+document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', 'New pension')); renderAltPension(); });
+document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', 'New income source')); renderAltOtherIncome(); });
 
-bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, updateFiCard);
-bindMoneyInput(spouseSsMonthlyEl, ()=>spouseSsMonthlyVal, (v)=>{spouseSsMonthlyVal=v;}, updateFiCard);
-spouseSsClaimAgeEl.addEventListener('change', updateFiCard);
+// These all feed calculateRetirementTarget()/calculateRequiredAnnualInvesting() (via
+// solveRetirementTarget), so each one calls recalculatePlan() — not just updateFiCard() — to
+// keep Step 4's required-investing number in sync the instant a Step 3 input changes, not only
+// after the user navigates there.
+bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, recalculatePlan);
+bindMoneyInput(spouseSsMonthlyEl, ()=>spouseSsMonthlyVal, (v)=>{spouseSsMonthlyVal=v;}, recalculatePlan);
+spouseSsClaimAgeEl.addEventListener('change', recalculatePlan);
 includeSpouseSSEl.addEventListener('change', () => {
   document.getElementById('spouseSsFields').style.display = includeSpouseSSEl.checked ? 'block' : 'none';
-  updateFiCard();
+  recalculatePlan();
 });
-ssClaimAgeEl.addEventListener('change', updateFiCard);
-bridgeStyleEl.addEventListener('change', updateFiCard);
-longtermStyleEl.addEventListener('change', updateFiCard);
-withdrawalTaxPctEl.addEventListener('input', updateFiCard);
+ssClaimAgeEl.addEventListener('change', recalculatePlan);
+bridgeStyleEl.addEventListener('change', recalculatePlan);
+longtermStyleEl.addEventListener('change', recalculatePlan);
+withdrawalTaxPctEl.addEventListener('input', recalculatePlan);
 
 function onAssetsChange(){ updateAssetsTotal(); }
 function mirrorAssetValue(el, v){ el.value = v ? formatNum(v) : ''; el.classList.toggle('is-filled', !!v); }
@@ -4035,7 +4464,7 @@ bindMoneyInput(spouseAssetsRothIraInputAEl, ()=>spouseAssetsRothIraVal, (v)=>{sp
 bindMoneyInput(emergencyFundSavedEl, ()=>emergencyFundSavedVal, (v)=>{emergencyFundSavedVal=v;}, updateEmergencyFund);
 emergencyMonthsEl.addEventListener('change', updateEmergencyFund);
 bindMoneyInput(planTargetEl, ()=>targetVal, (v)=>{targetVal=v; targetManuallyEdited=true;}, renderContribution);
-[currentAgeEl, retireAgeEl, planGrowthEl].forEach(el => el.addEventListener('input', renderContribution));
+[currentAgeEl, retireAgeEl, planGrowthEl].forEach(el => el.addEventListener('input', recalculatePlan));
 
 const planStartCurrentAgeEl = document.getElementById('planStartCurrentAge');
 const planStartRetireAgeEl = document.getElementById('planStartRetireAge');
@@ -4044,11 +4473,11 @@ const planStartRetireAgeEl = document.getElementById('planStartRetireAge');
 // setters — one source of truth, no more pairwise listeners to keep straight.
 function setCurrentAge(value){
   [currentAgeEl, driftCurrentAgeEl, planStartCurrentAgeEl].forEach(el => { if(el) el.value = value; });
-  renderContribution(); renderStep4(); updateFiCard();
+  recalculatePlan();
 }
 function setRetireAge(value){
   [retireAgeEl, planStartRetireAgeEl, driftRetireAgeEl].forEach(el => { if(el) el.value = value; });
-  renderContribution(); renderStep4(); updateFiCard();
+  recalculatePlan();
 }
 [currentAgeEl, driftCurrentAgeEl, planStartCurrentAgeEl].forEach(el => {
   el.addEventListener('input', () => setCurrentAge(el.value));
@@ -4061,10 +4490,14 @@ bindMoneyInput(planSalaryEl, ()=>salaryVal, (v)=>{salaryVal=v;}, renderStep4);
 bindMoneyInput(k401InputEl, ()=>k401Val, (v)=>{k401Val=v;}, renderStep4);
 bindMoneyInput(cashBalanceInputEl, ()=>cashBalanceVal, (v)=>{cashBalanceVal=v;}, renderStep4);
 bindMoneyInput(rothContribInputEl, ()=>rothContribVal, (v)=>{rothContribVal=v;}, renderStep4);
+bindMoneyInput(iraContribInputEl, ()=>iraContribVal, (v)=>{iraContribVal=v;}, renderStep4);
+bindMoneyInput(hsaContribInputEl, ()=>hsaContribVal, (v)=>{hsaContribVal=v;}, renderStep4);
+hsaFamilyCoverageEl.addEventListener('change', renderStep4);
 bindMoneyInput(spouseSalaryEl, ()=>spouseSalaryVal, (v)=>{spouseSalaryVal=v;}, renderStep4);
 bindMoneyInput(spouseK401InputEl, ()=>spouseK401Val, (v)=>{spouseK401Val=v;}, renderStep4);
 bindMoneyInput(spouseCashBalanceInputEl, ()=>spouseCashBalanceVal, (v)=>{spouseCashBalanceVal=v;}, renderStep4);
 bindMoneyInput(spouseRothContribInputEl, ()=>spouseRothContribVal, (v)=>{spouseRothContribVal=v;}, renderStep4);
+bindMoneyInput(spouseIraContribInputEl, ()=>spouseIraContribVal, (v)=>{spouseIraContribVal=v;}, renderStep4);
 [selfMatchRatePctEl, selfMatchCapPctEl, spouseMatchRatePctEl, spouseMatchCapPctEl].forEach(el => el.addEventListener('input', renderStep4));
 hasSpouseIncomeEl.addEventListener('change', () => {
   document.getElementById('spouseIncomeFields').style.display = hasSpouseIncomeEl.checked ? 'block' : 'none';
@@ -4137,10 +4570,14 @@ bindMoneyInput(driftSalaryEl, ()=>driftSalaryVal, (v)=>{driftSalaryVal=v;}, rend
 bindMoneyInput(driftK401InputEl, ()=>driftK401Val, (v)=>{driftK401Val=v;}, renderDriftBudget);
 bindMoneyInput(driftCashBalanceInputEl, ()=>driftCashBalanceVal, (v)=>{driftCashBalanceVal=v;}, renderDriftBudget);
 bindMoneyInput(driftRothContribInputEl, ()=>driftRothContribVal, (v)=>{driftRothContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftIraContribInputEl, ()=>driftIraContribVal, (v)=>{driftIraContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftHsaContribInputEl, ()=>driftHsaContribVal, (v)=>{driftHsaContribVal=v;}, renderDriftBudget);
+driftHsaFamilyCoverageEl.addEventListener('change', renderDriftBudget);
 bindMoneyInput(driftSpouseSalaryEl, ()=>driftSpouseSalaryVal, (v)=>{driftSpouseSalaryVal=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseK401InputEl, ()=>driftSpouseK401Val, (v)=>{driftSpouseK401Val=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseCashBalanceInputEl, ()=>driftSpouseCashBalanceVal, (v)=>{driftSpouseCashBalanceVal=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseRothContribInputEl, ()=>driftSpouseRothContribVal, (v)=>{driftSpouseRothContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftSpouseIraContribInputEl, ()=>driftSpouseIraContribVal, (v)=>{driftSpouseIraContribVal=v;}, renderDriftBudget);
 [driftSelfMatchRatePctEl, driftSelfMatchCapPctEl, driftSpouseMatchRatePctEl, driftSpouseMatchCapPctEl].forEach(el => el.addEventListener('input', renderDriftBudget));
 driftHasSpouseIncomeEl.addEventListener('change', () => {
   document.getElementById('driftSpouseIncomeFields').style.display = driftHasSpouseIncomeEl.checked ? 'block' : 'none';
@@ -4194,12 +4631,13 @@ renderEssential();
 renderLifestyle();
 renderCurrentNeedsTable();
 renderGoalsTable();
-renderOtherRetIncomeTable();
 renderAltRealEstate();
 renderAltBusiness();
+renderAltPension();
 renderAltOtherInvestments();
 renderAltAnnuities();
 renderAltOtherIncome();
+renderIncomeSourcesSummary();
 syncPlanTarget();
 renderDriftCurrentNeedsTable();
 renderDriftGoalsTable();
