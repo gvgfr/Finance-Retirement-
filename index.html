@@ -427,9 +427,9 @@
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental property, pensions, part-time work, royalties — anything besides Social Security and your portfolio.</p>
-    <div class="cat-table" id="otherRetIncomeTable"></div>
-    <button class="add-cat-btn" id="addOtherRetIncomeBtn">+ add income source</button>
+    <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income — entered once, on the next step, and used everywhere it matters. This is a summary, not an input.</p>
+    <div id="incomeSourcesSummary"></div>
+    <button class="btn btn-ghost" type="button" style="margin-top:10px;" onclick="goTo(4)">Edit income sources →</button>
 
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
@@ -459,8 +459,8 @@
   <!-- STEP 4: CONTRIBUTION CALCULATOR -->
   <div class="step" data-step="4">
     <div class="eyebrow">The plan</div>
-    <h2>How much to <em>put away</em> monthly?</h2>
-    <p class="sub">Working backward from your target, your timeline, and an assumed investment return.</p>
+    <h2><em>Assets, Contributions</em> & Other Income</h2>
+    <p class="sub">What you've already got working for you, what you're adding, and every other income source — entered once, here, and used everywhere it matters (including the Step 3 summary).</p>
 
     <div class="plan-grid">
       <div class="field"><label>Current age</label><input type="number" id="currentAge" value="35" min="0" step="1"></div>
@@ -484,7 +484,7 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">For each source below, "Current income" adds to your take-home pay right now; "Retirement income" reduces how big a nest egg (and 401(k) contribution) you need to hit your target. Both are optional and independent — fill in whichever applies.</p>
+    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years. Set a retirement start age if it begins later than your retirement date (e.g. a pension that starts at 65 when you retire at 60), and an end age if it stops (optional).</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
     <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
@@ -506,8 +506,13 @@
     <div class="cat-table" id="altAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
 
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:#0D9488"></span>Pension</div>
+    <p class="field-hint" style="margin-bottom:10px;">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" above). Often starts at a different age than when you actually retire.</p>
+    <div class="cat-table" id="altPensionTable"></div>
+    <button class="add-cat-btn" id="addAltPensionBtn">+ add pension</button>
+
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Catch-all for any income that doesn't fit the categories above.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
     <div class="cat-table" id="altOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
 
@@ -951,7 +956,7 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">For each source below, "Current income" adds to your take-home pay right now; "Retirement income" reduces how big a nest egg (and 401(k) contribution) you need to hit your target. Both are optional and independent — fill in whichever applies.</p>
+    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years.</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
     <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
@@ -1306,6 +1311,8 @@ const DEFAULT_SAVINGS_GOALS = [
   { name: "Wedding", target: 20000, years: 2 },
   { name: "Vacation", target: 5000, years: 1 }
 ];
+// Used only by the (unaffected) Drift/Budget-first flow's own separate "other retirement
+// income" table — the Plan flow below uses the canonical incomeSources model instead.
 const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental Real Estate", annual: 0 } ];
 const OTHER_RET_INCOME_NAMES = ["Rental Real Estate", "Business Income", "Other Investments", "Annuities", "Other Income"];
 
@@ -1313,16 +1320,44 @@ let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
 let lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
 let currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
 let savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
-let otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
 
-// Alternative-investment categories — each item can grow at its own rate (unlike the flat
-// current-invested-assets lump) and optionally pay a windowed retirement income. Start empty:
-// this is an opt-in section, not pre-seeded like the categories above.
-let altRealEstate = [];
-let altBusiness = [];
-let altOtherInvestments = [];
-let altAnnuities = [];
-let altOtherIncome = [];
+// ============ CANONICAL INCOME-SOURCE MODEL (single source of truth) ============
+// Every non-employment income source — rental, business, pension, annuity, dividends, etc. —
+// lives in this one array, entered once on Step 4 ("Assets, Contributions & Other Income").
+// Step 3's "other retirement income" section is a read-only summary of this same array; it
+// has no editable state of its own. Current and retirement amounts are independent (a source
+// can have one, both, or neither), and retirement income only counts in the years between
+// retirementStartAge (defaults to the plan's retirement age) and retirementEndAge (defaults
+// to no end) — see getRetirementIncomeAtAge().
+const INCOME_TYPE_LABELS = {
+  rental: "Rental",
+  business: "Business",
+  consulting: "Consulting",
+  dividends: "Dividends",
+  royalties: "Royalties",
+  annuity: "Annuity",
+  pension: "Pension",
+  otherInvestment: "Other Investment",
+  other: "Other"
+};
+// Types shown/editable under the catch-all "Other Income" section on Step 4.
+const OTHER_INCOME_TYPES = ["other", "consulting", "dividends", "royalties"];
+
+let incomeSourceIdSeq = 1;
+function nextIncomeSourceId(){ return "source-" + (incomeSourceIdSeq++); }
+function newIncomeSource(type, name){
+  return {
+    id: nextIncomeSourceId(),
+    type,
+    name,
+    currentAnnualIncome: 0,
+    retirementAnnualIncome: 0,
+    retirementStartAge: null, // null = defaults to the plan's retirement age
+    retirementEndAge: null    // null = no end (lasts the rest of retirement)
+  };
+}
+let incomeSources = [];
+function incomeSourcesOfTypes(types){ return incomeSources.filter(s => types.includes(s.type)); }
 
 let ssMonthlyVal = 0;
 let spouseSsMonthlyVal = 0;
@@ -1495,12 +1530,8 @@ function resetAllState(){
   lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
   currentNeeds = DEFAULT_CURRENT_NEEDS.map(c => ({...c}));
   savingsGoals = DEFAULT_SAVINGS_GOALS.map(c => ({...c}));
-  otherRetirementIncome = DEFAULT_OTHER_RET_INCOME.map(c => ({...c}));
-  altRealEstate = [];
-  altBusiness = [];
-  altOtherInvestments = [];
-  altAnnuities = [];
-  altOtherIncome = [];
+  incomeSources = [];
+  incomeSourceIdSeq = 1;
 
   ssMonthlyVal = 0;
   spouseSsMonthlyVal = 0;
@@ -1593,12 +1624,13 @@ function resetAllState(){
   renderLifestyle();
   renderCurrentNeedsTable();
   renderGoalsTable();
-  renderOtherRetIncomeTable();
   renderAltRealEstate();
   renderAltBusiness();
+  renderAltPension();
   renderAltOtherInvestments();
   renderAltAnnuities();
   renderAltOtherIncome();
+  renderIncomeSourcesSummary();
   syncPlanTarget();
   updateAssetsTotal();
   updateEmergencyFund();
@@ -1736,10 +1768,10 @@ function goTo(step, opts){
   document.getElementById('footStartOver').style.display = (step === 0) ? 'none' : 'inline';
   window.scrollTo({top:0, behavior:'smooth'});
   if(step === 3){
-    updateFiCard();
+    recalculatePlan();
   }
   if(step === 4){
-    syncPlanTarget(); renderContribution();
+    recalculatePlan();
     const nextBtn = document.getElementById('planFinishBtn');
     if(nextBtn) nextBtn.textContent = returnToCompareAfterPlan ? "Finish: compare both paths →" : "Next: today's income →";
   }
@@ -1932,24 +1964,22 @@ function totalRetirementAnnualSpend(){
 
 /* ================= STEP 2: NEST EGG + SOCIAL SECURITY ================= */
 function annualSSBenefit(){ return ssMonthlyVal * 12; }
-function otherRetirementIncomeAnnualTotal(){ return otherRetirementIncome.reduce((s,c)=>s+(Number(c.annual)||0),0); }
 
-function allAltInvestmentItems(){
-  return [...altRealEstate, ...altBusiness, ...altOtherInvestments, ...altAnnuities, ...altOtherIncome];
+// Current (pre-retirement) income every income source is already producing — flows straight
+// into gross pay/tax on Step 4/5, unconditionally (not age-windowed like retirement income,
+// since it's happening now).
+function getCurrentOtherIncome(){
+  return incomeSources.reduce((sum, s) => sum + (Number(s.currentAnnualIncome)||0), 0);
 }
-// Current (pre-retirement) income these items are already producing — flows straight into gross
-// pay/tax, same as the flat "Other income sources" table, and unconditionally (not age-windowed
-// like retirement income, since it's happening now).
-function altInvestmentCurrentIncomeTotal(){
-  return allAltInvestmentItems().reduce((sum, it) => sum + (Number(it.currentIncome)||0), 0);
-}
-// Sums retirement income for items whose [startAge, endAge] window contains `age` — called from
-// every existing age-by-age retirement loop alongside the flat otherRetirementIncomeAnnualTotal().
-function altInvestmentIncomeAt(age, retireAge){
-  return allAltInvestmentItems().reduce((sum, it) => {
-    const start = it.startAge || retireAge;
-    const end = it.endAge || Infinity;
-    return (age >= start && age <= end) ? sum + (Number(it.retirementIncome)||0) : sum;
+// Sums retirement income for every source whose [retirementStartAge, retirementEndAge] window
+// contains `age` — the ONE function every age-by-age retirement calculation (target, sustainable
+// income, phase breakdown, balance/goal charts) calls to find out how much non-Social-Security,
+// non-portfolio income is landing in a given retirement year.
+function getRetirementIncomeAtAge(age, retireAge){
+  return incomeSources.reduce((sum, s) => {
+    const start = (s.retirementStartAge != null && s.retirementStartAge !== '') ? Number(s.retirementStartAge) : retireAge;
+    const end = (s.retirementEndAge != null && s.retirementEndAge !== '') ? Number(s.retirementEndAge) : Infinity;
+    return (age >= start && age <= end) ? sum + (Number(s.retirementAnnualIncome)||0) : sum;
   }, 0);
 }
 
@@ -1960,7 +1990,6 @@ function spouseSSClaimAge(){ return Number(spouseSsClaimAgeEl.value) || 67; }
 function spouseAnnualSSBenefit(){ return hasSpouseSS() ? spouseSsMonthlyVal * 12 : 0; }
 
 function bridgeYears(){ return Math.max(0, socialSecurityClaimAge() - plannedRetirementAge()); }
-function bridgeAnnualNeed(){ return Math.max(0, totalRetirementAnnualSpend() - otherRetirementIncomeAnnualTotal()); }
 
 // Bridge money (before Social Security starts) is kept more conservative since it's needed
 // soon; long-term money has decades to compound, so it can afford more growth-oriented
@@ -1980,7 +2009,6 @@ function solveRetirementTarget(retireAge, endAge){
   endAge = endAge || 95;
   const spend = totalRetirementAnnualSpend();
   if(retireAge <= 0 || retireAge >= endAge || spend <= 0) return 0;
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -1993,7 +2021,7 @@ function solveRetirementTarget(retireAge, endAge){
     let balance = starting;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other + altInvestmentIncomeAt(age, retireAge);
+      let income = getRetirementIncomeAtAge(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -2018,7 +2046,6 @@ function solveRetirementTarget(retireAge, endAge){
 function solveSustainableIncome(nestEgg, retireAge, endAge){
   endAge = endAge || 95;
   if(retireAge <= 0 || retireAge >= endAge) return 0;
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -2031,7 +2058,7 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
     let balance = nestEgg;
     for(let age = retireAge; age <= endAge; age++){
       const rate = age < claim1 ? bRate : ltRate;
-      let income = other + altInvestmentIncomeAt(age, retireAge);
+      let income = getRetirementIncomeAtAge(age, retireAge);
       if(age >= claim1) income += benefit1;
       if(age >= claim2) income += benefit2;
       const rawNeed = Math.max(0, spend - income);
@@ -2042,7 +2069,8 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
     }
     return true;
   }
-  let lo = 0, hi = Math.max(1, nestEgg + other + ss + spouseSS);
+  const maxOtherIncomePotential = incomeSources.reduce((sum,s)=> sum + (Number(s.retirementAnnualIncome)||0), 0);
+  let lo = 0, hi = Math.max(1, nestEgg + maxOtherIncomePotential + ss + spouseSS);
   for(let i = 0; i < 50; i++){
     const mid = (lo + hi) / 2;
     if(survives(mid)) lo = mid; else hi = mid;
@@ -2051,6 +2079,7 @@ function solveSustainableIncome(nestEgg, retireAge, endAge){
 }
 
 function calculatedRetirementTarget(){ return solveRetirementTarget(plannedRetirementAge()); }
+function calculateRetirementTarget(){ return calculatedRetirementTarget(); }
 
 // Given the solved target, reports how much of it gets spent down before Social Security
 // starts vs. how much is still working for you once it kicks in — by simulating forward with
@@ -2062,7 +2091,6 @@ function retirementTargetPhaseBreakdown(retireAge, endAge){
   if(retireAge <= 0 || retireAge >= endAge || spend <= 0 || target <= 0){
     return { target: 0, beforeSS: 0, afterSS: 0, years: Math.max(0, socialSecurityClaimAge() - retireAge) };
   }
-  const other = otherRetirementIncomeAnnualTotal();
   const ss = annualSSBenefit();
   const spouseSS = spouseAnnualSSBenefit();
   const claim1 = hasSpouseSS() ? Math.min(socialSecurityClaimAge(), spouseSSClaimAge()) : socialSecurityClaimAge();
@@ -2074,14 +2102,57 @@ function retirementTargetPhaseBreakdown(retireAge, endAge){
 
   let balance = target;
   for(let age = retireAge; age < claim1; age++){
-    const rawNeed = Math.max(0, spend - other - altInvestmentIncomeAt(age, retireAge));
+    const rawNeed = Math.max(0, spend - getRetirementIncomeAtAge(age, retireAge));
     balance = balance * (1 + bRate) - (rawNeed / (1 - taxRate));
   }
   const balanceAtSS = Math.max(0, balance);
   return { target, beforeSS: Math.max(0, target - balanceAtSS), afterSS: balanceAtSS, years: Math.max(0, claim1 - retireAge) };
 }
 
-function renderOtherRetIncomeTable(){ renderCatTable('otherRetIncomeTable', otherRetirementIncome, updateFiCard); }
+// Step 3's "other retirement income" block is read-only — it just reflects whatever is
+// currently in the canonical incomeSources array (edited only on Step 4).
+function renderIncomeSourcesSummary(){
+  const container = document.getElementById('incomeSourcesSummary');
+  if(!container) return;
+  container.innerHTML = "";
+  const entered = incomeSources.filter(s => (Number(s.retirementAnnualIncome)||0) > 0);
+
+  if(entered.length === 0){
+    const p = document.createElement('p');
+    p.className = 'field-hint';
+    p.textContent = "No retirement income sources entered yet — add rental, business, pension, annuity, or other income on the next step.";
+    container.appendChild(p);
+    return;
+  }
+
+  const label = document.createElement('div');
+  label.className = 'field-hint';
+  label.style.marginBottom = '6px';
+  label.textContent = 'Other retirement income entered:';
+  container.appendChild(label);
+
+  let total = 0;
+  entered.forEach(s => {
+    total += Number(s.retirementAnnualIncome) || 0;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px;color:var(--paper-dim);';
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = s.name || INCOME_TYPE_LABELS[s.type] || 'Income source';
+    const valSpan = document.createElement('span');
+    valSpan.style.color = 'var(--paper)';
+    valSpan.innerHTML = `<b>${fmtMoney(s.retirementAnnualIncome)}</b>/year`;
+    row.appendChild(nameSpan);
+    row.appendChild(valSpan);
+    container.appendChild(row);
+  });
+
+  const totalRow = document.createElement('div');
+  totalRow.style.cssText = 'display:flex;justify-content:space-between;gap:12px;padding:8px 0 0;border-top:1px solid var(--line);margin-top:6px;font-weight:700;font-size:13.5px;';
+  const totalLabel = document.createElement('span'); totalLabel.textContent = 'Total';
+  const totalVal = document.createElement('span'); totalVal.textContent = fmtMoney(total) + '/year';
+  totalRow.appendChild(totalLabel); totalRow.appendChild(totalVal);
+  container.appendChild(totalRow);
+}
 
 function updateFiCard(){
   const spend = totalRetirementAnnualSpend();
@@ -2160,6 +2231,17 @@ function getRequiredInvesting(){
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
   return requiredAnnualContribution(targetVal, currentSavingsVal, years, growth);
+}
+function calculateRequiredAnnualInvesting(){ return getRequiredInvesting(); }
+
+// Single entry point for "something that affects the plan changed" — refreshes the retirement
+// target, the Step 3 income summary, and everything on Step 4 (current income/tax, required
+// investing, budget breakdown) from the same underlying incomeSources + plan state, so Step 3
+// and Step 4 can never show inconsistent numbers.
+function recalculatePlan(){
+  updateFiCard();
+  renderIncomeSourcesSummary();
+  renderStep4(); // also calls syncPlanTarget() + renderContribution()
 }
 
 function updateGoalReminders(){
@@ -2429,6 +2511,151 @@ function newAltInvestmentItem(name){
   return { name, currentIncome: 0, retirementIncome: 0 };
 }
 
+// Renders one section of the canonical incomeSources array (Step 4 only — Step 3 is a
+// read-only summary, see renderIncomeSourcesSummary). `types` selects which items appear here;
+// `opts.typeOptions`, if given, adds a per-row type dropdown (used by the "Other Income"
+// catch-all so consulting/dividends/royalties/other can share one section).
+function renderIncomeSourceTable(tableId, types, onChange, opts){
+  opts = opts || {};
+  const table = document.getElementById(tableId);
+  table.innerHTML = "";
+  const items = incomeSourcesOfTypes(types);
+
+  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual){
+    const wrap = document.createElement('div');
+    const heading = document.createElement('div');
+    heading.className = 'cat-field-label';
+    heading.style.color = 'var(--paper-dim)';
+    heading.style.marginBottom = '6px';
+    heading.textContent = labelText;
+    wrap.appendChild(heading);
+
+    const row = document.createElement('div');
+    row.className = 'cat-row-bottom';
+
+    const monthlyField = document.createElement('div');
+    monthlyField.className = 'cat-field';
+    const monthlyLabel = document.createElement('div');
+    monthlyLabel.className = 'cat-field-label';
+    monthlyLabel.textContent = 'Monthly';
+    const monthlyWrap = document.createElement('div');
+    monthlyWrap.className = 'cat-input-wrap';
+    const mDollar = document.createElement('span'); mDollar.textContent = '$';
+    const monthlyInput = document.createElement('input');
+    monthlyInput.className = 'cat-input';
+    monthlyInput.setAttribute('inputmode','numeric');
+    monthlyWrap.appendChild(mDollar);
+    monthlyWrap.appendChild(monthlyInput);
+    monthlyField.appendChild(monthlyLabel);
+    monthlyField.appendChild(monthlyWrap);
+
+    const annualField = document.createElement('div');
+    annualField.className = 'cat-field';
+    const annualLabel = document.createElement('div');
+    annualLabel.className = 'cat-field-label';
+    annualLabel.textContent = 'Annual';
+    const annualWrap = document.createElement('div');
+    annualWrap.className = 'cat-input-wrap';
+    const aDollar = document.createElement('span'); aDollar.textContent = '$';
+    const annualInput = document.createElement('input');
+    annualInput.className = 'cat-input';
+    annualInput.setAttribute('inputmode','numeric');
+    annualWrap.appendChild(aDollar);
+    annualWrap.appendChild(annualInput);
+    annualField.appendChild(annualLabel);
+    annualField.appendChild(annualWrap);
+
+    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, onChange);
+    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, onChange);
+
+    row.appendChild(monthlyField);
+    row.appendChild(annualField);
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  function makeAgeRow(item){
+    const wrap = document.createElement('div');
+    wrap.className = 'cat-row-bottom';
+    wrap.style.marginTop = '10px';
+
+    function ageField(labelText, placeholder, getAge, setAge){
+      const field = document.createElement('div');
+      field.className = 'cat-field';
+      const label = document.createElement('div');
+      label.className = 'cat-field-label';
+      label.textContent = labelText;
+      const input = document.createElement('input');
+      input.className = 'cat-input';
+      input.type = 'number';
+      input.min = 0; input.step = 1;
+      input.placeholder = placeholder;
+      input.value = getAge() != null ? getAge() : '';
+      input.addEventListener('input', () => {
+        setAge(input.value === '' ? null : Number(input.value));
+        onChange();
+      });
+      field.appendChild(label);
+      field.appendChild(input);
+      return field;
+    }
+
+    wrap.appendChild(ageField('Retirement start age', 'at retirement', () => item.retirementStartAge, (v) => { item.retirementStartAge = v; }));
+    wrap.appendChild(ageField('Retirement end age (optional)', 'no end', () => item.retirementEndAge, (v) => { item.retirementEndAge = v; }));
+    return wrap;
+  }
+
+  items.forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+
+    const top = document.createElement('div');
+    top.className = 'cat-row-top';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name';
+    nameInput.value = item.name;
+    nameInput.addEventListener('input', (e) => { item.name = e.target.value; onChange(); });
+    top.appendChild(nameInput);
+
+    if(opts.typeOptions){
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'cat-input';
+      typeSelect.style.maxWidth = '150px';
+      typeSelect.style.marginRight = '6px';
+      opts.typeOptions.forEach(o => {
+        const optEl = document.createElement('option');
+        optEl.value = o.value; optEl.textContent = o.label;
+        if(item.type === o.value) optEl.selected = true;
+        typeSelect.appendChild(optEl);
+      });
+      typeSelect.addEventListener('change', () => { item.type = typeSelect.value; onChange(); });
+      top.appendChild(typeSelect);
+    }
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cat-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', () => {
+      incomeSources.splice(incomeSources.indexOf(item), 1);
+      renderIncomeSourceTable(tableId, types, onChange, opts);
+    });
+    top.appendChild(delBtn);
+
+    const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; });
+    const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; });
+    bottom2.style.marginTop = '10px';
+    const ageRow = makeAgeRow(item);
+
+    row.appendChild(top);
+    row.appendChild(bottom1);
+    row.appendChild(bottom2);
+    row.appendChild(ageRow);
+    table.appendChild(row);
+  });
+  onChange();
+}
+
 function renderGoalsTable(){
   const table = document.getElementById('goalsTable');
   table.innerHTML = "";
@@ -2510,11 +2737,18 @@ function renderGoalsTable(){
 function goalsAnnualTotal(){
   return savingsGoals.reduce((s,g) => s + ((Number(g.target)||0) / Math.max(1, Number(g.years)||1)), 0);
 }
-function renderAltRealEstate(){ renderInvestmentTable('altRealEstateTable', altRealEstate, renderStep4); }
-function renderAltBusiness(){ renderInvestmentTable('altBusinessTable', altBusiness, renderStep4); }
-function renderAltOtherInvestments(){ renderInvestmentTable('altOtherInvestmentsTable', altOtherInvestments, renderStep4); }
-function renderAltAnnuities(){ renderInvestmentTable('altAnnuitiesTable', altAnnuities, renderStep4); }
-function renderAltOtherIncome(){ renderInvestmentTable('altOtherIncomeTable', altOtherIncome, renderStep4); }
+const OTHER_INCOME_TYPE_OPTIONS = [
+  { value: 'other', label: 'Other' },
+  { value: 'consulting', label: 'Consulting' },
+  { value: 'dividends', label: 'Dividends' },
+  { value: 'royalties', label: 'Royalties' }
+];
+function renderAltRealEstate(){ renderIncomeSourceTable('altRealEstateTable', ['rental'], recalculatePlan); }
+function renderAltBusiness(){ renderIncomeSourceTable('altBusinessTable', ['business'], recalculatePlan); }
+function renderAltOtherInvestments(){ renderIncomeSourceTable('altOtherInvestmentsTable', ['otherInvestment'], recalculatePlan); }
+function renderAltAnnuities(){ renderIncomeSourceTable('altAnnuitiesTable', ['annuity'], recalculatePlan); }
+function renderAltPension(){ renderIncomeSourceTable('altPensionTable', ['pension'], recalculatePlan); }
+function renderAltOtherIncome(){ renderIncomeSourceTable('altOtherIncomeTable', OTHER_INCOME_TYPES, recalculatePlan, { typeOptions: OTHER_INCOME_TYPE_OPTIONS }); }
 
 function getEducationRequiredAnnual(){
   const kids = Math.max(0, Number(numKidsEl.value) || 0);
@@ -2556,7 +2790,7 @@ function renderStep4(){
   renderContribution();
   const hasRealPlan = hasRealPlanMode();
   const status = filingStatusEl.value;
-  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + altInvestmentCurrentIncomeTotal();
+  const gross = salaryVal + (hasSpouseIncome() ? spouseSalaryVal : 0) + getCurrentOtherIncome();
   const agi = Math.max(0, gross - personalPreTaxDeferral());
   const fedTax = computeFederalTax(agi, status);
   const fica = computeHouseholdFICA(salaryVal, hasSpouseIncome() ? spouseSalaryVal : 0, status);
@@ -2669,7 +2903,6 @@ function renderStep4(){
   /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
-  const ss = annualSSBenefit() + spouseAnnualSSBenefit() + otherRetirementIncomeAnnualTotal();
 
   const badDriftAge = (Number(retireAgeEl.value) || 0) <= (Number(currentAgeEl.value) || 0);
   document.getElementById('driftAgeOrderWarn').classList.toggle('show', badDriftAge);
@@ -2725,7 +2958,6 @@ function computeBalanceSeries(includeExtra){
   const retAge = Number(retireAgeEl.value) || 0;
   const g = (Number(planGrowthEl.value) || 0) / 100;
   const spend = totalRetirementAnnualSpend();
-  const otherInc = otherRetirementIncomeAnnualTotal();
   const ssAmt = annualSSBenefit();
   const spouseAmt = spouseAnnualSSBenefit();
 
@@ -2770,7 +3002,7 @@ function computeBalanceSeries(includeExtra){
     taxDeferredBal *= (1+rate);
     taxFreeBal *= (1+rate);
 
-    let income = otherInc + altInvestmentIncomeAt(age, retAge);
+    let income = getRetirementIncomeAtAge(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income); // after-tax cash need for the year
@@ -2840,7 +3072,6 @@ function computeGoalSeries(minAge, retAge, target){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = totalRetirementAnnualSpend();
-  const otherInc = otherRetirementIncomeAnnualTotal();
   const ssAmt = annualSSBenefit();
   const spouseAmt = spouseAnnualSSBenefit();
   let claim1Age, claim2Age, benefit1, benefit2;
@@ -2861,7 +3092,7 @@ function computeGoalSeries(minAge, retAge, target){
   const endAge = 95;
   for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
-    let income = otherInc + altInvestmentIncomeAt(age, retAge);
+    let income = getRetirementIncomeAtAge(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
@@ -3987,24 +4218,28 @@ document.getElementById('addEssentialBtn').addEventListener('click', () => { ess
 document.getElementById('addLifestyleBtn').addEventListener('click', () => { lifestyle.push({name:"New category", annual:0}); renderLifestyle(); });
 document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
 document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
-document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { altRealEstate.push(newAltInvestmentItem('New property')); renderAltRealEstate(); });
-document.getElementById('addAltBusinessBtn').addEventListener('click', () => { altBusiness.push(newAltInvestmentItem('New business')); renderAltBusiness(); });
-document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { altOtherInvestments.push(newAltInvestmentItem('New investment')); renderAltOtherInvestments(); });
-document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { altAnnuities.push(newAltInvestmentItem('New annuity')); renderAltAnnuities(); });
-document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { altOtherIncome.push(newAltInvestmentItem('New income source')); renderAltOtherIncome(); });
-document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:OTHER_RET_INCOME_NAMES[otherRetirementIncome.length % OTHER_RET_INCOME_NAMES.length], annual:0}); renderOtherRetIncomeTable(); });
+document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', 'New property')); renderAltRealEstate(); });
+document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', 'New business')); renderAltBusiness(); });
+document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', 'New investment')); renderAltOtherInvestments(); });
+document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', 'New annuity')); renderAltAnnuities(); });
+document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', 'New pension')); renderAltPension(); });
+document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', 'New income source')); renderAltOtherIncome(); });
 
-bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, updateFiCard);
-bindMoneyInput(spouseSsMonthlyEl, ()=>spouseSsMonthlyVal, (v)=>{spouseSsMonthlyVal=v;}, updateFiCard);
-spouseSsClaimAgeEl.addEventListener('change', updateFiCard);
+// These all feed calculateRetirementTarget()/calculateRequiredAnnualInvesting() (via
+// solveRetirementTarget), so each one calls recalculatePlan() — not just updateFiCard() — to
+// keep Step 4's required-investing number in sync the instant a Step 3 input changes, not only
+// after the user navigates there.
+bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, recalculatePlan);
+bindMoneyInput(spouseSsMonthlyEl, ()=>spouseSsMonthlyVal, (v)=>{spouseSsMonthlyVal=v;}, recalculatePlan);
+spouseSsClaimAgeEl.addEventListener('change', recalculatePlan);
 includeSpouseSSEl.addEventListener('change', () => {
   document.getElementById('spouseSsFields').style.display = includeSpouseSSEl.checked ? 'block' : 'none';
-  updateFiCard();
+  recalculatePlan();
 });
-ssClaimAgeEl.addEventListener('change', updateFiCard);
-bridgeStyleEl.addEventListener('change', updateFiCard);
-longtermStyleEl.addEventListener('change', updateFiCard);
-withdrawalTaxPctEl.addEventListener('input', updateFiCard);
+ssClaimAgeEl.addEventListener('change', recalculatePlan);
+bridgeStyleEl.addEventListener('change', recalculatePlan);
+longtermStyleEl.addEventListener('change', recalculatePlan);
+withdrawalTaxPctEl.addEventListener('input', recalculatePlan);
 
 function onAssetsChange(){ updateAssetsTotal(); }
 function mirrorAssetValue(el, v){ el.value = v ? formatNum(v) : ''; el.classList.toggle('is-filled', !!v); }
@@ -4035,7 +4270,7 @@ bindMoneyInput(spouseAssetsRothIraInputAEl, ()=>spouseAssetsRothIraVal, (v)=>{sp
 bindMoneyInput(emergencyFundSavedEl, ()=>emergencyFundSavedVal, (v)=>{emergencyFundSavedVal=v;}, updateEmergencyFund);
 emergencyMonthsEl.addEventListener('change', updateEmergencyFund);
 bindMoneyInput(planTargetEl, ()=>targetVal, (v)=>{targetVal=v; targetManuallyEdited=true;}, renderContribution);
-[currentAgeEl, retireAgeEl, planGrowthEl].forEach(el => el.addEventListener('input', renderContribution));
+[currentAgeEl, retireAgeEl, planGrowthEl].forEach(el => el.addEventListener('input', recalculatePlan));
 
 const planStartCurrentAgeEl = document.getElementById('planStartCurrentAge');
 const planStartRetireAgeEl = document.getElementById('planStartRetireAge');
@@ -4044,11 +4279,11 @@ const planStartRetireAgeEl = document.getElementById('planStartRetireAge');
 // setters — one source of truth, no more pairwise listeners to keep straight.
 function setCurrentAge(value){
   [currentAgeEl, driftCurrentAgeEl, planStartCurrentAgeEl].forEach(el => { if(el) el.value = value; });
-  renderContribution(); renderStep4(); updateFiCard();
+  recalculatePlan();
 }
 function setRetireAge(value){
   [retireAgeEl, planStartRetireAgeEl, driftRetireAgeEl].forEach(el => { if(el) el.value = value; });
-  renderContribution(); renderStep4(); updateFiCard();
+  recalculatePlan();
 }
 [currentAgeEl, driftCurrentAgeEl, planStartCurrentAgeEl].forEach(el => {
   el.addEventListener('input', () => setCurrentAge(el.value));
@@ -4194,12 +4429,13 @@ renderEssential();
 renderLifestyle();
 renderCurrentNeedsTable();
 renderGoalsTable();
-renderOtherRetIncomeTable();
 renderAltRealEstate();
 renderAltBusiness();
+renderAltPension();
 renderAltOtherInvestments();
 renderAltAnnuities();
 renderAltOtherIncome();
+renderIncomeSourcesSummary();
 syncPlanTarget();
 renderDriftCurrentNeedsTable();
 renderDriftGoalsTable();
