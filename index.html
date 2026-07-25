@@ -2822,7 +2822,11 @@ function computeGoalSeries(minAge, retAge, target){
     points.push({ age: minAge, balance: 0, phase: 'accumulate' });
     return points;
   }
-  for(let age = minAge; age <= retAge; age++){
+  // Spend-down starts AT retAge (not retAge+1) to match solveRetirementTarget's own "survives"
+  // loop exactly -- otherwise this line depicts one fewer year of withdrawals than the target
+  // was actually solved for, making it look like there's leftover cushion at the end age that
+  // isn't really there.
+  for(let age = minAge; age < retAge; age++){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = totalRetirementAnnualSpend();
@@ -2845,7 +2849,7 @@ function computeGoalSeries(minAge, retAge, target){
   const taxRate = Math.min(0.5, Math.max(0, (Number(withdrawalTaxPctEl.value)||0)/100));
   let balance = target;
   const endAge = 95;
-  for(let age = retAge+1; age <= endAge; age++){
+  for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
     let income = otherInc + altInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
@@ -3789,7 +3793,9 @@ function driftComputeGoalSeries(minAge, retAge, target){
     points.push({ age: minAge, balance: 0, phase: 'accumulate' });
     return points;
   }
-  for(let age = minAge; age <= retAge; age++){
+  // Spend-down starts AT retAge (not retAge+1) to match driftSolveRetirementTarget's own
+  // "survives" loop exactly -- see computeGoalSeries for why.
+  for(let age = minAge; age < retAge; age++){
     points.push({ age, balance: target, phase: 'accumulate' });
   }
   const spend = driftTotalRetirementAnnualSpend();
@@ -3810,7 +3816,7 @@ function driftComputeGoalSeries(minAge, retAge, target){
   const taxRate = Math.min(0.5, Math.max(0, (Number(driftWithdrawalTaxPctEl.value)||0)/100));
   let balance = target;
   const endAge = 95;
-  for(let age = retAge+1; age <= endAge; age++){
+  for(let age = retAge; age <= endAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
     let income = otherInc + driftAltInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
