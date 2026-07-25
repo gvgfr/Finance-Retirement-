@@ -1280,7 +1280,8 @@ const DEFAULT_SAVINGS_GOALS = [
   { name: "Vacation", target: 5000, years: 1 }
 ];
 const DEFAULT_OTHER_INCOME = [ { name: "Side business / freelance income", annual: 0 } ];
-const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental property income", annual: 0 } ];
+const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental Real Estate", annual: 0 } ];
+const OTHER_RET_INCOME_NAMES = ["Rental Real Estate", "Business Income", "Other Investments", "Annuities", "Other Income"];
 
 let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
 let lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
@@ -2224,6 +2225,23 @@ BRACKETS_2026.qss = BRACKETS_2026.mfj;
 const FICA_SS_WAGE_BASE_2026 = 184500;
 const ADDL_MEDICARE_THRESHOLD = { single: 200000, mfj: 250000, mfs: 125000, hoh: 200000, qss: 250000 };
 
+// SECURE 2.0 sets RMD start at 73 for those born 1951-1959 and 75 for 1960+; the app has no
+// birth-year input, so 73 is used as a fixed approximation (correct for anyone at/near RMD age today).
+const RMD_START_AGE = 73;
+// IRS Uniform Lifetime Table (divisors), ages 73-120.
+const RMD_UNIFORM_LIFETIME_TABLE = {
+  73:26.5,74:25.5,75:24.6,76:23.7,77:22.9,78:22.0,79:21.1,80:20.2,
+  81:19.4,82:18.5,83:17.7,84:16.8,85:16.0,86:15.2,87:14.4,88:13.7,
+  89:12.9,90:12.2,91:11.5,92:10.8,93:10.1,94:9.5,95:8.9,96:8.4,
+  97:7.8,98:7.3,99:6.8,100:6.4,101:6.0,102:5.6,103:5.2,104:4.9,
+  105:4.6,106:4.3,107:4.1,108:3.9,109:3.7,110:3.5,111:3.4,112:3.3,
+  113:3.1,114:3.0,115:2.9,116:2.8,117:2.7,118:2.5,119:2.3,120:2.0
+};
+function rmdDivisor(age){
+  const a = Math.min(120, Math.max(RMD_START_AGE, Math.round(age)));
+  return RMD_UNIFORM_LIFETIME_TABLE[a] || 2.0;
+}
+
 function computeFederalTax(agi, status){
   const stdDed = STANDARD_DEDUCTION_2026[status] || STANDARD_DEDUCTION_2026.single;
   const taxable = Math.max(0, agi - stdDed);
@@ -2644,7 +2662,7 @@ function renderStep4(){
 // down in retirement using the real bridge/long-term math already built — bridge years first
 // (no help from Social Security), then Social Security offsetting part of the need once it
 // starts (staged correctly if a spouse claims at a different age).
-function computeBalanceSeries(annualContribution){
+function computeBalanceSeries(includeExtra){
   const curAge = Number(currentAgeEl.value) || 0;
   const retAge = Number(retireAgeEl.value) || 0;
   const g = (Number(planGrowthEl.value) || 0) / 100;
@@ -2671,30 +2689,85 @@ function computeBalanceSeries(annualContribution){
   // point — including at retirement, where that combined total becomes the spend-down balance.
   const items = allAltInvestmentItems();
   let streamBalances = items.map(it => Number(it.currentValue)||0);
-  function combinedTotal(mainBalance){ return mainBalance + streamBalances.reduce((a,b)=>a+b,0); }
+  function streamTotal(){ return streamBalances.reduce((a,b)=>a+b,0); }
+
+  // Three tax-treatment tiers, spent down in this order: taxable -> tax-deferred -> tax-free.
+  // This mirrors how real retirees draw down (let tax-advantaged money keep compounding as
+  // long as possible) and lets tax-deferred RMDs be forced out independent of spending need.
+  let taxableBal = assetsBrokerageVal;
+  let taxDeferredBal = assets401kVal + assetsIraVal + assetsPensionVal + spouseAssets401kVal;
+  let taxFreeBal = assetsRothIraVal + assetsHsaVal;
 
   const points = [];
-  let balance = currentSavingsVal;
-  points.push({ age: curAge, balance: combinedTotal(balance), phase: 'accumulate' });
+  points.push({ age: curAge, balance: taxableBal+taxDeferredBal+taxFreeBal+streamTotal(), phase: 'accumulate' });
 
   for(let age = curAge+1; age <= retAge; age++){
-    balance = balance*(1+g) + annualContribution;
+    taxableBal = taxableBal*(1+g) + (includeExtra ? additionalInvestingVal : 0);
+    taxDeferredBal = taxDeferredBal*(1+g) + retirementContribution();
+    taxFreeBal = taxFreeBal*(1+g);
     streamBalances = streamBalances.map((bal,i) => bal*(1+(Number(items[i].returnPct)||0)/100) + (Number(items[i].annualContribution)||0));
-    points.push({ age, balance: combinedTotal(balance), phase: 'accumulate' });
+    points.push({ age, balance: taxableBal+taxDeferredBal+taxFreeBal+streamTotal(), phase: 'accumulate' });
   }
 
-  let spendBalance = combinedTotal(balance);
+  // Alt-investment items lose their individual return rates at retirement and join the
+  // taxable/spend-first tier — they're not tax-advantaged retirement accounts.
+  taxableBal += streamTotal();
+
   const maxAge = retAge + 35;
   const bRate = bridgeGrowthRate(), ltRate = longtermGrowthRate();
   const taxRate = Math.min(0.5, Math.max(0, (Number(withdrawalTaxPctEl.value)||0)/100));
+
   for(let age = retAge+1; age <= maxAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
+    taxableBal *= (1+rate);
+    taxDeferredBal *= (1+rate);
+    taxFreeBal *= (1+rate);
+
     let income = otherInc + altInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
-    const rawNeed = Math.max(0, spend - income);
-    const need = rawNeed / (1 - taxRate);
-    spendBalance = Math.max(0, spendBalance * (1 + rate) - need);
+    const rawNeed = Math.max(0, spend - income); // after-tax cash need for the year
+
+    let rmdAfterTax = 0;
+    if(age >= RMD_START_AGE && taxDeferredBal > 0){
+      const rmdGross = taxDeferredBal / rmdDivisor(age);
+      taxDeferredBal -= rmdGross;
+      rmdAfterTax = rmdGross * (1 - taxRate);
+    }
+
+    // Surplus RMD proceeds beyond what's needed for spending are reinvested into the taxable
+    // tier. That surplus is already after-tax cash, but since the taxable tier has no
+    // cost-basis tracking (see plan notes), it will be taxed again if later withdrawn from
+    // taxable — an accepted consequence of the same simplification applied to assetsBrokerageVal
+    // itself, not a new inconsistency introduced by RMD handling.
+    let need;
+    if(rmdAfterTax >= rawNeed){
+      taxableBal += (rmdAfterTax - rawNeed);
+      need = 0;
+    } else {
+      need = rawNeed - rmdAfterTax;
+    }
+
+    if(need > 0){
+      const grossNeeded = need / (1 - taxRate);
+      const draw = Math.min(grossNeeded, taxableBal);
+      taxableBal -= draw;
+      need -= draw * (1 - taxRate);
+    }
+    if(need > 0){
+      const grossNeeded = need / (1 - taxRate);
+      const draw = Math.min(grossNeeded, taxDeferredBal);
+      taxDeferredBal -= draw;
+      need -= draw * (1 - taxRate);
+    }
+    if(need > 0){
+      // Tax-free tier (Roth/HSA): no gross-up needed, $1 withdrawn covers $1 of need.
+      const draw = Math.min(need, taxFreeBal);
+      taxFreeBal -= draw;
+      need -= draw;
+    }
+
+    const spendBalance = Math.max(0, taxableBal + taxDeferredBal + taxFreeBal);
     points.push({ age, balance: spendBalance, phase: 'spend' });
     if(spendBalance <= 0) break;
   }
@@ -2846,10 +2919,9 @@ function renderBalanceChart(){
   if(!svg) return;
   const years = getYearsToRetirement();
   const growth = Number(planGrowthEl.value) || 0;
-  const planInvestedAnnually = retirementContribution() + additionalInvestingVal;
 
-  const planSeries = computeBalanceSeries(planInvestedAnnually);
-  const driftSeries = computeBalanceSeries(retirementContribution());
+  const planSeries = computeBalanceSeries(true);
+  const driftSeries = computeBalanceSeries(false);
   const retAge = Number(retireAgeEl.value) || 0;
   const goalSeries = computeGoalSeries(planSeries[0].age, retAge, targetVal);
 
@@ -3576,7 +3648,7 @@ function renderDriftBudget(){
   if(gapReminder) gapReminder.textContent = fmtMoney(driftTargetVal);
 }
 
-function driftComputeBalanceSeries(annualContribution){
+function driftComputeBalanceSeries(includeExtra){
   const curAge = Number(driftOwnCurrentAgeEl.value) || 0;
   const retAge = Number(driftOwnRetireAgeEl.value) || 0;
   const g = (Number(driftGrowthEl.value) || 0) / 100;
@@ -3596,28 +3668,73 @@ function driftComputeBalanceSeries(annualContribution){
   }
   const items = driftAllAltInvestmentItems();
   let streamBalances = items.map(it => Number(it.currentValue)||0);
-  function combinedTotal(mainBalance){ return mainBalance + streamBalances.reduce((a,b)=>a+b,0); }
+  function streamTotal(){ return streamBalances.reduce((a,b)=>a+b,0); }
+
+  let taxableBal = driftAssetsBrokerageVal;
+  let taxDeferredBal = driftAssets401kVal + driftAssetsIraVal + driftAssetsPensionVal + driftSpouseAssets401kVal;
+  let taxFreeBal = driftAssetsRothIraVal + driftAssetsHsaVal;
 
   const points = [];
-  let balance = driftCurrentSavingsVal;
-  points.push({ age: curAge, balance: combinedTotal(balance), phase: 'accumulate' });
+  points.push({ age: curAge, balance: taxableBal+taxDeferredBal+taxFreeBal+streamTotal(), phase: 'accumulate' });
   for(let age = curAge+1; age <= retAge; age++){
-    balance = balance*(1+g) + annualContribution;
+    taxableBal = taxableBal*(1+g) + (includeExtra ? driftAdditionalInvestingVal : 0);
+    taxDeferredBal = taxDeferredBal*(1+g) + driftRetirementContribution();
+    taxFreeBal = taxFreeBal*(1+g);
     streamBalances = streamBalances.map((bal,i) => bal*(1+(Number(items[i].returnPct)||0)/100) + (Number(items[i].annualContribution)||0));
-    points.push({ age, balance: combinedTotal(balance), phase: 'accumulate' });
+    points.push({ age, balance: taxableBal+taxDeferredBal+taxFreeBal+streamTotal(), phase: 'accumulate' });
   }
-  let spendBalance = combinedTotal(balance);
+
+  taxableBal += streamTotal();
+
   const maxAge = retAge + 35;
   const bRate = driftBridgeGrowthRate(), ltRate = driftLongtermGrowthRate();
   const taxRate = Math.min(0.5, Math.max(0, (Number(driftWithdrawalTaxPctEl.value)||0)/100));
+
   for(let age = retAge+1; age <= maxAge; age++){
     const rate = age < claim1Age ? bRate : ltRate;
+    taxableBal *= (1+rate);
+    taxDeferredBal *= (1+rate);
+    taxFreeBal *= (1+rate);
+
     let income = otherInc + driftAltInvestmentIncomeAt(age, retAge);
     if(age >= claim1Age) income += benefit1;
     if(age >= claim2Age) income += benefit2;
     const rawNeed = Math.max(0, spend - income);
-    const need = rawNeed / (1 - taxRate);
-    spendBalance = Math.max(0, spendBalance * (1 + rate) - need);
+
+    let rmdAfterTax = 0;
+    if(age >= RMD_START_AGE && taxDeferredBal > 0){
+      const rmdGross = taxDeferredBal / rmdDivisor(age);
+      taxDeferredBal -= rmdGross;
+      rmdAfterTax = rmdGross * (1 - taxRate);
+    }
+
+    let need;
+    if(rmdAfterTax >= rawNeed){
+      taxableBal += (rmdAfterTax - rawNeed);
+      need = 0;
+    } else {
+      need = rawNeed - rmdAfterTax;
+    }
+
+    if(need > 0){
+      const grossNeeded = need / (1 - taxRate);
+      const draw = Math.min(grossNeeded, taxableBal);
+      taxableBal -= draw;
+      need -= draw * (1 - taxRate);
+    }
+    if(need > 0){
+      const grossNeeded = need / (1 - taxRate);
+      const draw = Math.min(grossNeeded, taxDeferredBal);
+      taxDeferredBal -= draw;
+      need -= draw * (1 - taxRate);
+    }
+    if(need > 0){
+      const draw = Math.min(need, taxFreeBal);
+      taxFreeBal -= draw;
+      need -= draw;
+    }
+
+    const spendBalance = Math.max(0, taxableBal + taxDeferredBal + taxFreeBal);
     points.push({ age, balance: spendBalance, phase: 'spend' });
     if(spendBalance <= 0) break;
   }
@@ -3668,9 +3785,8 @@ function driftComputeGoalSeries(minAge, retAge, target){
 function renderDriftBalanceChart(){
   const svg = document.getElementById('driftOwnBalanceChart');
   if(!svg) return;
-  const planInvestedAnnually = driftRetirementContribution() + driftAdditionalInvestingVal;
-  const planSeries = driftComputeBalanceSeries(planInvestedAnnually);
-  const driftOnlySeries = driftComputeBalanceSeries(driftRetirementContribution());
+  const planSeries = driftComputeBalanceSeries(true);
+  const driftOnlySeries = driftComputeBalanceSeries(false);
   const retAge = Number(driftOwnRetireAgeEl.value) || 0;
   const goalSeries = driftComputeGoalSeries(planSeries[0].age, retAge, driftTargetVal);
   const allBalances = planSeries.concat(driftOnlySeries).concat(goalSeries).map(p => p.balance);
@@ -3819,7 +3935,7 @@ document.getElementById('addAltBusinessBtn').addEventListener('click', () => { a
 document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { altOtherInvestments.push(newAltInvestmentItem('New investment')); renderAltOtherInvestments(); });
 document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { altAnnuities.push(newAltInvestmentItem('New annuity')); renderAltAnnuities(); });
 document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { altOtherIncome.push(newAltInvestmentItem('New income source')); renderAltOtherIncome(); });
-document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:"New income source", annual:0}); renderOtherRetIncomeTable(); });
+document.getElementById('addOtherRetIncomeBtn').addEventListener('click', () => { otherRetirementIncome.push({name:OTHER_RET_INCOME_NAMES[otherRetirementIncome.length % OTHER_RET_INCOME_NAMES.length], annual:0}); renderOtherRetIncomeTable(); });
 
 bindMoneyInput(ssMonthlyEl, ()=>ssMonthlyVal, (v)=>{ssMonthlyVal=v;}, updateFiCard);
 bindMoneyInput(spouseSsMonthlyEl, ()=>spouseSsMonthlyVal, (v)=>{spouseSsMonthlyVal=v;}, updateFiCard);
@@ -3924,7 +4040,7 @@ document.getElementById('addDriftAltBusinessBtn').addEventListener('click', () =
 document.getElementById('addDriftAltOtherInvestmentsBtn').addEventListener('click', () => { driftAltOtherInvestments.push(newAltInvestmentItem('New investment')); renderDriftAltOtherInvestments(); });
 document.getElementById('addDriftAltAnnuitiesBtn').addEventListener('click', () => { driftAltAnnuities.push(newAltInvestmentItem('New annuity')); renderDriftAltAnnuities(); });
 document.getElementById('addDriftAltOtherIncomeBtn').addEventListener('click', () => { driftAltOtherIncome.push(newAltInvestmentItem('New income source')); renderDriftAltOtherIncome(); });
-document.getElementById('addDriftOtherRetIncomeBtn').addEventListener('click', () => { driftOtherRetirementIncome.push({name:"New income source", annual:0}); renderDriftOtherRetIncomeTable(); });
+document.getElementById('addDriftOtherRetIncomeBtn').addEventListener('click', () => { driftOtherRetirementIncome.push({name:OTHER_RET_INCOME_NAMES[driftOtherRetirementIncome.length % OTHER_RET_INCOME_NAMES.length], annual:0}); renderDriftOtherRetIncomeTable(); });
 
 bindMoneyInput(driftOwnSsMonthlyEl, ()=>driftSsMonthlyVal, (v)=>{driftSsMonthlyVal=v;}, updateDriftFiCard);
 bindMoneyInput(driftOwnSpouseSsMonthlyEl, ()=>driftSpouseSsMonthlyVal, (v)=>{driftSpouseSsMonthlyVal=v;}, updateDriftFiCard);
