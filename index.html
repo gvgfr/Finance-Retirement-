@@ -837,6 +837,12 @@
       <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
       <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
+      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
+      <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
+        <input type="checkbox" id="driftHsaFamilyCoverage" style="width:16px;height:16px;">
+        This HSA has family coverage (raises the limit above)
+      </label>
       <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
       <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
@@ -855,6 +861,7 @@
         <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="driftSpouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
         <div class="field full"><label>Spouse's Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftSpouseRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="field full"><label>Spouse's Cash balance / profit sharing (annual)</label><input type="text" id="driftSpouseCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="driftSpouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
         <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="driftSpouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
         <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="driftSpouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
       </div>
@@ -867,6 +874,7 @@
       <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="driftTaxCard401kOut">$0</div></div>
       <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardRothOut">$0</div></div>
+      <div><div class="tax-stat-label">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardIraHsaOut">$0</div></div>
       <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="driftTaxCardSpouseK401Out">$0</div></div>
       <div><div class="tax-stat-label">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardSpouseCashBalanceOut">$0</div></div>
       <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardEmployerMatchOut">$0</div></div>
@@ -1721,9 +1729,12 @@ function resetAllState(){
   driftK401Val = 0;
   driftCashBalanceVal = 0;
   driftRothContribVal = 0;
+  driftIraContribVal = 0;
+  driftHsaContribVal = 0;
   driftSpouseK401Val = 0;
   driftSpouseCashBalanceVal = 0;
   driftSpouseRothContribVal = 0;
+  driftSpouseIraContribVal = 0;
   driftAdditionalInvestingVal = 0;
   driftCollegeTargetPerKidVal = 100000;
   driftAssets401kVal = 0;
@@ -1767,10 +1778,14 @@ function resetAllState(){
   driftK401InputEl.value = '';
   driftCashBalanceInputEl.value = '';
   driftRothContribInputEl.value = '';
+  driftIraContribInputEl.value = '';
+  driftHsaContribInputEl.value = '';
+  driftHsaFamilyCoverageEl.checked = false;
   driftSpouseSalaryEl.value = '';
   driftSpouseK401InputEl.value = '';
   driftSpouseCashBalanceInputEl.value = '';
   driftSpouseRothContribInputEl.value = '';
+  driftSpouseIraContribInputEl.value = '';
   driftAdditionalInvestingInputEl.value = '';
   driftCollegeTargetPerKidEl.value = formatNum(driftCollegeTargetPerKidVal);
   driftEmergencyFundSavedEl.value = '';
@@ -3530,9 +3545,12 @@ let driftSpouseSalaryVal = 0;
 let driftK401Val = 0;
 let driftCashBalanceVal = 0;
 let driftRothContribVal = 0;
+let driftIraContribVal = 0;
+let driftHsaContribVal = 0;
 let driftSpouseK401Val = 0;
 let driftSpouseCashBalanceVal = 0;
 let driftSpouseRothContribVal = 0;
+let driftSpouseIraContribVal = 0;
 
 function driftHasSpouseIncome(){ return driftHasSpouseIncomeEl.checked; }
 
@@ -3553,8 +3571,51 @@ function driftPersonalPreTaxDeferral(){
 function driftRothRetirementContribution(){
   return driftRothContribVal + (driftHasSpouseIncome() ? driftSpouseRothContribVal : 0);
 }
+// See iraAndHsaContribution() for the Plan-flow equivalent and the same bucketing simplification.
+function driftIraAndHsaContribution(){
+  return driftIraContribVal + (driftHasSpouseIncome() ? driftSpouseIraContribVal : 0) + driftHsaContribVal;
+}
 function driftRetirementContribution(){
-  return driftPersonalPreTaxDeferral() + driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual() + driftRothRetirementContribution();
+  return driftPersonalPreTaxDeferral() + driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual() + driftRothRetirementContribution() + driftIraAndHsaContribution();
+}
+// Same 2026 limits as the Plan flow (getTaxAdvantagedRoomRemaining) — real IRS limits don't
+// depend on which flow of the app you're in — just reading Drift's own age/contribution state.
+function getDriftTaxAdvantagedRoomRemaining(){
+  const age = Number(driftOwnCurrentAgeEl.value) || 0;
+  const selfK401Used = driftK401Val + driftRothContribVal;
+  const selfK401Room = Math.max(0, k401DeferralLimit(age) - selfK401Used);
+  const spouseK401Used = driftSpouseK401Val + driftSpouseRothContribVal;
+  const spouseK401Room = driftHasSpouseIncome() ? Math.max(0, k401DeferralLimit(age) - spouseK401Used) : 0;
+  const selfIraRoom = Math.max(0, iraContributionLimit(age) - driftIraContribVal);
+  const spouseIraRoom = driftHasSpouseIncome() ? Math.max(0, iraContributionLimit(age) - driftSpouseIraContribVal) : 0;
+  const hsaRoom = Math.max(0, hsaContributionLimit(age, driftHsaFamilyCoverageEl.checked) - driftHsaContribVal);
+  const total = selfK401Room + spouseK401Room + selfIraRoom + spouseIraRoom + hsaRoom;
+  return { selfK401Room, spouseK401Room, selfIraRoom, spouseIraRoom, hsaRoom, total };
+}
+// Drift-flow mirror of shortfallRecommendationHtml() — same tax-advantaged-first ordering,
+// using Drift's own age fields and room calculation.
+function driftShortfallRecommendationHtml(gap, opts){
+  opts = opts || {};
+  const room = getDriftTaxAdvantagedRoomRemaining().total;
+  const fillFirst = Math.min(gap, room);
+  const stillNeeded = Math.max(0, gap - room);
+  const years = driftGetYearsToRetirement();
+  const ageRange = `every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${years} year${years===1?'':'s'})`;
+  const linkDirection = opts.linkDirection || 'below ↓';
+
+  let html = '';
+  if(fillFirst > 0){
+    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — fill that first since it's tax-advantaged. `;
+  }
+  if(stillNeeded > 0){
+    html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
+    if(opts.withLink){
+      html += ` <a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing ${linkDirection}</a>`;
+    }
+  } else if(fillFirst > 0){
+    html += `That fully covers the gap — no taxable "extra investing" needed.`;
+  }
+  return html;
 }
 let driftAdditionalInvestingVal = 0;
 let driftCollegeTargetPerKidVal = 100000;
@@ -3578,6 +3639,10 @@ const driftSalaryEl = document.getElementById('driftSalary');
 const driftK401InputEl = document.getElementById('driftK401Input');
 const driftCashBalanceInputEl = document.getElementById('driftCashBalanceInput');
 const driftRothContribInputEl = document.getElementById('driftRothContribInput');
+const driftIraContribInputEl = document.getElementById('driftIraContribInput');
+const driftHsaContribInputEl = document.getElementById('driftHsaContribInput');
+const driftHsaFamilyCoverageEl = document.getElementById('driftHsaFamilyCoverage');
+const driftSpouseIraContribInputEl = document.getElementById('driftSpouseIraContribInput');
 const driftSelfMatchRatePctEl = document.getElementById('driftSelfMatchRatePct');
 const driftSelfMatchCapPctEl = document.getElementById('driftSelfMatchCapPct');
 const driftHasSpouseIncomeEl = document.getElementById('driftHasSpouseIncome');
@@ -3902,6 +3967,7 @@ function renderDriftBudget(){
   document.getElementById('driftTaxCard401kOut').textContent = fmtMoney(driftK401Val);
   document.getElementById('driftTaxCardCashBalanceOut').textContent = fmtMoney(driftCashBalanceVal);
   document.getElementById('driftTaxCardRothOut').textContent = fmtMoney(rothContrib);
+  document.getElementById('driftTaxCardIraHsaOut').textContent = fmtMoney(driftIraAndHsaContribution());
   document.getElementById('driftTaxCardSpouseK401Out').textContent = fmtMoney(driftHasSpouseIncome() ? driftSpouseK401Val : 0);
   document.getElementById('driftTaxCardSpouseCashBalanceOut').textContent = fmtMoney(driftHasSpouseIncome() ? driftSpouseCashBalanceVal : 0);
   document.getElementById('driftTaxCardEmployerMatchOut').textContent = fmtMoney(driftSelfEmployerMatchAnnual() + driftSpouseEmployerMatchAnnual());
@@ -3931,7 +3997,8 @@ function renderDriftBudget(){
     } else if(additionalInvesting >= autoAdditional - 1){
       goalMetEl.innerHTML = `<b style="color:#059669;">Yes</b> — with what you've entered, you're on track to meet this goal.`;
     } else {
-      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — to hit your retirement target, you'd need to add about <b style="color:var(--paper);">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(autoAdditional-additionalInvesting)}/yr</b>) of extra investing beyond your 401(k) — every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${Number(driftOwnRetireAgeEl.value)||'—'} (${driftGetYearsToRetirement()} years). ${additionalInvesting > 0 ? '' : "You haven't added any extra investing yet. "}<a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing below ↓</a>`;
+      const gap = autoAdditional - additionalInvesting;
+      goalMetEl.innerHTML = `<b style="color:#DC2626;">Not yet</b> — ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'below ↓'})}`;
     }
   }
 
@@ -4054,7 +4121,8 @@ function renderDriftBudget(){
   } else if(!hasTarget){
     nextStepsText.innerHTML = `Your budget works today. <a href="#" onclick="driftGoToAndFocus(12,'driftOwnSsMonthly');return false;" style="color:var(--gold);font-weight:700;">Define your retirement</a> to see if it's actually enough.`;
   } else if(underfunded){
-    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently <b style="color:#B91C1C;">${fmtMoney((autoAdditional-additionalInvesting)/12)}/mo short</b>. <a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Change Extra investing above to ${fmtMoney(autoAdditional/12)}/mo ↑</a>, or <a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">increase your 401(k) →</a>`;
+    const gap = autoAdditional - additionalInvesting;
+    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently short. ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})} <a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">Go increase 401(k)/IRA/HSA contributions →</a>`;
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
@@ -4313,19 +4381,24 @@ function renderDriftResults(){
     const totalShortfall = Math.max(0, driftTargetVal - nestEgg);
     const fullyRequired = requiredAnnualContribution(driftTargetVal, driftCurrentSavingsVal, years, growth);
     const additionalNeeded = Math.max(0, fullyRequired - planInvestedAnnually);
-    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(driftTargetVal)}</b> goal by age ${retAge}. To close that gap, you'd need to invest an additional <b style="color:var(--paper);">${fmtMoney(additionalNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalNeeded)}/yr</b>) beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'}). That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${gapPct}% of your goal.`;
+    const taxAdvRoom = getDriftTaxAdvantagedRoomRemaining().total;
+    const fillFirst = Math.min(additionalNeeded, taxAdvRoom);
+    const stillNeededTaxable = Math.max(0, additionalNeeded - taxAdvRoom);
+    shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(totalShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(driftTargetVal)}</b> goal by age ${retAge}. To close that gap, you'd need an additional <b style="color:var(--paper);">${fmtMoney(additionalNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalNeeded)}/yr</b>) invested beyond your current plan, every year from age ${Number(driftOwnCurrentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'})${fillFirst > 0 ? ` — ${fmtMoney(fillFirst)}/yr of that can go into unused 401(k)/IRA/HSA room before any taxable investing` : ''}. That shortfall is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(shortfallAmt)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${gapPct}% of your goal.`;
     actionsEl.style.display = 'block';
-    actionsEl.innerHTML = `
-      <div class="shortfall-action" onclick="goTo(13)">
-        <div class="num">1</div><div class="txt">Add <b>${fmtMoney(additionalNeeded/12)}/mo more</b>, beyond your 401(k) →</div>
+    const actionItems = [];
+    if(fillFirst > 0){
+      actionItems.push({ onclick: "driftGoToAndFocus(8,'driftK401Input')", txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+    }
+    if(stillNeededTaxable > 0){
+      actionItems.push({ onclick: "goTo(13)", txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+    }
+    actionItems.push({ onclick: "driftGoToAndFocus(12,'driftOwnSsMonthly')", txt: `Revisit your <b>retirement expenses</b> →` });
+    actionsEl.innerHTML = actionItems.map((item, i) => `
+      <div class="shortfall-action" onclick="${item.onclick}">
+        <div class="num">${i+1}</div><div class="txt">${item.txt}</div>
       </div>
-      <div class="shortfall-action" onclick="driftGoToAndFocus(8,'driftK401Input')">
-        <div class="num">2</div><div class="txt">Increase your <b>401(k) contribution</b> →</div>
-      </div>
-      <div class="shortfall-action" onclick="driftGoToAndFocus(12,'driftOwnSsMonthly')">
-        <div class="num">3</div><div class="txt">Revisit your <b>retirement expenses</b> →</div>
-      </div>
-    `;
+    `).join('');
   }
 
   const reminder = document.getElementById('driftOwnGoalReminder');
@@ -4497,10 +4570,14 @@ bindMoneyInput(driftSalaryEl, ()=>driftSalaryVal, (v)=>{driftSalaryVal=v;}, rend
 bindMoneyInput(driftK401InputEl, ()=>driftK401Val, (v)=>{driftK401Val=v;}, renderDriftBudget);
 bindMoneyInput(driftCashBalanceInputEl, ()=>driftCashBalanceVal, (v)=>{driftCashBalanceVal=v;}, renderDriftBudget);
 bindMoneyInput(driftRothContribInputEl, ()=>driftRothContribVal, (v)=>{driftRothContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftIraContribInputEl, ()=>driftIraContribVal, (v)=>{driftIraContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftHsaContribInputEl, ()=>driftHsaContribVal, (v)=>{driftHsaContribVal=v;}, renderDriftBudget);
+driftHsaFamilyCoverageEl.addEventListener('change', renderDriftBudget);
 bindMoneyInput(driftSpouseSalaryEl, ()=>driftSpouseSalaryVal, (v)=>{driftSpouseSalaryVal=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseK401InputEl, ()=>driftSpouseK401Val, (v)=>{driftSpouseK401Val=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseCashBalanceInputEl, ()=>driftSpouseCashBalanceVal, (v)=>{driftSpouseCashBalanceVal=v;}, renderDriftBudget);
 bindMoneyInput(driftSpouseRothContribInputEl, ()=>driftSpouseRothContribVal, (v)=>{driftSpouseRothContribVal=v;}, renderDriftBudget);
+bindMoneyInput(driftSpouseIraContribInputEl, ()=>driftSpouseIraContribVal, (v)=>{driftSpouseIraContribVal=v;}, renderDriftBudget);
 [driftSelfMatchRatePctEl, driftSelfMatchCapPctEl, driftSpouseMatchRatePctEl, driftSpouseMatchCapPctEl].forEach(el => el.addEventListener('input', renderDriftBudget));
 driftHasSpouseIncomeEl.addEventListener('change', () => {
   document.getElementById('driftSpouseIncomeFields').style.display = driftHasSpouseIncomeEl.checked ? 'block' : 'none';
