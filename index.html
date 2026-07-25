@@ -2882,7 +2882,10 @@ function shortfallRecommendationHtml(gap, opts){
 
   let html = '';
   if(fillFirst > 0){
-    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — fill that first since it's tax-advantaged. `;
+    const fillLink = opts.withLink
+      ? `<a href="#" onclick="goToAndFocus(5,'k401Input');return false;" style="color:#9A3412;font-weight:700;">fill that first</a>`
+      : `fill that first`;
+    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — ${fillLink} since it's tax-advantaged. `;
   }
   if(stillNeeded > 0){
     html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
@@ -2893,6 +2896,16 @@ function shortfallRecommendationHtml(gap, opts){
     html += `That fully covers the gap — no taxable "extra investing" needed.`;
   }
   return html;
+}
+// Generic "jump to a different step and focus/scroll to a field" helper — the Plan-flow
+// counterpart to driftGoToAndFocus(), used so links in messages can point at a field that
+// lives on a different step than the one currently showing.
+function goToAndFocus(step, elementId){
+  goTo(step);
+  setTimeout(() => {
+    const el = document.getElementById(elementId);
+    if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.focus(); }
+  }, 120);
 }
 
 function renderStep4(){
@@ -3605,7 +3618,10 @@ function driftShortfallRecommendationHtml(gap, opts){
 
   let html = '';
   if(fillFirst > 0){
-    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — fill that first since it's tax-advantaged. `;
+    const fillLink = opts.withLink
+      ? `<a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">fill that first</a>`
+      : `fill that first`;
+    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — ${fillLink} since it's tax-advantaged. `;
   }
   if(stillNeeded > 0){
     html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
@@ -4122,7 +4138,7 @@ function renderDriftBudget(){
     nextStepsText.innerHTML = `Your budget works today. <a href="#" onclick="driftGoToAndFocus(12,'driftOwnSsMonthly');return false;" style="color:var(--gold);font-weight:700;">Define your retirement</a> to see if it's actually enough.`;
   } else if(underfunded){
     const gap = autoAdditional - additionalInvesting;
-    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently short. ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})} <a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">Go increase 401(k)/IRA/HSA contributions →</a>`;
+    nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently short. ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})}`;
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
