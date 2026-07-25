@@ -2309,6 +2309,15 @@ function renderInvestmentTable(tableId, list, onChange){
   table.innerHTML = "";
 
   function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual){
+    const wrap = document.createElement('div');
+
+    const heading = document.createElement('div');
+    heading.className = 'cat-field-label';
+    heading.style.color = 'var(--paper-dim)';
+    heading.style.marginBottom = '6px';
+    heading.textContent = labelText;
+    wrap.appendChild(heading);
+
     const row = document.createElement('div');
     row.className = 'cat-row-bottom';
 
@@ -2332,7 +2341,7 @@ function renderInvestmentTable(tableId, list, onChange){
     annualField.className = 'cat-field';
     const annualLabel = document.createElement('div');
     annualLabel.className = 'cat-field-label';
-    annualLabel.textContent = labelText;
+    annualLabel.textContent = 'Annual';
     const annualWrap = document.createElement('div');
     annualWrap.className = 'cat-input-wrap';
     const aDollar = document.createElement('span'); aDollar.textContent = '$';
@@ -2349,7 +2358,8 @@ function renderInvestmentTable(tableId, list, onChange){
 
     row.appendChild(monthlyField);
     row.appendChild(annualField);
-    return row;
+    wrap.appendChild(row);
+    return wrap;
   }
 
   list.forEach((item, i) => {
