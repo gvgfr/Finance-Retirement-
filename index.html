@@ -78,6 +78,17 @@
   .nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:32px;padding-top:20px;border-top:1px solid var(--line);}
   .nav-row .btn-primary{flex:1;}
 
+  .sticky-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    display:none; gap:10px; align-items:center;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:var(--bg-card); border-top:1px solid var(--line);
+    box-shadow:0 -4px 14px rgba(0,0,0,0.10);
+  }
+  .sticky-nav.show{display:flex;}
+  .sticky-nav .btn-ghost{flex:1;}
+  .sticky-nav .btn-primary{flex:2;}
+
   .rule-note{
     font-family:'Inter',sans-serif;font-size:13.5px;color:var(--paper-dim);
     display:flex;align-items:flex-start;gap:8px;margin-bottom:18px;line-height:1.5;
@@ -231,6 +242,15 @@
   .shortfall-action .txt{font-size:14px;color:var(--paper);}
   .shortfall-action .txt b{color:var(--gold);}
 
+  .result-stat-card{
+    border-radius:12px;padding:16px 18px;border:1px solid var(--line);background:var(--bg-card);
+    border-left-width:4px;border-left-style:solid;
+  }
+  .result-stat-card .rsc-icon{font-size:19px;line-height:1;margin-bottom:8px;display:block;}
+  .result-stat-card .rsc-label{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:5px;}
+  .result-stat-card .rsc-value{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(18px,4.5vw,22px);line-height:1.15;margin-bottom:5px;}
+  .result-stat-card .rsc-sub{font-size:12.5px;color:var(--paper-dim);line-height:1.45;}
+
   .share-banner{
     background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.06) 50%, rgba(5,150,105,0.08));
     border:1px solid var(--line);border-radius:16px;padding:26px 20px 22px;text-align:center;margin-bottom:22px;
@@ -294,6 +314,12 @@
 </style>
 </head>
 <body>
+<!-- Fixed bottom bar mirroring whatever Back/Next buttons the active step's own nav-row has,
+     so you can move between steps from anywhere on a long page without scrolling down first. -->
+<div class="sticky-nav" id="stickyNav">
+  <button class="btn btn-ghost" id="stickyBackBtn" type="button">← Back</button>
+  <button class="btn btn-primary" id="stickyNextBtn" type="button">Next →</button>
+</div>
 <div class="wrap">
 
   <!-- STEP 0: TEASER -->
@@ -787,18 +813,20 @@
     <p class="sub">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
 
     <div class="plan-grid">
-      <div class="fi-card" id="resultHero" style="margin-top:20px;">
+      <div class="fi-card" id="resultHero" style="margin-top:20px;border-color:#2563EB;box-shadow:0 0 0 1.5px #2563EB inset;">
         <div class="fi-label">Nest egg at retirement</div>
-        <div class="fi-number" id="resultNestEgg">$0</div>
+        <div class="fi-number" id="resultNestEgg" style="color:#2563EB;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you'd actually have saved</p>
       </div>
-      <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-card" style="margin-top:20px;border-color:#16A34A;box-shadow:0 0 0 1.5px #16A34A inset;">
         <div class="fi-label">Retirement goal</div>
-        <div class="fi-number" id="resultTargetNumber">$0</div>
+        <div class="fi-number" id="resultTargetNumber" style="color:#16A34A;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you told us you need</p>
       </div>
     </div>
-    <p class="field-hint" id="resultDetail" style="margin-top:10px;">—</p>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">HOW YOU GET THERE</b></div>
+    <div class="plan-grid" id="resultBreakdownCards" style="margin-top:10px;"></div>
 
     <div class="warn-box" id="resultShortBox"></div>
     <div class="good-box" id="resultGoodBox"></div>
@@ -1218,18 +1246,20 @@
     <p class="sub">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
 
     <div class="plan-grid">
-      <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-card" style="margin-top:20px;border-color:#2563EB;box-shadow:0 0 0 1.5px #2563EB inset;">
         <div class="fi-label">Nest egg at retirement</div>
-        <div class="fi-number" id="driftOwnResultNestEgg">$0</div>
+        <div class="fi-number" id="driftOwnResultNestEgg" style="color:#2563EB;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you'd actually have saved</p>
       </div>
-      <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-card" style="margin-top:20px;border-color:#16A34A;box-shadow:0 0 0 1.5px #16A34A inset;">
         <div class="fi-label">Retirement goal</div>
-        <div class="fi-number" id="driftResultTargetNumber">$0</div>
+        <div class="fi-number" id="driftResultTargetNumber" style="color:#16A34A;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you told us you need</p>
       </div>
     </div>
-    <p class="field-hint" id="driftOwnResultDetail" style="margin-top:10px;">—</p>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">HOW YOU GET THERE</b></div>
+    <div class="plan-grid" id="driftResultBreakdownCards" style="margin-top:10px;"></div>
 
     <div class="warn-box" id="driftOwnResultShortBox"></div>
     <div class="good-box" id="driftOwnResultGoodBox"></div>
@@ -1285,47 +1315,49 @@ function bindMoneyInput(el, getVal, setVal, onChange){
 
 /* ================= ALL STATE (declared up front to avoid ordering bugs) ================= */
 const DEFAULT_ESSENTIAL = [
-  { name: "Housing (property tax, upkeep)",              annual: 9000  },
-  { name: "Homeowners / property insurance",             annual: 2000  },
-  { name: "Medicare premiums (Part B/D + supplemental)", annual: 9000  },
-  { name: "Dental & vision care",                        annual: 1500  },
-  { name: "Prescription drugs & out-of-pocket medical",  annual: 2500  },
-  { name: "Long-term care insurance",                    annual: 3000  },
-  { name: "Food & groceries",                            annual: 9000  },
-  { name: "Transportation (auto loan, auto insurance, gas)", annual: 6000  },
-  { name: "Utilities",                                   annual: 4800  }
+  { icon: "🏠", name: "Housing (property tax, upkeep)",              annual: 9000  },
+  { icon: "🛡️", name: "Homeowners / property insurance",             annual: 2000  },
+  { icon: "🏥", name: "Medicare premiums (Part B/D + supplemental)", annual: 9000  },
+  { icon: "🦷", name: "Dental & vision care",                        annual: 1500  },
+  { icon: "💊", name: "Prescription drugs & out-of-pocket medical",  annual: 2500  },
+  { icon: "🩺", name: "Long-term care insurance",                    annual: 3000  },
+  { icon: "🛒", name: "Food & groceries",                            annual: 9000  },
+  { icon: "🚗", name: "Transportation (auto loan, auto insurance, gas)", annual: 6000  },
+  { icon: "💡", name: "Utilities",                                   annual: 4800  }
 ];
 const DEFAULT_LIFESTYLE = [
-  { name: "Travel & leisure",       annual: 10000 },
-  { name: "Dining & entertainment", annual: 6000  },
-  { name: "Family support & gifts", annual: 3000  },
-  { name: "Sports & fitness (gym, leagues, gear)", annual: 1500 },
-  { name: "Kids' activities & sports", annual: 0 },
-  { name: "Hobbies & miscellaneous",annual: 3600  }
+  { icon: "✈️", name: "Travel & leisure",       annual: 10000 },
+  { icon: "🍽️", name: "Dining & entertainment", annual: 6000  },
+  { icon: "🎁", name: "Family support & gifts", annual: 3000  },
+  { icon: "🏋️", name: "Sports & fitness (gym, leagues, gear)", annual: 1500 },
+  { icon: "🧒", name: "Kids' activities & sports", annual: 0 },
+  { icon: "🎨", name: "Hobbies & miscellaneous",annual: 3600  }
 ];
 const DEFAULT_CURRENT_NEEDS = [
-  { name: "Rent or mortgage",          annual: 21600 },
-  { name: "Property taxes",            annual: 0     },
-  { name: "Home maintenance",          annual: 0     },
-  { name: "Homeowner's/renter's insurance", annual: 0 },
-  { name: "Utilities",                 annual: 2400  },
-  { name: "Health insurance premium",  annual: 3600  },
-  { name: "Life insurance",            annual: 0     },
-  { name: "Medical/dental out-of-pocket", annual: 0  },
-  { name: "Auto loan payment",         annual: 0     },
-  { name: "Auto insurance",            annual: 1500  },
-  { name: "Groceries",                 annual: 6000  },
-  { name: "Dining out",                annual: 0     },
-  { name: "Travel & vacation",         annual: 0     },
-  { name: "Personal care",             annual: 0     },
-  { name: "Transportation & gas",      annual: 2400  },
-  { name: "Student loan payment",       annual: 0     },
-  { name: "Personal loan payment",      annual: 0     },
-  { name: "Other loan payment",         annual: 0     },
-  { name: "Phone & internet",          annual: 1500  },
-  { name: "Childcare / daycare",       annual: 0     },
-  { name: "Kids' activities & sports", annual: 0     },
-  { name: "Sports & fitness (gym, leagues, gear)", annual: 0 }
+  { icon: "🏠", name: "Rent or mortgage",          annual: 21600 },
+  { icon: "🧾", name: "Property taxes",            annual: 0     },
+  { icon: "🔧", name: "Home maintenance",          annual: 0     },
+  { icon: "🛡️", name: "Homeowner's/renter's insurance", annual: 0 },
+  { icon: "💡", name: "Utilities",                 annual: 2400  },
+  { icon: "🏥", name: "Health insurance premium",  annual: 3600  },
+  { icon: "❤️", name: "Life insurance",            annual: 0     },
+  { icon: "💊", name: "Medical/dental out-of-pocket", annual: 0  },
+  { icon: "🚗", name: "Auto loan payment",         annual: 0     },
+  { icon: "🚙", name: "Auto insurance",            annual: 1500  },
+  { icon: "🛒", name: "Groceries",                 annual: 6000  },
+  { icon: "🍽️", name: "Dining out",                annual: 0     },
+  { icon: "✈️", name: "Travel & vacation",         annual: 0     },
+  { icon: "🧴", name: "Personal care",             annual: 0     },
+  { icon: "⛽", name: "Transportation & gas",      annual: 2400  },
+  { icon: "🎓", name: "Student loan payment",       annual: 0     },
+  { icon: "💳", name: "Personal loan payment",      annual: 0     },
+  { icon: "🏘️", name: "Rental property mortgage/loan", annual: 0 },
+  { icon: "📉", name: "Investment/margin loan payment", annual: 0 },
+  { icon: "💵", name: "Other loan payment",         annual: 0     },
+  { icon: "📱", name: "Phone & internet",          annual: 1500  },
+  { icon: "🧸", name: "Childcare / daycare",       annual: 0     },
+  { icon: "⚽", name: "Kids' activities & sports", annual: 0     },
+  { icon: "🏋️", name: "Sports & fitness (gym, leagues, gear)", annual: 0 }
 ];
 
 const DEFAULT_SAVINGS_GOALS = [
@@ -1882,6 +1914,7 @@ function goTo(step, opts){
   if(step === 14) renderDriftResults();
   updateGoalReminders();
   triggerStepReveal(step);
+  updateStickyNav();
 
   // Hash update is cosmetic only (bookmarking/sharing a step) — always replace rather than
   // push, so the browser's own history list never gets out of sync with our own step stack.
@@ -1898,6 +1931,38 @@ function goBack(){
   } else {
     goTo(0);
   }
+}
+
+// Fixed bottom Back/Next bar so a long step (Step 3 especially, with all six income sources)
+// doesn't force scrolling to the bottom just to move on. Rather than re-implement each step's
+// nav logic, this just mirrors whatever the active step's own .nav-row buttons currently say
+// and do — including step-specific text/handlers that change at runtime (e.g. planFinishBtn,
+// step6NextBtn) — by reading them live and forwarding clicks, so it can never drift out of sync.
+function updateStickyNav(){
+  const stickyNav = document.getElementById('stickyNav');
+  if(!stickyNav) return;
+  const activeStepEl = document.querySelector('.step.active');
+  const realNavRow = activeStepEl ? activeStepEl.querySelector('.nav-row') : null;
+  if(currentStep === 0 || !realNavRow){
+    stickyNav.classList.remove('show');
+    return;
+  }
+  const backBtn = realNavRow.querySelector('.btn-ghost');
+  const nextBtn = realNavRow.querySelector('.btn-primary');
+  const stickyBack = document.getElementById('stickyBackBtn');
+  const stickyNext = document.getElementById('stickyNextBtn');
+
+  stickyBack.style.display = backBtn ? '' : 'none';
+  if(backBtn){
+    stickyBack.textContent = backBtn.textContent;
+    stickyBack.onclick = () => backBtn.click();
+  }
+  stickyNext.style.display = nextBtn ? '' : 'none';
+  if(nextBtn){
+    stickyNext.textContent = nextBtn.textContent;
+    stickyNext.onclick = () => nextBtn.click();
+  }
+  stickyNav.classList.add('show');
 }
 
 window.addEventListener('popstate', (event) => {
@@ -1969,6 +2034,10 @@ function renderCatTable(tableId, list, onChange, hideMonthly){
 
     const top = document.createElement('div');
     top.className = 'cat-row-top';
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = cat.icon || '💰';
+    iconSpan.style.cssText = 'font-size:16px;flex:none;line-height:1;';
+    top.appendChild(iconSpan);
     const nameInput = document.createElement('input');
     nameInput.className = 'cat-name';
     nameInput.value = cat.name;
@@ -3152,6 +3221,7 @@ function renderStep4(){
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
+  updateStickyNav();
 }
 
 /* ================= STEP 5: PLAN vs DRIFT COMPARISON ================= */
@@ -3565,13 +3635,46 @@ function renderComparison(){
   const retAge = retAgeNum || '—';
 
   document.getElementById('resultNestEgg').textContent = fmtMoney(planNestEgg);
-  const planMonthlyContribLine = planInvestedAnnually > 0
-    ? (additionalInvestingVal > 0
-        ? `<b style="color:var(--paper);">${fmtMoney(retirementContribution()/12)}/mo</b> from your 401(k)/cash balance plus <b style="color:var(--paper);">${fmtMoney(additionalInvestingVal/12)}/mo</b> extra, growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`
-        : `<b style="color:var(--paper);">${fmtMoney(planInvestedAnnually/12)}/mo</b> from your 401(k), growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`)
-    : `No new contributions entered.`;
-  document.getElementById('resultDetail').innerHTML = `By your planned retirement at age ${retAge} (${years} year${years===1?'':'s'} from now): your current <b style="color:var(--paper);">${fmtMoney(currentSavingsVal)}</b> in invested assets will grow to about <b style="color:var(--paper);">${fmtMoney(fvExistingAssets)}</b> at ${growth}% growth. ${planMonthlyContribLine} Together: roughly <b style="color:var(--gold);">${fmtMoney(planNestEgg)}</b>, supporting about ${fmtMoney(planIncome)}/yr.`;
   document.getElementById('resultTargetNumber').textContent = fmtMoney(targetVal);
+
+  // Break the old single dense paragraph into separate, differently-colored cards — one number
+  // at a time — instead of burying current-assets growth, contribution growth, and sustainable
+  // income all in one sentence together.
+  const incomeColor = planGapPct >= 100 ? '#16A34A' : (planGapPct >= 70 ? '#D97706' : '#DC2626');
+  const breakdownCards = [
+    {
+      icon: '💰', color: '#0D9488', label: 'Current assets, grown',
+      value: fmtMoney(fvExistingAssets),
+      sub: `Your ${fmtMoney(currentSavingsVal)} today, growing at ${growth}% for ${years} year${years===1?'':'s'} until age ${retAge}.`
+    },
+    {
+      icon: '📈', color: '#2563EB', label: 'Your contributions, grown',
+      value: planInvestedAnnually > 0 ? fmtMoney(fvNewContributions) : '$0',
+      sub: planInvestedAnnually > 0
+        ? (additionalInvestingVal > 0
+            ? `${fmtMoney(retirementContribution()/12)}/mo from your 401(k)/cash balance plus ${fmtMoney(additionalInvestingVal/12)}/mo extra, every year until you retire.`
+            : `${fmtMoney(planInvestedAnnually/12)}/mo from your 401(k), every year until you retire.`)
+        : `No new contributions entered yet.`
+    },
+    {
+      icon: '💵', color: incomeColor, label: 'Sustainable income',
+      value: fmtMoney(planIncome) + '/yr',
+      sub: spend > 0
+        ? `What this nest egg can pay you every year in retirement — ${planGapPct}% of the ${fmtMoney(spend)}/yr you said you'll need.`
+        : `What this nest egg can pay you every year in retirement.`
+    }
+  ];
+  const breakdownEl = document.getElementById('resultBreakdownCards');
+  if(breakdownEl){
+    breakdownEl.innerHTML = breakdownCards.map((c, i) => `
+      <div class="result-stat-card" style="border-left-color:${c.color};${i === breakdownCards.length-1 ? 'grid-column:1/-1;' : ''}">
+        <span class="rsc-icon">${c.icon}</span>
+        <div class="rsc-label">${c.label}</div>
+        <div class="rsc-value" style="color:${c.color};">${c.value}</div>
+        <p class="rsc-sub">${c.sub}</p>
+      </div>
+    `).join('');
+  }
 
   const shortBox = document.getElementById('resultShortBox');
   const goodBox = document.getElementById('resultGoodBox');
@@ -3594,19 +3697,22 @@ function renderComparison(){
     const stillNeededTaxable = Math.max(0, additionalAnnualNeeded - taxAdvRoom);
     shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(targetVal)}</b> goal by age ${retAge}. To close that gap, you'd need an additional <b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded)}/yr</b>) invested beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'})${fillFirst > 0 ? ` — ${fmtMoney(fillFirst)}/yr of that can go into unused 401(k)/IRA/HSA room before any taxable investing` : ''}. That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${planGapPct}% of your goal.`;
     actionsEl.style.display = 'block';
+    // Each action gets its own color/icon by category, rather than every row looking identical,
+    // so it's clear at a glance these are different kinds of levers (tax-advantaged room vs.
+    // taxable investing vs. timeline vs. spending).
     const actionItems = [];
     if(fillFirst > 0){
-      actionItems.push({ step: 5, txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+      actionItems.push({ step: 5, icon: '🏦', color: '#0D9488', txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
     }
     if(stillNeededTaxable > 0){
-      actionItems.push({ step: 6, txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+      actionItems.push({ step: 6, icon: '📈', color: '#2563EB', txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
     }
-    actionItems.push({ step: 4, txt: `Push your <b>retirement age</b> out, or raise your growth assumption →` });
-    actionItems.push({ step: 1, txt: `Lower your <b>retirement spending target</b> →` });
+    actionItems.push({ step: 4, icon: '📅', color: '#7C3AED', txt: `Push your <b>retirement age</b> out, or raise your growth assumption →` });
+    actionItems.push({ step: 1, icon: '✂️', color: '#EA580C', txt: `Lower your <b>retirement spending target</b> →` });
     actionsEl.innerHTML = actionItems.map((item, i) => `
-      <div class="shortfall-action" onclick="goTo(${item.step})">
-        <div class="num">${i+1}</div>
-        <div class="txt">${item.txt}</div>
+      <div class="shortfall-action" onclick="goTo(${item.step})" style="background:${item.color}0F;">
+        <div class="num" style="background:${item.color};">${i+1}</div>
+        <div class="txt"><span style="margin-right:4px;">${item.icon}</span>${item.txt.replace(/<b>/g, `<b style="color:${item.color};">`)}</div>
       </div>
     `).join('');
   }
@@ -4222,6 +4328,7 @@ function renderDriftBudget(){
   }
   const gapReminder = document.getElementById('driftGapGoalReminder');
   if(gapReminder) gapReminder.textContent = fmtMoney(driftTargetVal);
+  updateStickyNav();
 }
 
 function driftComputeBalanceSeries(includeExtra){
@@ -4451,13 +4558,45 @@ function renderDriftResults(){
   const retAge = retAgeNum || '—';
 
   document.getElementById('driftOwnResultNestEgg').textContent = fmtMoney(nestEgg);
-  const driftMonthlyContribLine = planInvestedAnnually > 0
-    ? (driftAdditionalInvestingVal > 0
-        ? `<b style="color:var(--paper);">${fmtMoney(driftRetirementContribution()/12)}/mo</b> from your 401(k)/cash balance plus <b style="color:var(--paper);">${fmtMoney(driftAdditionalInvestingVal/12)}/mo</b> extra, growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`
-        : `<b style="color:var(--paper);">${fmtMoney(planInvestedAnnually/12)}/mo</b> from your 401(k), growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`)
-    : `No new contributions entered.`;
-  document.getElementById('driftOwnResultDetail').innerHTML = `By your planned retirement at age ${retAge} (${years} year${years===1?'':'s'} from now): your current <b style="color:var(--paper);">${fmtMoney(driftCurrentSavingsVal)}</b> in invested assets will grow to about <b style="color:var(--paper);">${fmtMoney(fvExistingAssets)}</b> at ${growth}% growth. ${driftMonthlyContribLine} Together: roughly <b style="color:var(--gold);">${fmtMoney(nestEgg)}</b>, supporting about ${fmtMoney(income)}/yr.`;
   document.getElementById('driftResultTargetNumber').textContent = fmtMoney(driftTargetVal);
+
+  // Same treatment as the Plan flow's renderComparison(): separate, differently-colored cards
+  // instead of one dense paragraph — one number at a time.
+  const driftIncomeColor = gapPct >= 100 ? '#16A34A' : (gapPct >= 70 ? '#D97706' : '#DC2626');
+  const driftBreakdownCards = [
+    {
+      icon: '💰', color: '#0D9488', label: 'Current assets, grown',
+      value: fmtMoney(fvExistingAssets),
+      sub: `Your ${fmtMoney(driftCurrentSavingsVal)} today, growing at ${growth}% for ${years} year${years===1?'':'s'} until age ${retAge}.`
+    },
+    {
+      icon: '📈', color: '#2563EB', label: 'Your contributions, grown',
+      value: planInvestedAnnually > 0 ? fmtMoney(fvNewContributions) : '$0',
+      sub: planInvestedAnnually > 0
+        ? (driftAdditionalInvestingVal > 0
+            ? `${fmtMoney(driftRetirementContribution()/12)}/mo from your 401(k)/cash balance plus ${fmtMoney(driftAdditionalInvestingVal/12)}/mo extra, every year until you retire.`
+            : `${fmtMoney(planInvestedAnnually/12)}/mo from your 401(k), every year until you retire.`)
+        : `No new contributions entered yet.`
+    },
+    {
+      icon: '💵', color: driftIncomeColor, label: 'Sustainable income',
+      value: fmtMoney(income) + '/yr',
+      sub: spend > 0
+        ? `What this nest egg can pay you every year in retirement — ${gapPct}% of the ${fmtMoney(spend)}/yr you said you'll need.`
+        : `What this nest egg can pay you every year in retirement.`
+    }
+  ];
+  const driftBreakdownEl = document.getElementById('driftResultBreakdownCards');
+  if(driftBreakdownEl){
+    driftBreakdownEl.innerHTML = driftBreakdownCards.map((c, i) => `
+      <div class="result-stat-card" style="border-left-color:${c.color};${i === driftBreakdownCards.length-1 ? 'grid-column:1/-1;' : ''}">
+        <span class="rsc-icon">${c.icon}</span>
+        <div class="rsc-label">${c.label}</div>
+        <div class="rsc-value" style="color:${c.color};">${c.value}</div>
+        <p class="rsc-sub">${c.sub}</p>
+      </div>
+    `).join('');
+  }
 
   const shortBox = document.getElementById('driftOwnResultShortBox');
   const goodBox = document.getElementById('driftOwnResultGoodBox');
@@ -4482,15 +4621,16 @@ function renderDriftResults(){
     actionsEl.style.display = 'block';
     const actionItems = [];
     if(fillFirst > 0){
-      actionItems.push({ onclick: "driftGoToAndFocus(8,'driftK401Input')", txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+      actionItems.push({ onclick: "driftGoToAndFocus(8,'driftK401Input')", icon: '🏦', color: '#0D9488', txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
     }
     if(stillNeededTaxable > 0){
-      actionItems.push({ onclick: "goTo(13)", txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+      actionItems.push({ onclick: "goTo(13)", icon: '📈', color: '#2563EB', txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
     }
-    actionItems.push({ onclick: "driftGoToAndFocus(12,'driftOwnSsMonthly')", txt: `Revisit your <b>retirement expenses</b> →` });
+    actionItems.push({ onclick: "driftGoToAndFocus(12,'driftOwnSsMonthly')", icon: '✂️', color: '#EA580C', txt: `Revisit your <b>retirement expenses</b> →` });
     actionsEl.innerHTML = actionItems.map((item, i) => `
-      <div class="shortfall-action" onclick="${item.onclick}">
-        <div class="num">${i+1}</div><div class="txt">${item.txt}</div>
+      <div class="shortfall-action" onclick="${item.onclick}" style="background:${item.color}0F;">
+        <div class="num" style="background:${item.color};">${i+1}</div>
+        <div class="txt"><span style="margin-right:4px;">${item.icon}</span>${item.txt.replace(/<b>/g, `<b style="color:${item.color};">`)}</div>
       </div>
     `).join('');
   }
@@ -4506,12 +4646,18 @@ document.getElementById('addEssentialBtn').addEventListener('click', () => { ess
 document.getElementById('addLifestyleBtn').addEventListener('click', () => { lifestyle.push({name:"New category", annual:0}); renderLifestyle(); });
 document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
 document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
-document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', 'New property')); renderAltRealEstate(); });
-document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', 'New business')); renderAltBusiness(); });
-document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', 'New investment')); renderAltOtherInvestments(); });
-document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', 'New annuity')); renderAltAnnuities(); });
-document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', 'New pension')); renderAltPension(); });
-document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', 'New income source')); renderAltOtherIncome(); });
+// Numbered defaults ("Property 1", "Property 2", ...) instead of a generic "New X" label —
+// counts existing sources of the same type/section so a second rental, business, etc. is
+// distinguishable at a glance without the user having to rename it first.
+function nextIncomeSourceName(label, types){
+  return `${label} ${incomeSourcesOfTypes(types).length + 1}`;
+}
+document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', nextIncomeSourceName('Property', ['rental']))); renderAltRealEstate(); });
+document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', nextIncomeSourceName('Business', ['business']))); renderAltBusiness(); });
+document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', nextIncomeSourceName('Investment', ['otherInvestment']))); renderAltOtherInvestments(); });
+document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', nextIncomeSourceName('Annuity', ['annuity']))); renderAltAnnuities(); });
+document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', nextIncomeSourceName('Pension', ['pension']))); renderAltPension(); });
+document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', nextIncomeSourceName('Income source', OTHER_INCOME_TYPES))); renderAltOtherIncome(); });
 
 // These all feed calculateRetirementTarget()/calculateRequiredAnnualInvesting() (via
 // solveRetirementTarget), so each one calls recalculatePlan() — not just updateFiCard() — to
