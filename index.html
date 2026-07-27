@@ -78,6 +78,17 @@
   .nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:32px;padding-top:20px;border-top:1px solid var(--line);}
   .nav-row .btn-primary{flex:1;}
 
+  .sticky-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    display:none; gap:10px; align-items:center;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:var(--bg-card); border-top:1px solid var(--line);
+    box-shadow:0 -4px 14px rgba(0,0,0,0.10);
+  }
+  .sticky-nav.show{display:flex;}
+  .sticky-nav .btn-ghost{flex:1;}
+  .sticky-nav .btn-primary{flex:2;}
+
   .rule-note{
     font-family:'Inter',sans-serif;font-size:13.5px;color:var(--paper-dim);
     display:flex;align-items:flex-start;gap:8px;margin-bottom:18px;line-height:1.5;
@@ -294,6 +305,12 @@
 </style>
 </head>
 <body>
+<!-- Fixed bottom bar mirroring whatever Back/Next buttons the active step's own nav-row has,
+     so you can move between steps from anywhere on a long page without scrolling down first. -->
+<div class="sticky-nav" id="stickyNav">
+  <button class="btn btn-ghost" id="stickyBackBtn" type="button">← Back</button>
+  <button class="btn btn-primary" id="stickyNextBtn" type="button">Next →</button>
+</div>
 <div class="wrap">
 
   <!-- STEP 0: TEASER -->
@@ -1285,47 +1302,49 @@ function bindMoneyInput(el, getVal, setVal, onChange){
 
 /* ================= ALL STATE (declared up front to avoid ordering bugs) ================= */
 const DEFAULT_ESSENTIAL = [
-  { name: "Housing (property tax, upkeep)",              annual: 9000  },
-  { name: "Homeowners / property insurance",             annual: 2000  },
-  { name: "Medicare premiums (Part B/D + supplemental)", annual: 9000  },
-  { name: "Dental & vision care",                        annual: 1500  },
-  { name: "Prescription drugs & out-of-pocket medical",  annual: 2500  },
-  { name: "Long-term care insurance",                    annual: 3000  },
-  { name: "Food & groceries",                            annual: 9000  },
-  { name: "Transportation (auto loan, auto insurance, gas)", annual: 6000  },
-  { name: "Utilities",                                   annual: 4800  }
+  { icon: "🏠", name: "Housing (property tax, upkeep)",              annual: 9000  },
+  { icon: "🛡️", name: "Homeowners / property insurance",             annual: 2000  },
+  { icon: "🏥", name: "Medicare premiums (Part B/D + supplemental)", annual: 9000  },
+  { icon: "🦷", name: "Dental & vision care",                        annual: 1500  },
+  { icon: "💊", name: "Prescription drugs & out-of-pocket medical",  annual: 2500  },
+  { icon: "🩺", name: "Long-term care insurance",                    annual: 3000  },
+  { icon: "🛒", name: "Food & groceries",                            annual: 9000  },
+  { icon: "🚗", name: "Transportation (auto loan, auto insurance, gas)", annual: 6000  },
+  { icon: "💡", name: "Utilities",                                   annual: 4800  }
 ];
 const DEFAULT_LIFESTYLE = [
-  { name: "Travel & leisure",       annual: 10000 },
-  { name: "Dining & entertainment", annual: 6000  },
-  { name: "Family support & gifts", annual: 3000  },
-  { name: "Sports & fitness (gym, leagues, gear)", annual: 1500 },
-  { name: "Kids' activities & sports", annual: 0 },
-  { name: "Hobbies & miscellaneous",annual: 3600  }
+  { icon: "✈️", name: "Travel & leisure",       annual: 10000 },
+  { icon: "🍽️", name: "Dining & entertainment", annual: 6000  },
+  { icon: "🎁", name: "Family support & gifts", annual: 3000  },
+  { icon: "🏋️", name: "Sports & fitness (gym, leagues, gear)", annual: 1500 },
+  { icon: "🧒", name: "Kids' activities & sports", annual: 0 },
+  { icon: "🎨", name: "Hobbies & miscellaneous",annual: 3600  }
 ];
 const DEFAULT_CURRENT_NEEDS = [
-  { name: "Rent or mortgage",          annual: 21600 },
-  { name: "Property taxes",            annual: 0     },
-  { name: "Home maintenance",          annual: 0     },
-  { name: "Homeowner's/renter's insurance", annual: 0 },
-  { name: "Utilities",                 annual: 2400  },
-  { name: "Health insurance premium",  annual: 3600  },
-  { name: "Life insurance",            annual: 0     },
-  { name: "Medical/dental out-of-pocket", annual: 0  },
-  { name: "Auto loan payment",         annual: 0     },
-  { name: "Auto insurance",            annual: 1500  },
-  { name: "Groceries",                 annual: 6000  },
-  { name: "Dining out",                annual: 0     },
-  { name: "Travel & vacation",         annual: 0     },
-  { name: "Personal care",             annual: 0     },
-  { name: "Transportation & gas",      annual: 2400  },
-  { name: "Student loan payment",       annual: 0     },
-  { name: "Personal loan payment",      annual: 0     },
-  { name: "Other loan payment",         annual: 0     },
-  { name: "Phone & internet",          annual: 1500  },
-  { name: "Childcare / daycare",       annual: 0     },
-  { name: "Kids' activities & sports", annual: 0     },
-  { name: "Sports & fitness (gym, leagues, gear)", annual: 0 }
+  { icon: "🏠", name: "Rent or mortgage",          annual: 21600 },
+  { icon: "🧾", name: "Property taxes",            annual: 0     },
+  { icon: "🔧", name: "Home maintenance",          annual: 0     },
+  { icon: "🛡️", name: "Homeowner's/renter's insurance", annual: 0 },
+  { icon: "💡", name: "Utilities",                 annual: 2400  },
+  { icon: "🏥", name: "Health insurance premium",  annual: 3600  },
+  { icon: "❤️", name: "Life insurance",            annual: 0     },
+  { icon: "💊", name: "Medical/dental out-of-pocket", annual: 0  },
+  { icon: "🚗", name: "Auto loan payment",         annual: 0     },
+  { icon: "🚙", name: "Auto insurance",            annual: 1500  },
+  { icon: "🛒", name: "Groceries",                 annual: 6000  },
+  { icon: "🍽️", name: "Dining out",                annual: 0     },
+  { icon: "✈️", name: "Travel & vacation",         annual: 0     },
+  { icon: "🧴", name: "Personal care",             annual: 0     },
+  { icon: "⛽", name: "Transportation & gas",      annual: 2400  },
+  { icon: "🎓", name: "Student loan payment",       annual: 0     },
+  { icon: "💳", name: "Personal loan payment",      annual: 0     },
+  { icon: "🏘️", name: "Rental property mortgage/loan", annual: 0 },
+  { icon: "📉", name: "Investment/margin loan payment", annual: 0 },
+  { icon: "💵", name: "Other loan payment",         annual: 0     },
+  { icon: "📱", name: "Phone & internet",          annual: 1500  },
+  { icon: "🧸", name: "Childcare / daycare",       annual: 0     },
+  { icon: "⚽", name: "Kids' activities & sports", annual: 0     },
+  { icon: "🏋️", name: "Sports & fitness (gym, leagues, gear)", annual: 0 }
 ];
 
 const DEFAULT_SAVINGS_GOALS = [
@@ -1882,6 +1901,7 @@ function goTo(step, opts){
   if(step === 14) renderDriftResults();
   updateGoalReminders();
   triggerStepReveal(step);
+  updateStickyNav();
 
   // Hash update is cosmetic only (bookmarking/sharing a step) — always replace rather than
   // push, so the browser's own history list never gets out of sync with our own step stack.
@@ -1898,6 +1918,38 @@ function goBack(){
   } else {
     goTo(0);
   }
+}
+
+// Fixed bottom Back/Next bar so a long step (Step 3 especially, with all six income sources)
+// doesn't force scrolling to the bottom just to move on. Rather than re-implement each step's
+// nav logic, this just mirrors whatever the active step's own .nav-row buttons currently say
+// and do — including step-specific text/handlers that change at runtime (e.g. planFinishBtn,
+// step6NextBtn) — by reading them live and forwarding clicks, so it can never drift out of sync.
+function updateStickyNav(){
+  const stickyNav = document.getElementById('stickyNav');
+  if(!stickyNav) return;
+  const activeStepEl = document.querySelector('.step.active');
+  const realNavRow = activeStepEl ? activeStepEl.querySelector('.nav-row') : null;
+  if(currentStep === 0 || !realNavRow){
+    stickyNav.classList.remove('show');
+    return;
+  }
+  const backBtn = realNavRow.querySelector('.btn-ghost');
+  const nextBtn = realNavRow.querySelector('.btn-primary');
+  const stickyBack = document.getElementById('stickyBackBtn');
+  const stickyNext = document.getElementById('stickyNextBtn');
+
+  stickyBack.style.display = backBtn ? '' : 'none';
+  if(backBtn){
+    stickyBack.textContent = backBtn.textContent;
+    stickyBack.onclick = () => backBtn.click();
+  }
+  stickyNext.style.display = nextBtn ? '' : 'none';
+  if(nextBtn){
+    stickyNext.textContent = nextBtn.textContent;
+    stickyNext.onclick = () => nextBtn.click();
+  }
+  stickyNav.classList.add('show');
 }
 
 window.addEventListener('popstate', (event) => {
@@ -1969,6 +2021,10 @@ function renderCatTable(tableId, list, onChange, hideMonthly){
 
     const top = document.createElement('div');
     top.className = 'cat-row-top';
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = cat.icon || '💰';
+    iconSpan.style.cssText = 'font-size:16px;flex:none;line-height:1;';
+    top.appendChild(iconSpan);
     const nameInput = document.createElement('input');
     nameInput.className = 'cat-name';
     nameInput.value = cat.name;
@@ -3152,6 +3208,7 @@ function renderStep4(){
   } else {
     nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
   }
+  updateStickyNav();
 }
 
 /* ================= STEP 5: PLAN vs DRIFT COMPARISON ================= */
@@ -4222,6 +4279,7 @@ function renderDriftBudget(){
   }
   const gapReminder = document.getElementById('driftGapGoalReminder');
   if(gapReminder) gapReminder.textContent = fmtMoney(driftTargetVal);
+  updateStickyNav();
 }
 
 function driftComputeBalanceSeries(includeExtra){
@@ -4506,12 +4564,18 @@ document.getElementById('addEssentialBtn').addEventListener('click', () => { ess
 document.getElementById('addLifestyleBtn').addEventListener('click', () => { lifestyle.push({name:"New category", annual:0}); renderLifestyle(); });
 document.getElementById('addCurrentNeedBtn').addEventListener('click', () => { currentNeeds.push({name:"New category", annual:0}); renderCurrentNeedsTable(); });
 document.getElementById('addGoalBtn').addEventListener('click', () => { savingsGoals.push({name:"New goal", target:0, years:1}); renderGoalsTable(); renderStep4(); });
-document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', 'New property')); renderAltRealEstate(); });
-document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', 'New business')); renderAltBusiness(); });
-document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', 'New investment')); renderAltOtherInvestments(); });
-document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', 'New annuity')); renderAltAnnuities(); });
-document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', 'New pension')); renderAltPension(); });
-document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', 'New income source')); renderAltOtherIncome(); });
+// Numbered defaults ("Property 1", "Property 2", ...) instead of a generic "New X" label —
+// counts existing sources of the same type/section so a second rental, business, etc. is
+// distinguishable at a glance without the user having to rename it first.
+function nextIncomeSourceName(label, types){
+  return `${label} ${incomeSourcesOfTypes(types).length + 1}`;
+}
+document.getElementById('addAltRealEstateBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('rental', nextIncomeSourceName('Property', ['rental']))); renderAltRealEstate(); });
+document.getElementById('addAltBusinessBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('business', nextIncomeSourceName('Business', ['business']))); renderAltBusiness(); });
+document.getElementById('addAltOtherInvestmentsBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('otherInvestment', nextIncomeSourceName('Investment', ['otherInvestment']))); renderAltOtherInvestments(); });
+document.getElementById('addAltAnnuitiesBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('annuity', nextIncomeSourceName('Annuity', ['annuity']))); renderAltAnnuities(); });
+document.getElementById('addAltPensionBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('pension', nextIncomeSourceName('Pension', ['pension']))); renderAltPension(); });
+document.getElementById('addAltOtherIncomeBtn').addEventListener('click', () => { incomeSources.push(newIncomeSource('other', nextIncomeSourceName('Income source', OTHER_INCOME_TYPES))); renderAltOtherIncome(); });
 
 // These all feed calculateRetirementTarget()/calculateRequiredAnnualInvesting() (via
 // solveRetirementTarget), so each one calls recalculatePlan() — not just updateFiCard() — to
