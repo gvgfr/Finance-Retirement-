@@ -242,6 +242,15 @@
   .shortfall-action .txt{font-size:14px;color:var(--paper);}
   .shortfall-action .txt b{color:var(--gold);}
 
+  .result-stat-card{
+    border-radius:12px;padding:16px 18px;border:1px solid var(--line);background:var(--bg-card);
+    border-left-width:4px;border-left-style:solid;
+  }
+  .result-stat-card .rsc-icon{font-size:19px;line-height:1;margin-bottom:8px;display:block;}
+  .result-stat-card .rsc-label{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:5px;}
+  .result-stat-card .rsc-value{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(18px,4.5vw,22px);line-height:1.15;margin-bottom:5px;}
+  .result-stat-card .rsc-sub{font-size:12.5px;color:var(--paper-dim);line-height:1.45;}
+
   .share-banner{
     background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.06) 50%, rgba(5,150,105,0.08));
     border:1px solid var(--line);border-radius:16px;padding:26px 20px 22px;text-align:center;margin-bottom:22px;
@@ -804,18 +813,20 @@
     <p class="sub">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
 
     <div class="plan-grid">
-      <div class="fi-card" id="resultHero" style="margin-top:20px;">
+      <div class="fi-card" id="resultHero" style="margin-top:20px;border-color:#2563EB;box-shadow:0 0 0 1.5px #2563EB inset;">
         <div class="fi-label">Nest egg at retirement</div>
-        <div class="fi-number" id="resultNestEgg">$0</div>
+        <div class="fi-number" id="resultNestEgg" style="color:#2563EB;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you'd actually have saved</p>
       </div>
-      <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-card" style="margin-top:20px;border-color:#16A34A;box-shadow:0 0 0 1.5px #16A34A inset;">
         <div class="fi-label">Retirement goal</div>
-        <div class="fi-number" id="resultTargetNumber">$0</div>
+        <div class="fi-number" id="resultTargetNumber" style="color:#16A34A;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you told us you need</p>
       </div>
     </div>
-    <p class="field-hint" id="resultDetail" style="margin-top:10px;">—</p>
+
+    <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">HOW YOU GET THERE</b></div>
+    <div class="plan-grid" id="resultBreakdownCards" style="margin-top:10px;"></div>
 
     <div class="warn-box" id="resultShortBox"></div>
     <div class="good-box" id="resultGoodBox"></div>
@@ -3622,13 +3633,46 @@ function renderComparison(){
   const retAge = retAgeNum || '—';
 
   document.getElementById('resultNestEgg').textContent = fmtMoney(planNestEgg);
-  const planMonthlyContribLine = planInvestedAnnually > 0
-    ? (additionalInvestingVal > 0
-        ? `<b style="color:var(--paper);">${fmtMoney(retirementContribution()/12)}/mo</b> from your 401(k)/cash balance plus <b style="color:var(--paper);">${fmtMoney(additionalInvestingVal/12)}/mo</b> extra, growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`
-        : `<b style="color:var(--paper);">${fmtMoney(planInvestedAnnually/12)}/mo</b> from your 401(k), growing to about <b style="color:var(--paper);">${fmtMoney(fvNewContributions)}</b>.`)
-    : `No new contributions entered.`;
-  document.getElementById('resultDetail').innerHTML = `By your planned retirement at age ${retAge} (${years} year${years===1?'':'s'} from now): your current <b style="color:var(--paper);">${fmtMoney(currentSavingsVal)}</b> in invested assets will grow to about <b style="color:var(--paper);">${fmtMoney(fvExistingAssets)}</b> at ${growth}% growth. ${planMonthlyContribLine} Together: roughly <b style="color:var(--gold);">${fmtMoney(planNestEgg)}</b>, supporting about ${fmtMoney(planIncome)}/yr.`;
   document.getElementById('resultTargetNumber').textContent = fmtMoney(targetVal);
+
+  // Break the old single dense paragraph into separate, differently-colored cards — one number
+  // at a time — instead of burying current-assets growth, contribution growth, and sustainable
+  // income all in one sentence together.
+  const incomeColor = planGapPct >= 100 ? '#16A34A' : (planGapPct >= 70 ? '#D97706' : '#DC2626');
+  const breakdownCards = [
+    {
+      icon: '💰', color: '#0D9488', label: 'Current assets, grown',
+      value: fmtMoney(fvExistingAssets),
+      sub: `Your ${fmtMoney(currentSavingsVal)} today, growing at ${growth}% for ${years} year${years===1?'':'s'} until age ${retAge}.`
+    },
+    {
+      icon: '📈', color: '#2563EB', label: 'Your contributions, grown',
+      value: planInvestedAnnually > 0 ? fmtMoney(fvNewContributions) : '$0',
+      sub: planInvestedAnnually > 0
+        ? (additionalInvestingVal > 0
+            ? `${fmtMoney(retirementContribution()/12)}/mo from your 401(k)/cash balance plus ${fmtMoney(additionalInvestingVal/12)}/mo extra, every year until you retire.`
+            : `${fmtMoney(planInvestedAnnually/12)}/mo from your 401(k), every year until you retire.`)
+        : `No new contributions entered yet.`
+    },
+    {
+      icon: '💵', color: incomeColor, label: 'Sustainable income',
+      value: fmtMoney(planIncome) + '/yr',
+      sub: spend > 0
+        ? `What this nest egg can pay you every year in retirement — ${planGapPct}% of the ${fmtMoney(spend)}/yr you said you'll need.`
+        : `What this nest egg can pay you every year in retirement.`
+    }
+  ];
+  const breakdownEl = document.getElementById('resultBreakdownCards');
+  if(breakdownEl){
+    breakdownEl.innerHTML = breakdownCards.map((c, i) => `
+      <div class="result-stat-card" style="border-left-color:${c.color};${i === breakdownCards.length-1 ? 'grid-column:1/-1;' : ''}">
+        <span class="rsc-icon">${c.icon}</span>
+        <div class="rsc-label">${c.label}</div>
+        <div class="rsc-value" style="color:${c.color};">${c.value}</div>
+        <p class="rsc-sub">${c.sub}</p>
+      </div>
+    `).join('');
+  }
 
   const shortBox = document.getElementById('resultShortBox');
   const goodBox = document.getElementById('resultGoodBox');
@@ -3651,19 +3695,22 @@ function renderComparison(){
     const stillNeededTaxable = Math.max(0, additionalAnnualNeeded - taxAdvRoom);
     shortBox.innerHTML = `<b style="color:#DC2626;font-size:15px;">${fmtMoney(nestEggShortfall)} total shortfall</b> vs. your <b style="color:var(--paper);">${fmtMoney(targetVal)}</b> goal by age ${retAge}. To close that gap, you'd need an additional <b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded/12)}/mo</b> (<b style="color:var(--paper);">${fmtMoney(additionalAnnualNeeded)}/yr</b>) invested beyond your current plan, every year from age ${Number(currentAgeEl.value)||'—'} to ${retAge} (${years} year${years===1?'':'s'})${fillFirst > 0 ? ` — ${fmtMoney(fillFirst)}/yr of that can go into unused 401(k)/IRA/HSA room before any taxable investing` : ''}. That shortfall in your nest egg is also why your sustainable income falls <b style="color:#DC2626;font-size:15px;">${fmtMoney(planShortfall)}/yr short</b> of the <b style="color:var(--paper);">${fmtMoney(spend)}/yr</b> you said you'll need — ${planGapPct}% of your goal.`;
     actionsEl.style.display = 'block';
+    // Each action gets its own color/icon by category, rather than every row looking identical,
+    // so it's clear at a glance these are different kinds of levers (tax-advantaged room vs.
+    // taxable investing vs. timeline vs. spending).
     const actionItems = [];
     if(fillFirst > 0){
-      actionItems.push({ step: 5, txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
+      actionItems.push({ step: 5, icon: '🏦', color: '#0D9488', txt: `Use <b>${fmtMoney(fillFirst/12)}/mo</b> of unused 401(k)/IRA/HSA room first →` });
     }
     if(stillNeededTaxable > 0){
-      actionItems.push({ step: 6, txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
+      actionItems.push({ step: 6, icon: '📈', color: '#2563EB', txt: `Add <b>${fmtMoney(stillNeededTaxable/12)}/mo</b> extra (taxable) investing →` });
     }
-    actionItems.push({ step: 4, txt: `Push your <b>retirement age</b> out, or raise your growth assumption →` });
-    actionItems.push({ step: 1, txt: `Lower your <b>retirement spending target</b> →` });
+    actionItems.push({ step: 4, icon: '📅', color: '#7C3AED', txt: `Push your <b>retirement age</b> out, or raise your growth assumption →` });
+    actionItems.push({ step: 1, icon: '✂️', color: '#EA580C', txt: `Lower your <b>retirement spending target</b> →` });
     actionsEl.innerHTML = actionItems.map((item, i) => `
-      <div class="shortfall-action" onclick="goTo(${item.step})">
-        <div class="num">${i+1}</div>
-        <div class="txt">${item.txt}</div>
+      <div class="shortfall-action" onclick="goTo(${item.step})" style="background:${item.color}0F;">
+        <div class="num" style="background:${item.color};">${i+1}</div>
+        <div class="txt"><span style="margin-right:4px;">${item.icon}</span>${item.txt.replace(/<b>/g, `<b style="color:${item.color};">`)}</div>
       </div>
     `).join('');
   }
