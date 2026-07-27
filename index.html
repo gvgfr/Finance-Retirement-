@@ -1938,11 +1938,15 @@ function goBack(){
 // nav logic, this just mirrors whatever the active step's own .nav-row buttons currently say
 // and do — including step-specific text/handlers that change at runtime (e.g. planFinishBtn,
 // step6NextBtn) — by reading them live and forwarding clicks, so it can never drift out of sync.
+let stickyNavObserver = null;
 function updateStickyNav(){
   const stickyNav = document.getElementById('stickyNav');
   if(!stickyNav) return;
   const activeStepEl = document.querySelector('.step.active');
   const realNavRow = activeStepEl ? activeStepEl.querySelector('.nav-row') : null;
+
+  if(stickyNavObserver){ stickyNavObserver.disconnect(); stickyNavObserver = null; }
+
   if(currentStep === 0 || !realNavRow){
     stickyNav.classList.remove('show');
     return;
@@ -1962,7 +1966,14 @@ function updateStickyNav(){
     stickyNext.textContent = nextBtn.textContent;
     stickyNext.onclick = () => nextBtn.click();
   }
-  stickyNav.classList.add('show');
+
+  // Only show the floating bar while the step's own (identical) nav-row is scrolled out of
+  // view — once the real buttons are on screen, showing a duplicate copy right below them is
+  // just clutter.
+  stickyNavObserver = new IntersectionObserver((entries) => {
+    stickyNav.classList.toggle('show', !entries[0].isIntersecting);
+  }, { threshold: 0 });
+  stickyNavObserver.observe(realNavRow);
 }
 
 window.addEventListener('popstate', (event) => {
