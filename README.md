@@ -2,6 +2,10 @@
 
 Kaasu is a browser-based retirement planning tool that connects the life you want in retirement with the financial decisions you are making today.
 
+## NHS Pension Planner (UK)
+
+This repo also includes a separate, standalone tool for NHS staff in the UK: [`nhs-pension-planner.html`](nhs-pension-planner.html). It's a distinct app (own currency, tax rules, and pension logic) rather than a mode of the US calculator below — see its own header comment/disclaimers in the file for scope and limitations (2015 Scheme only, simplified UK Income Tax/National Insurance, tapered Annual Allowance estimate).
+
 The app offers two ways to begin:
 
 - **Build your retirement plan** — estimate retirement spending, Social Security income, your target portfolio, and the annual or monthly investing needed to reach it.
