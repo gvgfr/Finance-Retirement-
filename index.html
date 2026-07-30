@@ -902,17 +902,17 @@
         </select>
       </div>
       <div class="field"><label>Gross annual salary</label><input type="text" id="driftSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
-      <div class="field full"><label>401(k) contribution (annual, pre-tax) <button type="button" class="help-trigger" aria-label="What is a 401(k)/403(b) contribution?" onclick="openAccountHelp('k401')">?</button></label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
-      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
-      <div class="field full"><label>Cash balance / profit sharing (annual) <button type="button" class="help-trigger" aria-label="What is cash balance / profit sharing?" onclick="openAccountHelp('cashBalance')">?</button></label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
-      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
-      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
+      <div class="field full"><label>401(k) contribution (annual, pre-tax) <button type="button" class="help-trigger" aria-label="What is a 401(k)/403(b) contribution?" onclick="openAccountHelp('k401')">?</button></label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 limit: $24,500/year. 50+ catch-up: $8,000 (total $32,500) — or $11,250 if you're 60–63. Tap the ? for the rest.</span></div>
+      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
+      <div class="field full"><label>Cash balance / profit sharing (annual) <button type="button" class="help-trigger" aria-label="What is cash balance / profit sharing?" onclick="openAccountHelp('cashBalance')">?</button></label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Your employer funds this automatically, on top of your 401(k). Tap the ? for how it works.</span></div>
+      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 limit: $7,500/year combined ($8,600 if you're 50+). Tap the Traditional/Roth IRA ? for the full rundown.</span></div>
+      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 limit: $4,400 solo, $8,750 family (add $1,000 if you're 55+). Tap the Invested HSA ? for the full rundown.</span></div>
       <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
         <input type="checkbox" id="driftHsaFamilyCoverage" style="width:16px;height:16px;">
         This HSA has family coverage (raises the limit above)
       </label>
       <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
-      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
+      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your contribution, salary × cap). Leave at 0 if you don't get one.</span></div>
       <div class="field"><label>State</label>
         <select id="driftStateSelect"></select>
       </div>
@@ -929,13 +929,13 @@
         <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="driftSpouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
         <div class="field full"><label>Spouse's Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftSpouseRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="field full"><label>Spouse's Cash balance / profit sharing (annual)</label><input type="text" id="driftSpouseCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="driftSpouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
+        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="driftSpouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Same limit as above, tracked separately.</span></div>
         <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="driftSpouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
         <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="driftSpouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
       </div>
     </div>
 
-    <p class="field-hint" style="margin-top:18px;">Side business, rental, freelance, or other income beyond salary? Add it in the alt-investment categories in the Current Invested Assets step — each one has a "Current income" field that flows into your taxes and take-home here automatically.</p>
+    <p class="field-hint" style="margin-top:18px;">Side income — business, rental, freelance? Add it under Current Invested Assets; it flows into your taxes and take-home here automatically.</p>
 
     <div class="tax-card" style="margin-top:22px;">
       <div><div class="tax-stat-label">Gross pay</div><div class="tax-stat-value" id="driftTotalGrossOut">$0</div></div>
@@ -952,7 +952,7 @@
       <div><div class="tax-stat-label">State tax (est.)</div><div class="tax-stat-value" id="driftStateTaxOut">$0</div></div>
       <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px;"><div class="tax-stat-label">Take-home cash</div><div class="tax-stat-value" id="driftTakeHomeOut" style="font-size:19px;">$0</div></div>
     </div>
-    <p class="field-hint" style="margin-top:6px;">Roth contributions come out of take-home pay too, but don't reduce taxable income. 2026 IRS federal brackets. State tax is a rough flat-rate estimate, not your actual state's bracket system.</p>
+    <p class="field-hint" style="margin-top:6px;">2026 IRS federal brackets. State tax is a rough flat-rate estimate, not your actual state's bracket system.</p>
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
@@ -970,7 +970,7 @@
       <span class="icon" style="background:rgba(234,88,12,0.1);color:var(--clay);">🏠</span>
       <span class="label">NEEDS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">Rent, loans, insurance, groceries — the required costs of today. Do not add credit-card payments here; record the purchases in their actual spending categories instead.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Rent, loans, insurance, groceries — the required stuff. Skip credit-card payments here; log the actual purchases instead.</p>
     <div class="cat-table" id="driftCurrentNeedsTable"></div>
     <button class="add-cat-btn" id="addDriftCurrentNeedBtn">+ add category</button>
     <div class="subtotal-line">Subtotal — NEEDS: <b id="driftNeedsSubtotal">$0</b>/yr</div>
@@ -995,7 +995,7 @@
       <span class="icon" style="background:rgba(2,132,199,0.12);color:var(--sky);">🛟</span>
       <span class="label">EMERGENCY FUND</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">The standard recommendation is 3–6 months of essential expenses, kept liquid — not invested.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Standard advice: 3–6 months of essential expenses, kept liquid — not invested.</p>
     <div class="plan-grid">
       <div class="field"><label>Months to cover</label>
         <select id="driftEmergencyMonths">
@@ -1024,7 +1024,7 @@
     <h2>What have you <em>already got</em> working for you?</h2>
     <p class="sub">Not checking or emergency cash — money that's actually invested toward retirement.</p>
     <div class="plan-grid">
-      <div class="field full"><label>Expected annual growth</label><input type="number" id="driftGrowth" value="7" step="0.5"><span class="field-hint">Use an <b style="color:var(--paper);">inflation-adjusted (real)</b> return, not a raw market average — ~6-7% real is roughly the long-run figure for an all-stock portfolio; many planners use more conservative 4-5% real, especially for a balanced portfolio or shorter timeline. This is what grows the assets below.</span></div>
+      <div class="field full"><label>Expected annual growth</label><input type="number" id="driftGrowth" value="7" step="0.5"><span class="field-hint">Use a <b style="color:var(--paper);">real (inflation-adjusted)</b> return, not a raw market average. ~6-7% is the long-run figure for all-stock; 4-5% is the more conservative bet. This is what grows everything below.</span></div>
     </div>
     <div class="plan-grid">
       <div class="field"><label>401(k) / 403(b) balance</label><input type="text" id="driftAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1032,7 +1032,7 @@
       <div class="field"><label>Roth IRA balance <button type="button" class="help-trigger" aria-label="What is a Roth IRA?" onclick="openAccountHelp('rothIra')">?</button></label><input type="text" id="driftAssetsRothIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Brokerage account <button type="button" class="help-trigger" aria-label="What is a brokerage account?" onclick="openAccountHelp('brokerage')">?</button></label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays monthly instead of a lump sum, leave this at 0 — add it as income in the next steps instead.</span></div>
+      <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Getting a monthly check instead of a lump sum? Leave this at 0 and add it as income in the next steps. Tap the ? for the rest.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="driftAssetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="driftSpouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's Traditional IRA balance</label><input type="text" id="driftSpouseAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1040,7 +1040,7 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">Current income is income you receive before retirement and is included in your present cash-flow estimate. Retirement income is income expected after retirement and reduces the amount your investment portfolio must provide. Enter each source only once; the app will use it in the appropriate years.</p>
+    <p class="field-hint" style="margin-top:18px;">Current income counts now, toward your take-home. Retirement income counts later, toward your target. Enter each source once — we'll use it in the right years.</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
     <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
@@ -1088,7 +1088,7 @@
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Sustainable spending this could support</div><div class="fi-stat-value" id="driftOwnAutopilotIncome">$0/yr</div></div>
       </div>
-      <p class="field-hint" style="margin-top:10px;">This keeps growing while you spend it down, using default investing-style assumptions (adjustable in the next step). You haven't set Social Security yet either, so this is preliminary — it'll sharpen up once you do.</p>
+      <p class="field-hint" style="margin-top:10px;">Keeps growing while you spend it down, using default investing assumptions (adjustable next). No Social Security yet, so treat this as a rough draft — it'll sharpen up once you add it.</p>
     </div>
     <p class="field-hint" style="margin-top:10px;">This isn't "short" or "on track" yet — you haven't told us what retirement you actually want. That's next.</p>
 
@@ -1123,7 +1123,7 @@
         </select>
         <span class="field-hint">Money with decades to grow can usually afford more risk.</span>
       </div>
-      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="driftWithdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint">Withdrawals from pre-tax accounts (401(k), traditional IRA) are taxed as income when you take them out — this isn't extra spending money, it inflates how much you need to withdraw. 15% is a rough starting point for many retirees; go lower if most of your savings are Roth, higher if most are pre-tax and you expect a higher tax bracket.</span></div>
+      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="driftWithdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint">Pre-tax withdrawals (401(k), traditional IRA) get taxed as income — that tax isn't spending money, so it inflates what you need to pull out. 15% is a reasonable default; go lower if you're mostly Roth, higher if you're mostly pre-tax.</span></div>
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--clay)"></span>Essentials</div>
@@ -1188,7 +1188,7 @@
     <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--paper-dim);line-height:1.5;">
       <p style="margin:0 0 6px;">* Social Security only covers part of retirement, starting when you claim it. Waiting longer (up to 70) means bigger checks.</p>
       <p style="margin:0 0 6px;">Rule of thumb: save about 25× your yearly spending, and you can withdraw ~4%/year without running out.</p>
-      <p style="margin:0;">This uses a fixed, inflation-adjusted withdrawal every year — the most conservative of the common approaches. It doesn't run Monte Carlo or historical-sequence simulations, and doesn't model dynamic strategies (guardrails, percent-of-portfolio, VPW, etc.) that flex spending with market performance — those would generally allow spending more, not less.</p>
+      <p style="margin:0;">This assumes a fixed, inflation-adjusted withdrawal every year — the conservative choice. It doesn't model flexible strategies that adjust spending with the market, which would generally let you spend more, not less.</p>
     </div>
 
     <div class="nav-row">
@@ -1246,7 +1246,7 @@
         <div><div class="fi-stat-label">Sustainable spending per year</div><div class="fi-stat-value" id="driftOwnResultIncome">$0/yr</div></div>
       </div>
     </div>
-    <p class="field-hint" style="margin-top:10px;">This accounts for real investment growth throughout retirement and Social Security kicking in at your claiming age — the same math behind your retirement target. Actual results are not guaranteed.</p>
+    <p class="field-hint" style="margin-top:10px;">Accounts for real investment growth through retirement and Social Security kicking in at your claiming age — same math as your target. Not guaranteed.</p>
 
     <div class="breakdown" id="driftOwnBreakdownContainer" style="margin-top:30px;"></div>
 
@@ -1299,7 +1299,7 @@
     <div class="shortfall-actions" id="driftOwnResultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The blue line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;">Grows while you invest, then spends down using your real budget — self-funded early, Social Security picking up part of it later. Blue is your plan, red is 401(k) only, green is your goal. Hover or tap for exact numbers.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="driftOwnBalanceChartTooltip"></div></div>
     <div class="plan-legend" id="driftOwnBalanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
@@ -3862,15 +3862,15 @@ function driftShortfallRecommendationHtml(gap, opts){
     const fillLink = opts.withLink
       ? `<a href="#" onclick="driftGoToAndFocus(8,'driftK401Input');return false;" style="color:#9A3412;font-weight:700;">fill that first</a>`
       : `fill that first`;
-    html += `You have <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — ${fillLink} since it's tax-advantaged. `;
+    html += `You've got <b style="color:var(--paper);">${fmtMoney(fillFirst)}/yr</b> of unused 401(k)/IRA/HSA room this year — ${fillLink}, it's already tax-sheltered space going to waste. `;
   }
   if(stillNeeded > 0){
-    html += `${fillFirst > 0 ? 'After maxing that out, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra (taxable) investing, ${ageRange}.`;
+    html += `${fillFirst > 0 ? 'After that, y' : 'Y'}ou'd still need about <b style="color:#DC2626;font-size:15px;">${fmtMoney(stillNeeded/12)}/mo</b> (${fmtMoney(stillNeeded)}/yr) of extra taxable investing, ${ageRange}.`;
     if(opts.withLink){
       html += ` <a href="#" onclick="document.getElementById('driftAdditionalInvestingInput').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('driftAdditionalInvestingInput').focus();return false;" style="color:#9A3412;font-weight:700;">Add it to Extra investing ${linkDirection}</a>`;
     }
   } else if(fillFirst > 0){
-    html += `That fully covers the gap — no taxable "extra investing" needed.`;
+    html += `That covers the whole gap — no extra investing needed.`;
   }
   return html;
 }
@@ -4088,21 +4088,21 @@ function updateDriftFiCard(){
   if(!driftHasSpouseSS()){
     const years = driftBridgeYears();
     note.textContent = years > 0
-      ? `You plan to retire at ${retireAge}, but Social Security doesn't start until ${driftSocialSecurityClaimAge()} — a ${years}-year gap where your savings alone have to cover everything. Once it kicks in, Social Security pays ${fmtMoney(combinedSSMonthly)}/mo and covers part of your spending from then on.`
-      : `You plan to retire at ${retireAge}, which is at or after your Social Security claiming age (${driftSocialSecurityClaimAge()}) — so it's already paying ${fmtMoney(combinedSSMonthly)}/mo from day one of retirement.`;
+      ? `Retire at ${retireAge}, but Social Security doesn't start till ${driftSocialSecurityClaimAge()} — that's ${years} years your savings carry solo. After that, it chips in ${fmtMoney(combinedSSMonthly)}/mo.`
+      : `You're retiring at ${retireAge}, on or after your claiming age (${driftSocialSecurityClaimAge()}) — so Social Security is already paying ${fmtMoney(combinedSSMonthly)}/mo on day one.`;
   } else {
     const claim1 = Math.min(driftSocialSecurityClaimAge(), driftSpouseSSClaimAge());
     const claim2 = Math.max(driftSocialSecurityClaimAge(), driftSpouseSSClaimAge());
     const totalYears = Math.max(0, claim2 - retireAge);
     if(claim1 === claim2){
       note.textContent = totalYears > 0
-        ? `You both claim at ${claim1}. Retiring at ${retireAge} means a ${totalYears}-year gap before either check starts — your savings cover everything alone until then. After that, Social Security pays ${fmtMoney(combinedSSMonthly)}/mo combined.`
-        : `You plan to retire at ${retireAge}, at or after both your claiming ages — so Social Security is already paying ${fmtMoney(combinedSSMonthly)}/mo combined from day one.`;
+        ? `You both claim at ${claim1}. Retiring at ${retireAge} leaves a ${totalYears}-year gap where savings cover everything alone. After that, Social Security pays ${fmtMoney(combinedSSMonthly)}/mo combined.`
+        : `Retiring at ${retireAge} is at or after both claiming ages — Social Security is already paying ${fmtMoney(combinedSSMonthly)}/mo combined from day one.`;
     } else {
-      note.textContent = `Retiring at ${retireAge}: the first check starts at ${claim1}, the second at ${claim2}. Until ${claim1}, your savings cover everything alone; from ${claim1} to ${claim2}, one check helps; from ${claim2} on, both do, paying ${fmtMoney(combinedSSMonthly)}/mo combined.`;
+      note.textContent = `Retiring at ${retireAge}: the first check lands at ${claim1}, the second at ${claim2}. Solo until ${claim1}, one check helps till ${claim2}, then both pay ${fmtMoney(combinedSSMonthly)}/mo combined.`;
     }
   }
-  note.textContent += ` That's what the two investing styles above are for: the "before" money is invested more conservatively since you'll need to start spending it soon, while the "after" money can be invested for growth since it has years left to compound before you touch it.`;
+  note.textContent += ` That's why the two investing styles above differ: conservative for money you'll spend soon, growth-focused for money with years left to compound.`;
   driftSyncTarget();
 }
 
@@ -4381,7 +4381,7 @@ function renderDriftBudget(){
     const gap = autoAdditional - additionalInvesting;
     nextStepsText.innerHTML = `To hit your retirement target of <b style="color:var(--numgreen);">${fmtMoney(driftTargetVal)}</b>, you're currently short. ${driftShortfallRecommendationHtml(gap, {withLink:true, linkDirection:'above ↑'})}`;
   } else {
-    nextStepsText.textContent = `Nice — you're fully funding your retirement goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. That's extra money you could spend now, or put toward a more comfortable retirement beyond what we've already calculated.`;
+    nextStepsText.textContent = `Nice — you're fully funding your goal, with ${fmtMoney(leftover)}/yr (${fmtMoney(leftover/12)}/mo) left over. Spend it now, or put it toward an even more comfortable retirement.`;
   }
   const gapReminder = document.getElementById('driftGapGoalReminder');
   if(gapReminder) gapReminder.textContent = fmtMoney(driftTargetVal);
@@ -4584,8 +4584,8 @@ function renderDriftBalanceChart(){
     const note = document.getElementById('driftOwnBalanceChartNote');
     if(note){
       note.textContent = (driftAdditionalInvestingVal === 0)
-        ? `You haven't added any extra investing, so the plan and 401(k)-only lines are identical right now (the blue line is drawn on top of the red one).`
-        : `The blue and red lines split apart because your plan includes ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k). The green line is your goal, spent down the same way once you retire.`;
+        ? `No extra investing yet, so the plan and 401(k)-only lines are identical — blue sits right on top of red.`
+        : `Blue and red split apart because your plan adds ${fmtMoney(driftAdditionalInvestingVal/12)}/mo of extra investing on top of your 401(k). Green is your goal, spent down the same way.`;
     }
   }
 }
