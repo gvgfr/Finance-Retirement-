@@ -64,7 +64,7 @@
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
   .btn{
-    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14.5px;letter-spacing:0.03em;padding:15px 24px;
+    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13.5px;letter-spacing:0.01em;padding:11px 14px;
     border-radius:8px;border:none;cursor:pointer;transition:transform .15s ease;
     display:inline-flex;align-items:center;gap:8px;width:100%;justify-content:center;
   }
@@ -87,8 +87,7 @@
     box-shadow:0 -4px 14px rgba(0,0,0,0.10);
   }
   .sticky-nav.show{display:flex;}
-  .sticky-nav .btn-ghost{flex:1;}
-  .sticky-nav .btn-primary{flex:2;}
+  .sticky-nav .btn-primary{flex:1;}
   /* Soft fade just above the floating bar — a visual cue that content is being cut off by it,
      so the bar reads as "sitting on top of more stuff" rather than "the end of the page." */
   .sticky-nav.show::before{
@@ -384,7 +383,7 @@
      so you can move between steps from anywhere on a long page without scrolling down first. -->
 <div class="sticky-nav" id="stickyNav">
   <button class="btn btn-ghost" id="stickyBackBtn" type="button">← Back</button>
-  <button class="btn btn-primary" id="stickyNextBtn" type="button">Next →</button>
+  <button class="btn btn-primary" id="stickyNextBtn" type="button">Next</button>
 </div>
 <div class="wrap">
 
@@ -435,7 +434,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(2)">Next: lifestyle & travel →</button>
+      <button class="btn btn-primary" onclick="goTo(2)">Next: lifestyle & travel</button>
     </div>
   </div>
 
@@ -455,7 +454,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(3)">Next: your target →</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Next: your target</button>
     </div>
   </div>
 
@@ -558,8 +557,8 @@
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Annual retirement spend</div><div class="fi-stat-value" id="fiAnnual">$0</div></div>
         <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="fiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label" data-simple="You need this saved before Social Security starts">Needed before Social Security starts</div><div class="fi-stat-value" id="fiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label" data-simple="Your savings still need to cover this once it starts">Still working for you after it starts</div><div class="fi-stat-value" id="fiAfterSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div><div class="fi-stat-value" id="fiBeforeSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="This stays invested and keeps growing once Social Security starts">Savings still growing after Social Security starts</div><div class="fi-stat-value" id="fiAfterSS">$0</div></div>
       </div>
       <p class="field-hint" id="fiBridgeNote" style="margin-top:14px;">—</p>
     </div>
@@ -572,7 +571,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(4)">Next: monthly savings →</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Next: monthly savings</button>
     </div>
   </div>
 
@@ -630,7 +629,7 @@
     <p class="field-hint goal-reminder" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b class="goal-reminder-value" style="color:var(--gold);">$0</b></p>
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" id="planFinishBtn" onclick="finishPlanPath()">Next: today's income →</button>
+      <button class="btn btn-primary" id="planFinishBtn" onclick="finishPlanPath()">Next: today's income</button>
     </div>
   </div>
 
@@ -712,7 +711,7 @@
     <p class="field-hint goal-reminder" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b class="goal-reminder-value" style="color:var(--gold);">$0</b></p>
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(6)">Next: your budget →</button>
+      <button class="btn btn-primary" onclick="goTo(6)">Next: your budget</button>
     </div>
   </div>
 
@@ -850,7 +849,7 @@
     <p class="field-hint goal-reminder" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b class="goal-reminder-value" style="color:var(--gold);">$0</b></p>
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" id="step6NextBtn" onclick="goTo(7)">See your results →</button>
+      <button class="btn btn-primary" id="step6NextBtn" onclick="goTo(7)">See your results</button>
     </div>
   </div>
 
@@ -1031,7 +1030,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(9)">Next: your budget →</button>
+      <button class="btn btn-primary" onclick="goTo(9)">Next: your budget</button>
     </div>
   </div>
 
@@ -1089,7 +1088,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(10)">Next: current investments →</button>
+      <button class="btn btn-primary" onclick="goTo(10)">Next: current investments</button>
     </div>
   </div>
 
@@ -1145,7 +1144,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(11)">Next: your trajectory →</button>
+      <button class="btn btn-primary" onclick="goTo(11)">Next: your trajectory</button>
     </div>
   </div>
 
@@ -1170,7 +1169,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(12)">Next: define your retirement →</button>
+      <button class="btn btn-primary" onclick="goTo(12)">Next: define your retirement</button>
     </div>
   </div>
 
@@ -1255,8 +1254,8 @@
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Annual retirement expenses</div><div class="fi-stat-value" id="driftOwnFiAnnual">$0</div></div>
         <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="driftOwnFiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label" data-simple="You need this saved before Social Security starts">Needed before Social Security starts</div><div class="fi-stat-value" id="driftFiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label" data-simple="Your savings still need to cover this once it starts">Still working for you after it starts</div><div class="fi-stat-value" id="driftFiAfterSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div><div class="fi-stat-value" id="driftFiBeforeSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="This stays invested and keeps growing once Social Security starts">Savings still growing after Social Security starts</div><div class="fi-stat-value" id="driftFiAfterSS">$0</div></div>
       </div>
       <p class="field-hint" id="driftOwnFiBridgeNote" style="margin-top:14px;">—</p>
     </div>
@@ -1269,7 +1268,7 @@
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(13)">Next: close your gap →</button>
+      <button class="btn btn-primary" onclick="goTo(13)">Next: close your gap</button>
     </div>
   </div>
 
@@ -1344,7 +1343,7 @@
     <p class="field-hint" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b style="color:var(--gold);" id="driftGapGoalReminder">$0</b></p>
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
-      <button class="btn btn-primary" onclick="goTo(14)">Next: your results →</button>
+      <button class="btn btn-primary" onclick="goTo(14)">Next: your results</button>
     </div>
   </div>
 
@@ -2150,7 +2149,7 @@ function goTo(step, opts){
   if(step === 4){
     recalculatePlan();
     const nextBtn = document.getElementById('planFinishBtn');
-    if(nextBtn) nextBtn.textContent = returnToCompareAfterPlan ? "Finish: compare both paths →" : "Next: today's income →";
+    if(nextBtn) nextBtn.textContent = returnToCompareAfterPlan ? "Finish: compare both paths" : "Next: today's income";
   }
   if(step === 5) renderStep4();
   if(step === 6) renderStep4();
@@ -2234,7 +2233,7 @@ function updateStickyNav(){
 }
 
 // Keeps --sticky-nav-h in sync with the bar's real rendered height (it grows to two lines on
-// narrow screens, e.g. "Next: lifestyle & travel →"), so .wrap's bottom padding always reserves
+// narrow screens, e.g. "Next: define your retirement"), so .wrap's bottom padding always reserves
 // exactly enough room and the bar never overlaps the last row of content above it. Reports 0
 // automatically while the bar is display:none, so no extra padding is reserved when it's hidden.
 new ResizeObserver((entries) => {
@@ -3525,10 +3524,10 @@ function renderStep4(){
   const step6NextBtn = document.getElementById('step6NextBtn');
   if(step6NextBtn){
     if(hasRealPlan){
-      step6NextBtn.textContent = "See your results →";
+      step6NextBtn.textContent = "See your results";
       step6NextBtn.onclick = function(){ goTo(7); };
     } else {
-      step6NextBtn.textContent = "Build your retirement plan →";
+      step6NextBtn.textContent = "Build your retirement plan";
       step6NextBtn.onclick = function(){ buildPlanFromDrift(); };
     }
   }
