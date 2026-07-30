@@ -311,6 +311,39 @@
     .reveal,.reveal.revealed{opacity:1;transform:none;transition:none;}
     .scroll-cue::after{animation:none;}
   }
+
+  /* Account-type help */
+  .help-trigger{
+    display:inline-block;background:none;border:none;padding:0;margin-left:5px;
+    color:#2563EB;font-weight:800;text-decoration:underline;text-underline-offset:2px;
+    font-family:'IBM Plex Mono',monospace;font-size:13.5px;cursor:pointer;vertical-align:middle;
+  }
+  .help-modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(15,17,20,0.55);z-index:1000;
+    padding:20px;overflow-y:auto;
+  }
+  .help-modal-overlay.show{display:flex;align-items:flex-start;justify-content:center;}
+  .help-modal{
+    background:var(--bg-card);border-radius:14px;max-width:480px;width:100%;margin-top:6vh;
+    padding:26px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;
+  }
+  .help-modal-close{
+    position:absolute;top:14px;right:14px;background:none;border:none;font-size:22px;line-height:1;
+    color:var(--paper-dim);cursor:pointer;padding:4px;
+  }
+  .help-modal h3{font-family:'Fraunces',serif;font-weight:500;font-size:22px;margin:0 20px 16px 0;}
+  .help-modal-section{margin-bottom:14px;}
+  .help-modal-section:last-of-type{margin-bottom:0;}
+  .help-modal-section .hm-label{
+    font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12.5px;letter-spacing:0.04em;
+    text-transform:uppercase;color:var(--teal);margin-bottom:3px;
+  }
+  .help-modal-section .hm-body{font-size:15px;line-height:1.5;color:var(--paper);}
+  .help-modal-link{
+    display:inline-block;margin-top:18px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+    font-weight:700;color:var(--gold);text-decoration:none;border-top:1px solid var(--line);padding-top:14px;width:100%;
+  }
+  .help-modal-link:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -869,9 +902,9 @@
         </select>
       </div>
       <div class="field"><label>Gross annual salary</label><input type="text" id="driftSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
-      <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
+      <div class="field full"><label>401(k) contribution (annual, pre-tax) <button type="button" class="help-trigger" aria-label="What is a 401(k)/403(b) contribution?" onclick="openAccountHelp('k401')">?</button></label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year. Turning 50 or older? Add a "catch-up" — an extra $8,000/year (total $32,500), or $11,250/year if you're 60–63 (total $35,750).</span></div>
       <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
-      <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field full"><label>Cash balance / profit sharing (annual) <button type="button" class="help-trigger" aria-label="What is cash balance / profit sharing?" onclick="openAccountHelp('cashBalance')">?</button></label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
       <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
       <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
       <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
@@ -995,11 +1028,11 @@
     </div>
     <div class="plan-grid">
       <div class="field"><label>401(k) / 403(b) balance</label><input type="text" id="driftAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Traditional IRA balance</label><input type="text" id="driftAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Roth IRA balance</label><input type="text" id="driftAssetsRothIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Brokerage account</label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Invested HSA</label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays monthly instead of a lump sum, leave this at 0 — add it as income in the next steps instead.</span></div>
+      <div class="field"><label>Traditional IRA balance <button type="button" class="help-trigger" aria-label="What is a Traditional IRA?" onclick="openAccountHelp('traditionalIra')">?</button></label><input type="text" id="driftAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Roth IRA balance <button type="button" class="help-trigger" aria-label="What is a Roth IRA?" onclick="openAccountHelp('rothIra')">?</button></label><input type="text" id="driftAssetsRothIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Brokerage account <button type="button" class="help-trigger" aria-label="What is a brokerage account?" onclick="openAccountHelp('brokerage')">?</button></label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Invested HSA <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays monthly instead of a lump sum, leave this at 0 — add it as income in the next steps instead.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="driftAssetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="driftSpouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's Traditional IRA balance</label><input type="text" id="driftSpouseAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1285,6 +1318,19 @@
     <span id="statusLabel" style="display:none;">demo data</span>
   </div>
 
+</div>
+
+<div class="help-modal-overlay" id="accountHelpOverlay">
+  <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="accountHelpTitle">
+    <button type="button" class="help-modal-close" id="accountHelpClose" aria-label="Close">&times;</button>
+    <h3 id="accountHelpTitle"></h3>
+    <div class="help-modal-section"><div class="hm-label">What?</div><div class="hm-body" id="accountHelpWhat"></div></div>
+    <div class="help-modal-section"><div class="hm-label">Why?</div><div class="hm-body" id="accountHelpWhy"></div></div>
+    <div class="help-modal-section"><div class="hm-label">How?</div><div class="hm-body" id="accountHelpHow"></div></div>
+    <div class="help-modal-section"><div class="hm-label">Benefit</div><div class="hm-body" id="accountHelpBenefit"></div></div>
+    <div class="help-modal-section"><div class="hm-label">Recommendation</div><div class="hm-body" id="accountHelpRecommendation"></div></div>
+    <a class="help-modal-link" id="accountHelpLink" href="#" target="_blank" rel="noopener">Learn more on Investopedia →</a>
+  </div>
 </div>
 
 <script>
@@ -4858,6 +4904,92 @@ driftStateSelectEl.addEventListener('change', () => {
 [driftNumKidsEl, driftYearsToCollegeEl].forEach(el => el.addEventListener('input', renderDriftBudget));
 bindMoneyInput(driftCollegeTargetPerKidEl, ()=>driftCollegeTargetPerKidVal, (v)=>{driftCollegeTargetPerKidVal=v;}, renderDriftBudget);
 [driftOwnCurrentAgeEl, driftOwnRetireAgeEl, driftGrowthEl].forEach(el => el.addEventListener('input', () => { renderDriftBudget(); updateDriftFiCard(); }));
+
+/* ================= ACCOUNT-TYPE HELP DIALOG ================= */
+const ACCOUNT_HELP = {
+  k401: {
+    title: "401(k) / 403(b) contribution",
+    what: "Your job's retirement plan — a locker where future-you keeps money that current-you isn't allowed to raid without a penalty.",
+    why: "Comes out before taxes, so Uncle Sam gets a smaller slice of every paycheck.",
+    how: "Automatic, no willpower required. 2026 max: $24,500/year (more if you're 50+).",
+    benefit: "Some employers match what you put in. That's free money. Free.",
+    recommendation: "At minimum, put in enough to get the full match — anything less and you're turning down a raise for no reason.",
+    link: "https://www.investopedia.com/terms/1/401kplan.asp"
+  },
+  cashBalance: {
+    title: "Cash balance / profit sharing",
+    what: "A bonus retirement plan some employers (medical practices especially) bolt onto your 401(k).",
+    why: "More retirement money, zero extra effort on your part.",
+    how: "Your employer funds it automatically. You don't pick the amount.",
+    benefit: "Grows tax-deferred, same deal as your 401(k).",
+    recommendation: "You can't steer this one — just don't forget it exists when you're adding up what you've actually got saved.",
+    link: "https://www.investopedia.com/terms/c/cashbalancepensionplan.asp"
+  },
+  traditionalIra: {
+    title: "Traditional IRA",
+    what: "A 401(k) you open yourself, no employer required.",
+    why: "Same tax deal — money now, tax bill later.",
+    how: "2026 limit: $7,500/year ($8,600 if you're 50+). Yes, you can have this and a 401(k) at the same time — they're separate limits, not one shared pool.",
+    benefit: "Extra tax-deferred room beyond your 401(k).",
+    recommendation: "Solid backup if your job has no 401(k), or you want more space beyond it. Heads up: if you already have a 401(k), your tax deduction here might shrink at higher incomes — you can still contribute either way, you just might not get the write-off.",
+    link: "https://www.investopedia.com/terms/t/traditionalira.asp"
+  },
+  rothIra: {
+    title: "Roth IRA",
+    what: "The Traditional IRA's rebellious twin.",
+    why: "Pay tax now, at today's rate, then never again — no matter how big this grows.",
+    how: "Shares the same $7,500/$8,600 limit as a Traditional IRA — one pool, not two. Also totally fine to have alongside a 401(k).",
+    benefit: "Every dollar of growth comes out 100% tax-free in retirement. That's the entire pitch.",
+    recommendation: "Usually a bigger win the earlier you are in your career — you're probably in a lower tax bracket now than you will be later.",
+    link: "https://www.investopedia.com/terms/r/rothira.asp"
+  },
+  brokerage: {
+    title: "Brokerage account",
+    what: "A normal investment account. No special tax perks, no special rules.",
+    why: "Total freedom — no contribution limit, no penalty, no \"wait till you're 59½.\"",
+    how: "Invest money you've already paid tax on. That's it.",
+    benefit: "Use it for literally anything, whenever you want.",
+    recommendation: "Good for non-retirement goals — a house down payment, or overflow once your tax-advantaged accounts are full.",
+    link: "https://www.investopedia.com/terms/b/brokerageaccount.asp"
+  },
+  hsa: {
+    title: "Invested HSA",
+    what: "A health savings account — a special account for medical costs that nobody talks about enough. You have to be enrolled in a high-deductible health plan (HDHP) to open one; not everyone qualifies.",
+    why: "The only account with a triple tax break: no tax going in, no tax growing, no tax coming out for medical stuff.",
+    how: "2026 limit: $4,400 solo, $8,750 family. \"Invested\" means you're not just letting the cash sit there — you're actually putting it into funds so it grows, same as a 401(k) would.",
+    benefit: "After 65, you can spend it on anything, not just medical — no penalty, it just becomes a regular retirement account.",
+    recommendation: "If you can stomach paying medical bills out of pocket now and leave this alone to grow, it's one of the best deals in the entire tax code.",
+    link: "https://www.investopedia.com/terms/h/hsa.asp"
+  },
+  pension: {
+    title: "Pension",
+    what: "A monthly check your employer promises you for life, based on salary and years worked.",
+    why: "Guaranteed income that couldn't care less what the stock market is doing.",
+    how: "Not something you manage — it's a formula, not an account.",
+    benefit: "Predictable money forever. The anti-stock-market.",
+    recommendation: "Ask HR for its estimated value and plug that number in here, so it actually counts toward your real retirement picture.",
+    link: "https://www.investopedia.com/terms/p/pensionplan.asp"
+  }
+};
+const accountHelpOverlayEl = document.getElementById('accountHelpOverlay');
+function openAccountHelp(key){
+  const info = ACCOUNT_HELP[key];
+  if(!info) return;
+  document.getElementById('accountHelpTitle').textContent = info.title;
+  document.getElementById('accountHelpWhat').textContent = info.what;
+  document.getElementById('accountHelpWhy').textContent = info.why;
+  document.getElementById('accountHelpHow').textContent = info.how;
+  document.getElementById('accountHelpBenefit').textContent = info.benefit;
+  document.getElementById('accountHelpRecommendation').textContent = info.recommendation;
+  document.getElementById('accountHelpLink').href = info.link;
+  accountHelpOverlayEl.classList.add('show');
+}
+function closeAccountHelp(){
+  accountHelpOverlayEl.classList.remove('show');
+}
+document.getElementById('accountHelpClose').addEventListener('click', closeAccountHelp);
+accountHelpOverlayEl.addEventListener('click', (e) => { if(e.target === accountHelpOverlayEl) closeAccountHelp(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAccountHelp(); });
 
 /* ================= LOAD FROM SHEET ================= */
 async function loadFromSheet(){
