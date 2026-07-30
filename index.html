@@ -562,6 +562,7 @@
       <div class="field"><label>Traditional IRA balance</label><input type="text" id="assetsIraInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Roth IRA balance</label><input type="text" id="assetsRothIraInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Brokerage account</label><input type="text" id="assetsBrokerageInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>High-yield savings</label><input type="text" id="assetsHysaInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="assetsHsaInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="assetsAltInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -746,6 +747,7 @@
       <div class="field"><label>Traditional IRA balance</label><input type="text" id="assetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Roth IRA balance</label><input type="text" id="assetsRothIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Brokerage account</label><input type="text" id="assetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>High-yield savings</label><input type="text" id="assetsHysaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="assetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays a monthly amount instead of a lump sum, leave this at 0 and add it as an income source in Step 3 instead.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="assetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1562,6 +1564,7 @@ let assets401kVal = 0;
 let assetsIraVal = 0;
 let assetsRothIraVal = 0;
 let assetsBrokerageVal = 0;
+let assetsHysaVal = 0;
 let assetsHsaVal = 0;
 let assetsPensionVal = 0;
 let assetsAltVal = 0;
@@ -1626,6 +1629,7 @@ const assets401kInputEl = document.getElementById('assets401kInput');
 const assetsIraInputEl = document.getElementById('assetsIraInput');
 const assetsRothIraInputEl = document.getElementById('assetsRothIraInput');
 const assetsBrokerageInputEl = document.getElementById('assetsBrokerageInput');
+const assetsHysaInputEl = document.getElementById('assetsHysaInput');
 const assetsHsaInputEl = document.getElementById('assetsHsaInput');
 const assetsPensionInputEl = document.getElementById('assetsPensionInput');
 const assetsAltInputEl = document.getElementById('assetsAltInput');
@@ -1633,6 +1637,7 @@ const assets401kInputAEl = document.getElementById('assets401kInputA');
 const assetsIraInputAEl = document.getElementById('assetsIraInputA');
 const assetsRothIraInputAEl = document.getElementById('assetsRothIraInputA');
 const assetsBrokerageInputAEl = document.getElementById('assetsBrokerageInputA');
+const assetsHysaInputAEl = document.getElementById('assetsHysaInputA');
 const assetsHsaInputAEl = document.getElementById('assetsHsaInputA');
 const assetsPensionInputAEl = document.getElementById('assetsPensionInputA');
 const assetsAltInputAEl = document.getElementById('assetsAltInputA');
@@ -1711,6 +1716,7 @@ function resetAllState(){
   assetsIraVal = 0;
   assetsRothIraVal = 0;
   assetsBrokerageVal = 0;
+  assetsHysaVal = 0;
   assetsHsaVal = 0;
   assetsPensionVal = 0;
   assetsAltVal = 0;
@@ -1764,6 +1770,7 @@ function resetAllState(){
   assetsIraInputEl.value = '';
   assetsRothIraInputEl.value = '';
   assetsBrokerageInputEl.value = '';
+  assetsHysaInputEl.value = '';
   assetsHsaInputEl.value = '';
   assetsPensionInputEl.value = '';
   assetsAltInputEl.value = '';
@@ -1771,6 +1778,7 @@ function resetAllState(){
   assetsIraInputAEl.value = '';
   assetsRothIraInputAEl.value = '';
   assetsBrokerageInputAEl.value = '';
+  assetsHysaInputAEl.value = '';
   assetsHsaInputAEl.value = '';
   assetsPensionInputAEl.value = '';
   assetsAltInputAEl.value = '';
@@ -3008,7 +3016,7 @@ function getEducationRequiredAnnual(){
 }
 
 function updateAssetsTotal(){
-  const sum = assets401kVal + assetsIraVal + assetsRothIraVal + assetsBrokerageVal + assetsHsaVal + assetsPensionVal + assetsAltVal + spouseAssets401kVal + spouseAssetsIraVal + spouseAssetsRothIraVal;
+  const sum = assets401kVal + assetsIraVal + assetsRothIraVal + assetsBrokerageVal + assetsHysaVal + assetsHsaVal + assetsPensionVal + assetsAltVal + spouseAssets401kVal + spouseAssetsIraVal + spouseAssetsRothIraVal;
   document.getElementById('assetsSubtotal').textContent = fmtMoney(sum);
   document.getElementById('assetsSubtotalA').textContent = fmtMoney(sum);
   currentSavingsVal = sum;
@@ -3314,7 +3322,7 @@ function computeBalanceSeries(includeExtra){
   // Three tax-treatment tiers, spent down in this order: taxable -> tax-deferred -> tax-free.
   // This mirrors how real retirees draw down (let tax-advantaged money keep compounding as
   // long as possible) and lets tax-deferred RMDs be forced out independent of spending need.
-  let taxableBal = assetsBrokerageVal + assetsAltVal;
+  let taxableBal = assetsBrokerageVal + assetsHysaVal + assetsAltVal;
   let taxDeferredBal = assets401kVal + assetsIraVal + assetsPensionVal + spouseAssets401kVal + spouseAssetsIraVal;
   let taxFreeBal = assetsRothIraVal + assetsHsaVal + spouseAssetsRothIraVal;
 
@@ -4745,6 +4753,7 @@ bindMoneyInput(assets401kInputEl, ()=>assets401kVal, (v)=>{assets401kVal=v; mirr
 bindMoneyInput(assetsIraInputEl, ()=>assetsIraVal, (v)=>{assetsIraVal=v; mirrorAssetValue(assetsIraInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsRothIraInputEl, ()=>assetsRothIraVal, (v)=>{assetsRothIraVal=v; mirrorAssetValue(assetsRothIraInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsBrokerageInputEl, ()=>assetsBrokerageVal, (v)=>{assetsBrokerageVal=v; mirrorAssetValue(assetsBrokerageInputAEl, v);}, onAssetsChange);
+bindMoneyInput(assetsHysaInputEl, ()=>assetsHysaVal, (v)=>{assetsHysaVal=v; mirrorAssetValue(assetsHysaInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsHsaInputEl, ()=>assetsHsaVal, (v)=>{assetsHsaVal=v; mirrorAssetValue(assetsHsaInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsPensionInputEl, ()=>assetsPensionVal, (v)=>{assetsPensionVal=v; mirrorAssetValue(assetsPensionInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsAltInputEl, ()=>assetsAltVal, (v)=>{assetsAltVal=v; mirrorAssetValue(assetsAltInputAEl, v);}, onAssetsChange);
@@ -4758,6 +4767,7 @@ bindMoneyInput(assets401kInputAEl, ()=>assets401kVal, (v)=>{assets401kVal=v; mir
 bindMoneyInput(assetsIraInputAEl, ()=>assetsIraVal, (v)=>{assetsIraVal=v; mirrorAssetValue(assetsIraInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsRothIraInputAEl, ()=>assetsRothIraVal, (v)=>{assetsRothIraVal=v; mirrorAssetValue(assetsRothIraInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsBrokerageInputAEl, ()=>assetsBrokerageVal, (v)=>{assetsBrokerageVal=v; mirrorAssetValue(assetsBrokerageInputEl, v);}, onAssetsChange);
+bindMoneyInput(assetsHysaInputAEl, ()=>assetsHysaVal, (v)=>{assetsHysaVal=v; mirrorAssetValue(assetsHysaInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsHsaInputAEl, ()=>assetsHsaVal, (v)=>{assetsHsaVal=v; mirrorAssetValue(assetsHsaInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsPensionInputAEl, ()=>assetsPensionVal, (v)=>{assetsPensionVal=v; mirrorAssetValue(assetsPensionInputEl, v);}, onAssetsChange);
 bindMoneyInput(assetsAltInputAEl, ()=>assetsAltVal, (v)=>{assetsAltVal=v; mirrorAssetValue(assetsAltInputEl, v);}, onAssetsChange);
