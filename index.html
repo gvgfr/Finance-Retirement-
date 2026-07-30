@@ -873,6 +873,45 @@
     <div class="plan-legend" id="balanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="balanceChartNote" style="margin-top:8px;">—</p>
 
+    <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--violet)"></span><b style="color:var(--paper);">NET WORTH CALCULATOR</b></div>
+    <p class="field-hint" style="margin-bottom:10px;">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
+
+    <div class="tax-card" style="margin-bottom:14px;grid-template-columns:1fr;">
+      <div><div class="tax-stat-label">Invested assets</div><div class="tax-stat-value" id="nwInvestedAssetsOut">$0</div></div>
+    </div>
+    <p class="field-hint" style="margin:-6px 0 14px;">Pulled from what you entered above — edit it there, not here.</p>
+
+    <div class="section-header first">
+      <span class="icon" style="background:rgba(124,58,237,0.12);color:var(--violet);">💰</span>
+      <span class="label">OTHER ASSETS</span>
+    </div>
+    <div class="plan-grid">
+      <div class="field"><label>Home value</label><input type="text" id="nwHomeValueInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Vehicle(s) value</label><input type="text" id="nwVehicleValueInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Cash & other assets</label><input type="text" id="nwOtherAssetsInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    </div>
+
+    <div class="section-header" style="margin-top:22px;">
+      <span class="icon" style="background:rgba(220,38,38,0.1);color:#DC2626;">💳</span>
+      <span class="label">LIABILITIES</span>
+    </div>
+    <div class="plan-grid">
+      <div class="field"><label>Mortgage balance</label><input type="text" id="nwMortgageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Auto loan balance</label><input type="text" id="nwAutoLoanInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Student loan balance</label><input type="text" id="nwStudentLoanInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Credit card debt</label><input type="text" id="nwCreditCardInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Other debt</label><input type="text" id="nwOtherDebtInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    </div>
+
+    <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-label">Your net worth</div>
+      <div class="fi-number" id="nwNetWorthNumber">$0</div>
+      <div class="fi-breakdown">
+        <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="nwTotalAssetsOut">$0</div></div>
+        <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="nwTotalLiabilitiesOut">$0</div></div>
+      </div>
+    </div>
+
     <div class="nav-row" style="margin-top:20px;">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
       <button class="btn btn-ghost" onclick="resetApp()">Start over</button>
@@ -1308,6 +1347,46 @@
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
 
     <p class="field-hint" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b style="color:var(--gold);" id="driftOwnGoalReminder">$0</b></p>
+
+    <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--violet)"></span><b style="color:var(--paper);">NET WORTH CALCULATOR</b></div>
+    <p class="field-hint" style="margin-bottom:10px;">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
+
+    <div class="tax-card" style="margin-bottom:14px;grid-template-columns:1fr;">
+      <div><div class="tax-stat-label">Invested assets</div><div class="tax-stat-value" id="driftNwInvestedAssetsOut">$0</div></div>
+    </div>
+    <p class="field-hint" style="margin:-6px 0 14px;">Pulled from what you entered above — edit it there, not here.</p>
+
+    <div class="section-header first">
+      <span class="icon" style="background:rgba(124,58,237,0.12);color:var(--violet);">💰</span>
+      <span class="label">OTHER ASSETS</span>
+    </div>
+    <div class="plan-grid">
+      <div class="field"><label>Home value</label><input type="text" id="driftNwHomeValueInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Vehicle(s) value</label><input type="text" id="driftNwVehicleValueInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Cash & other assets</label><input type="text" id="driftNwOtherAssetsInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    </div>
+
+    <div class="section-header" style="margin-top:22px;">
+      <span class="icon" style="background:rgba(220,38,38,0.1);color:#DC2626;">💳</span>
+      <span class="label">LIABILITIES</span>
+    </div>
+    <div class="plan-grid">
+      <div class="field"><label>Mortgage balance</label><input type="text" id="driftNwMortgageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Auto loan balance</label><input type="text" id="driftNwAutoLoanInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Student loan balance</label><input type="text" id="driftNwStudentLoanInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Credit card debt</label><input type="text" id="driftNwCreditCardInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>Other debt</label><input type="text" id="driftNwOtherDebtInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    </div>
+
+    <div class="fi-card" style="margin-top:20px;">
+      <div class="fi-label">Your net worth</div>
+      <div class="fi-number" id="driftNwNetWorthNumber">$0</div>
+      <div class="fi-breakdown">
+        <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="driftNwTotalAssetsOut">$0</div></div>
+        <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="driftNwTotalLiabilitiesOut">$0</div></div>
+      </div>
+    </div>
+
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
       <button class="btn btn-ghost" onclick="resetApp()">Start over</button>
@@ -1565,6 +1644,14 @@ let assetsIraVal = 0;
 let assetsRothIraVal = 0;
 let assetsBrokerageVal = 0;
 let assetsHysaVal = 0;
+let nwHomeValueVal = 0;
+let nwVehicleValueVal = 0;
+let nwOtherAssetsVal = 0;
+let nwMortgageVal = 0;
+let nwAutoLoanVal = 0;
+let nwStudentLoanVal = 0;
+let nwCreditCardVal = 0;
+let nwOtherDebtVal = 0;
 let assetsHsaVal = 0;
 let assetsPensionVal = 0;
 let assetsAltVal = 0;
@@ -1630,6 +1717,14 @@ const assetsIraInputEl = document.getElementById('assetsIraInput');
 const assetsRothIraInputEl = document.getElementById('assetsRothIraInput');
 const assetsBrokerageInputEl = document.getElementById('assetsBrokerageInput');
 const assetsHysaInputEl = document.getElementById('assetsHysaInput');
+const nwHomeValueInputEl = document.getElementById('nwHomeValueInput');
+const nwVehicleValueInputEl = document.getElementById('nwVehicleValueInput');
+const nwOtherAssetsInputEl = document.getElementById('nwOtherAssetsInput');
+const nwMortgageInputEl = document.getElementById('nwMortgageInput');
+const nwAutoLoanInputEl = document.getElementById('nwAutoLoanInput');
+const nwStudentLoanInputEl = document.getElementById('nwStudentLoanInput');
+const nwCreditCardInputEl = document.getElementById('nwCreditCardInput');
+const nwOtherDebtInputEl = document.getElementById('nwOtherDebtInput');
 const assetsHsaInputEl = document.getElementById('assetsHsaInput');
 const assetsPensionInputEl = document.getElementById('assetsPensionInput');
 const assetsAltInputEl = document.getElementById('assetsAltInput');
@@ -1718,6 +1813,14 @@ function resetAllState(){
   assetsBrokerageVal = 0;
   assetsHysaVal = 0;
   assetsHsaVal = 0;
+  nwHomeValueVal = 0;
+  nwVehicleValueVal = 0;
+  nwOtherAssetsVal = 0;
+  nwMortgageVal = 0;
+  nwAutoLoanVal = 0;
+  nwStudentLoanVal = 0;
+  nwCreditCardVal = 0;
+  nwOtherDebtVal = 0;
   assetsPensionVal = 0;
   assetsAltVal = 0;
   spouseAssets401kVal = 0;
@@ -1773,6 +1876,14 @@ function resetAllState(){
   assetsHysaInputEl.value = '';
   assetsHsaInputEl.value = '';
   assetsPensionInputEl.value = '';
+  nwHomeValueInputEl.value = '';
+  nwVehicleValueInputEl.value = '';
+  nwOtherAssetsInputEl.value = '';
+  nwMortgageInputEl.value = '';
+  nwAutoLoanInputEl.value = '';
+  nwStudentLoanInputEl.value = '';
+  nwCreditCardInputEl.value = '';
+  nwOtherDebtInputEl.value = '';
   assetsAltInputEl.value = '';
   assets401kInputAEl.value = '';
   assetsIraInputAEl.value = '';
@@ -1840,6 +1951,14 @@ function resetAllState(){
   driftAssetsHysaVal = 0;
   driftAssetsHsaVal = 0;
   driftAssetsPensionVal = 0;
+  driftNwHomeValueVal = 0;
+  driftNwVehicleValueVal = 0;
+  driftNwOtherAssetsVal = 0;
+  driftNwMortgageVal = 0;
+  driftNwAutoLoanVal = 0;
+  driftNwStudentLoanVal = 0;
+  driftNwCreditCardVal = 0;
+  driftNwOtherDebtVal = 0;
   driftAssetsAltVal = 0;
   driftSpouseAssets401kVal = 0;
   driftSpouseAssetsIraVal = 0;
@@ -1894,6 +2013,14 @@ function resetAllState(){
   driftAssetsHsaInputEl.value = '';
   driftAssetsPensionInputEl.value = '';
   driftAssetsAltInputEl.value = '';
+  driftNwHomeValueInputEl.value = '';
+  driftNwVehicleValueInputEl.value = '';
+  driftNwOtherAssetsInputEl.value = '';
+  driftNwMortgageInputEl.value = '';
+  driftNwAutoLoanInputEl.value = '';
+  driftNwStudentLoanInputEl.value = '';
+  driftNwCreditCardInputEl.value = '';
+  driftNwOtherDebtInputEl.value = '';
   driftSpouseAssets401kInputEl.value = '';
   driftSpouseAssetsIraInputEl.value = '';
   driftSpouseAssetsRothIraInputEl.value = '';
@@ -3022,6 +3149,19 @@ function updateAssetsTotal(){
   currentSavingsVal = sum;
   renderContribution();
   renderStep4();
+  updateNetWorth();
+}
+
+function updateNetWorth(){
+  const totalAssets = currentSavingsVal + nwHomeValueVal + nwVehicleValueVal + nwOtherAssetsVal;
+  const totalLiabilities = nwMortgageVal + nwAutoLoanVal + nwStudentLoanVal + nwCreditCardVal + nwOtherDebtVal;
+  const netWorth = totalAssets - totalLiabilities;
+  document.getElementById('nwInvestedAssetsOut').textContent = fmtMoney(currentSavingsVal);
+  document.getElementById('nwTotalAssetsOut').textContent = fmtMoney(totalAssets);
+  document.getElementById('nwTotalLiabilitiesOut').textContent = fmtMoney(totalLiabilities);
+  const nwEl = document.getElementById('nwNetWorthNumber');
+  nwEl.textContent = (netWorth < 0 ? '-' : '') + fmtMoney(Math.abs(netWorth));
+  nwEl.style.color = netWorth < 0 ? '#DC2626' : '#2563EB';
 }
 
 function updateEmergencyFund(){
@@ -3892,6 +4032,14 @@ let driftAssets401kVal = 0;
 let driftAssetsIraVal = 0;
 let driftAssetsRothIraVal = 0;
 let driftAssetsBrokerageVal = 0;
+let driftNwHomeValueVal = 0;
+let driftNwVehicleValueVal = 0;
+let driftNwOtherAssetsVal = 0;
+let driftNwMortgageVal = 0;
+let driftNwAutoLoanVal = 0;
+let driftNwStudentLoanVal = 0;
+let driftNwCreditCardVal = 0;
+let driftNwOtherDebtVal = 0;
 let driftAssetsHysaVal = 0;
 let driftAssetsHsaVal = 0;
 let driftAssetsPensionVal = 0;
@@ -3934,6 +4082,14 @@ const driftAssetsIraInputEl = document.getElementById('driftAssetsIraInput');
 const driftAssetsRothIraInputEl = document.getElementById('driftAssetsRothIraInput');
 const driftAssetsBrokerageInputEl = document.getElementById('driftAssetsBrokerageInput');
 const driftAssetsHysaInputEl = document.getElementById('driftAssetsHysaInput');
+const driftNwHomeValueInputEl = document.getElementById('driftNwHomeValueInput');
+const driftNwVehicleValueInputEl = document.getElementById('driftNwVehicleValueInput');
+const driftNwOtherAssetsInputEl = document.getElementById('driftNwOtherAssetsInput');
+const driftNwMortgageInputEl = document.getElementById('driftNwMortgageInput');
+const driftNwAutoLoanInputEl = document.getElementById('driftNwAutoLoanInput');
+const driftNwStudentLoanInputEl = document.getElementById('driftNwStudentLoanInput');
+const driftNwCreditCardInputEl = document.getElementById('driftNwCreditCardInput');
+const driftNwOtherDebtInputEl = document.getElementById('driftNwOtherDebtInput');
 const driftAssetsHsaInputEl = document.getElementById('driftAssetsHsaInput');
 const driftAssetsPensionInputEl = document.getElementById('driftAssetsPensionInput');
 const driftAssetsAltInputEl = document.getElementById('driftAssetsAltInput');
@@ -4195,6 +4351,19 @@ function driftUpdateAssetsTotal(){
   const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHysaVal + driftAssetsHsaVal + driftAssetsPensionVal + driftAssetsAltVal + driftSpouseAssets401kVal + driftSpouseAssetsIraVal + driftSpouseAssetsRothIraVal;
   document.getElementById('driftAssetsSubtotal').textContent = fmtMoney(sum);
   driftCurrentSavingsVal = sum;
+  updateDriftNetWorth();
+}
+
+function updateDriftNetWorth(){
+  const totalAssets = driftCurrentSavingsVal + driftNwHomeValueVal + driftNwVehicleValueVal + driftNwOtherAssetsVal;
+  const totalLiabilities = driftNwMortgageVal + driftNwAutoLoanVal + driftNwStudentLoanVal + driftNwCreditCardVal + driftNwOtherDebtVal;
+  const netWorth = totalAssets - totalLiabilities;
+  document.getElementById('driftNwInvestedAssetsOut').textContent = fmtMoney(driftCurrentSavingsVal);
+  document.getElementById('driftNwTotalAssetsOut').textContent = fmtMoney(totalAssets);
+  document.getElementById('driftNwTotalLiabilitiesOut').textContent = fmtMoney(totalLiabilities);
+  const nwEl = document.getElementById('driftNwNetWorthNumber');
+  nwEl.textContent = (netWorth < 0 ? '-' : '') + fmtMoney(Math.abs(netWorth));
+  nwEl.style.color = netWorth < 0 ? '#DC2626' : '#2563EB';
 }
 
 function driftUpdateEmergencyFund(){
@@ -4754,6 +4923,14 @@ bindMoneyInput(assetsIraInputEl, ()=>assetsIraVal, (v)=>{assetsIraVal=v; mirrorA
 bindMoneyInput(assetsRothIraInputEl, ()=>assetsRothIraVal, (v)=>{assetsRothIraVal=v; mirrorAssetValue(assetsRothIraInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsBrokerageInputEl, ()=>assetsBrokerageVal, (v)=>{assetsBrokerageVal=v; mirrorAssetValue(assetsBrokerageInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsHysaInputEl, ()=>assetsHysaVal, (v)=>{assetsHysaVal=v; mirrorAssetValue(assetsHysaInputAEl, v);}, onAssetsChange);
+bindMoneyInput(nwHomeValueInputEl, ()=>nwHomeValueVal, (v)=>{nwHomeValueVal=v;}, updateNetWorth);
+bindMoneyInput(nwVehicleValueInputEl, ()=>nwVehicleValueVal, (v)=>{nwVehicleValueVal=v;}, updateNetWorth);
+bindMoneyInput(nwOtherAssetsInputEl, ()=>nwOtherAssetsVal, (v)=>{nwOtherAssetsVal=v;}, updateNetWorth);
+bindMoneyInput(nwMortgageInputEl, ()=>nwMortgageVal, (v)=>{nwMortgageVal=v;}, updateNetWorth);
+bindMoneyInput(nwAutoLoanInputEl, ()=>nwAutoLoanVal, (v)=>{nwAutoLoanVal=v;}, updateNetWorth);
+bindMoneyInput(nwStudentLoanInputEl, ()=>nwStudentLoanVal, (v)=>{nwStudentLoanVal=v;}, updateNetWorth);
+bindMoneyInput(nwCreditCardInputEl, ()=>nwCreditCardVal, (v)=>{nwCreditCardVal=v;}, updateNetWorth);
+bindMoneyInput(nwOtherDebtInputEl, ()=>nwOtherDebtVal, (v)=>{nwOtherDebtVal=v;}, updateNetWorth);
 bindMoneyInput(assetsHsaInputEl, ()=>assetsHsaVal, (v)=>{assetsHsaVal=v; mirrorAssetValue(assetsHsaInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsPensionInputEl, ()=>assetsPensionVal, (v)=>{assetsPensionVal=v; mirrorAssetValue(assetsPensionInputAEl, v);}, onAssetsChange);
 bindMoneyInput(assetsAltInputEl, ()=>assetsAltVal, (v)=>{assetsAltVal=v; mirrorAssetValue(assetsAltInputAEl, v);}, onAssetsChange);
@@ -4871,6 +5048,14 @@ bindMoneyInput(driftAssetsIraInputEl, ()=>driftAssetsIraVal, (v)=>{driftAssetsIr
 bindMoneyInput(driftAssetsRothIraInputEl, ()=>driftAssetsRothIraVal, (v)=>{driftAssetsRothIraVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsBrokerageInputEl, ()=>driftAssetsBrokerageVal, (v)=>{driftAssetsBrokerageVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsHysaInputEl, ()=>driftAssetsHysaVal, (v)=>{driftAssetsHysaVal=v;}, onDriftAssetsChange);
+bindMoneyInput(driftNwHomeValueInputEl, ()=>driftNwHomeValueVal, (v)=>{driftNwHomeValueVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwVehicleValueInputEl, ()=>driftNwVehicleValueVal, (v)=>{driftNwVehicleValueVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwOtherAssetsInputEl, ()=>driftNwOtherAssetsVal, (v)=>{driftNwOtherAssetsVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwMortgageInputEl, ()=>driftNwMortgageVal, (v)=>{driftNwMortgageVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwAutoLoanInputEl, ()=>driftNwAutoLoanVal, (v)=>{driftNwAutoLoanVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwStudentLoanInputEl, ()=>driftNwStudentLoanVal, (v)=>{driftNwStudentLoanVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwCreditCardInputEl, ()=>driftNwCreditCardVal, (v)=>{driftNwCreditCardVal=v;}, updateDriftNetWorth);
+bindMoneyInput(driftNwOtherDebtInputEl, ()=>driftNwOtherDebtVal, (v)=>{driftNwOtherDebtVal=v;}, updateDriftNetWorth);
 bindMoneyInput(driftAssetsHsaInputEl, ()=>driftAssetsHsaVal, (v)=>{driftAssetsHsaVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsPensionInputEl, ()=>driftAssetsPensionVal, (v)=>{driftAssetsPensionVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsAltInputEl, ()=>driftAssetsAltVal, (v)=>{driftAssetsAltVal=v;}, onDriftAssetsChange);
