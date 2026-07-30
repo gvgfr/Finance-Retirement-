@@ -489,7 +489,7 @@
     <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income. <b style="color:var(--paper);">Retirement income</b> here directly reduces your retirement target below — watch the number change as you type. <b style="color:var(--paper);">Current income</b> only affects your take-home pay (see Step 4). Enter each source only once. Most sources start when you retire — only touch "starts at a different age" if one begins earlier or later (e.g. a pension starting at 65 when you retire at 60).</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
     <div class="cat-table" id="altRealEstateTable"></div>
     <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
 
@@ -904,8 +904,9 @@
     </div>
 
     <div class="fi-card" style="margin-top:20px;">
-      <div class="fi-label">Your net worth</div>
+      <div class="fi-label">Your net worth — as of today</div>
       <div class="fi-number" id="nwNetWorthNumber">$0</div>
+      <p class="field-hint" style="margin-top:2px;">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="nwTotalAssetsOut">$0</div></div>
         <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="nwTotalLiabilitiesOut">$0</div></div>
@@ -1085,7 +1086,7 @@
     <p class="field-hint" style="margin-top:18px;">Current income counts now, toward your take-home. Retirement income counts later, toward your target. Enter each source once — we'll use it in the right years.</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired.</p>
+    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
     <div class="cat-table" id="driftAltRealEstateTable"></div>
     <button class="add-cat-btn" id="addDriftAltRealEstateBtn">+ add property</button>
 
@@ -1379,8 +1380,9 @@
     </div>
 
     <div class="fi-card" style="margin-top:20px;">
-      <div class="fi-label">Your net worth</div>
+      <div class="fi-label">Your net worth — as of today</div>
       <div class="fi-number" id="driftNwNetWorthNumber">$0</div>
+      <p class="field-hint" style="margin-top:2px;">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="driftNwTotalAssetsOut">$0</div></div>
         <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="driftNwTotalLiabilitiesOut">$0</div></div>
@@ -2788,7 +2790,8 @@ function renderInvestmentTable(tableId, list, onChange){
   const table = document.getElementById(tableId);
   table.innerHTML = "";
 
-  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual){
+  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual, changeCallback){
+    changeCallback = changeCallback || onChange;
     const wrap = document.createElement('div');
 
     const heading = document.createElement('div');
@@ -2833,8 +2836,8 @@ function renderInvestmentTable(tableId, list, onChange){
     annualField.appendChild(annualLabel);
     annualField.appendChild(annualWrap);
 
-    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, onChange);
-    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, onChange);
+    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, changeCallback);
+    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, changeCallback);
 
     row.appendChild(monthlyField);
     row.appendChild(annualField);
@@ -2860,12 +2863,25 @@ function renderInvestmentTable(tableId, list, onChange){
     top.appendChild(nameInput);
     top.appendChild(delBtn);
 
-    const bottom1 = makeMonthlyAnnualRow('Current income (optional)', () => list[i].currentIncome, (v)=>{list[i].currentIncome=v;});
-    const bottom2 = makeMonthlyAnnualRow('Retirement income (optional)', () => list[i].retirementIncome, (v)=>{list[i].retirementIncome=v;});
+    const nudge = document.createElement('p');
+    nudge.className = 'field-hint';
+    nudge.style.cssText = 'color:var(--amber);margin:8px 0 0;display:none;';
+    nudge.textContent = "Will this continue in retirement? If so, enter the amount below — left blank, it's treated as $0 once you stop working.";
+    function updateNudge(){
+      const hasCurrent = (Number(list[i].currentIncome)||0) > 0;
+      const hasRetirement = (Number(list[i].retirementIncome)||0) > 0;
+      nudge.style.display = (hasCurrent && !hasRetirement) ? 'block' : 'none';
+    }
+    const notifyChange = () => { onChange(); updateNudge(); };
+
+    const bottom1 = makeMonthlyAnnualRow('Current income (optional)', () => list[i].currentIncome, (v)=>{list[i].currentIncome=v;}, notifyChange);
+    const bottom2 = makeMonthlyAnnualRow('Retirement income (optional)', () => list[i].retirementIncome, (v)=>{list[i].retirementIncome=v;}, notifyChange);
     bottom2.style.marginTop = '10px';
+    updateNudge();
 
     row.appendChild(top);
     row.appendChild(bottom1);
+    row.appendChild(nudge);
     row.appendChild(bottom2);
     table.appendChild(row);
   });
@@ -2885,7 +2901,8 @@ function renderIncomeSourceTable(tableId, types, onChange, opts){
   table.innerHTML = "";
   const items = incomeSourcesOfTypes(types);
 
-  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual){
+  function makeMonthlyAnnualRow(labelText, getAnnual, setAnnual, changeCallback){
+    changeCallback = changeCallback || onChange;
     const wrap = document.createElement('div');
     const heading = document.createElement('div');
     heading.className = 'cat-field-label';
@@ -2929,8 +2946,8 @@ function renderIncomeSourceTable(tableId, types, onChange, opts){
     annualField.appendChild(annualLabel);
     annualField.appendChild(annualWrap);
 
-    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, onChange);
-    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, onChange);
+    bindMoneyInput(annualInput, getAnnual, (v) => { setAnnual(v); monthlyInput.value = formatNum(Math.round(v/12)); }, changeCallback);
+    bindMoneyInput(monthlyInput, () => Math.round((getAnnual()||0)/12), (v) => { setAnnual(v*12); annualInput.value = formatNum(v*12); }, changeCallback);
 
     row.appendChild(monthlyField);
     row.appendChild(annualField);
@@ -3006,12 +3023,25 @@ function renderIncomeSourceTable(tableId, types, onChange, opts){
     });
     top.appendChild(delBtn);
 
-    const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; });
-    const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; });
+    const nudge = document.createElement('p');
+    nudge.className = 'field-hint';
+    nudge.style.cssText = 'color:var(--amber);margin:8px 0 0;display:none;';
+    nudge.textContent = "Will this continue in retirement? If so, enter the amount below — left blank, it's treated as $0 once you stop working.";
+    function updateNudge(){
+      const hasCurrent = (Number(item.currentAnnualIncome)||0) > 0;
+      const hasRetirement = (Number(item.retirementAnnualIncome)||0) > 0;
+      nudge.style.display = (hasCurrent && !hasRetirement) ? 'block' : 'none';
+    }
+    const notifyChange = () => { onChange(); updateNudge(); };
+
+    const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; }, notifyChange);
+    const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; }, notifyChange);
     bottom2.style.marginTop = '10px';
+    updateNudge();
 
     row.appendChild(top);
     row.appendChild(bottom1);
+    row.appendChild(nudge);
     row.appendChild(bottom2);
 
     // Retirement age already lives on Step 4 — every source defaults to starting/ending there,
