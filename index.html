@@ -553,12 +553,23 @@
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
       <div class="fi-number" id="fiNumber">$0</div>
-      <p class="fi-sub" id="fiTargetSub" data-simple="The total you need saved up, after Social Security covers part of it.">What you need to save, after accounting for what Social Security will cover</p>
-      <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Annual retirement spend</div><div class="fi-stat-value" id="fiAnnual">$0</div></div>
-        <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="fiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div><div class="fi-stat-value" id="fiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label" data-simple="You'll need this saved up after Social Security starts too">Savings needed after Social Security starts</div><div class="fi-stat-value" id="fiAfterSS">$0</div></div>
+      <p class="fi-sub" data-simple="Your savings target is split into two parts, based on when you'll need the money.">Your retirement target is divided into two savings buckets, based on when you'll need the money.</p>
+
+      <div style="margin-top:20px;">
+        <div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div>
+        <div class="fi-stat-value" id="fiBeforeSS" style="font-size:21px;">$0</div>
+        <p class="fi-sub" style="margin-top:4px;">This bucket covers your retirement expenses from retirement until Social Security begins.</p>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="fi-stat-label" data-simple="You'll need this saved up after Social Security starts too">Savings needed after Social Security starts</div>
+        <div class="fi-stat-value" id="fiAfterSS" style="font-size:21px;">$0</div>
+        <p class="fi-sub" style="margin-top:4px;">This bucket helps fund your retirement expenses after Social Security begins. Your Social Security benefits pay part of your expenses, and this savings bucket works alongside those benefits to fund the rest of your retirement.</p>
+      </div>
+
+      <div class="fi-breakdown" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
+        <div><div class="fi-stat-label">Annual retirement expenses</div><div class="fi-stat-value" id="fiAnnual">$0</div></div>
+        <div><div class="fi-stat-label">Social Security income (combined, monthly)</div><div class="fi-stat-value" id="fiSSMonthly">$0/mo</div></div>
       </div>
       <p class="field-hint" id="fiBridgeNote" style="margin-top:14px;">—</p>
     </div>
@@ -1250,12 +1261,23 @@
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
       <div class="fi-number" id="driftOwnFiNumber">$0</div>
-      <p class="fi-sub" id="driftFiTargetSub" data-simple="The total you need saved up, after Social Security covers part of it.">What you need to save, after accounting for what Social Security will cover</p>
-      <div class="fi-breakdown">
+      <p class="fi-sub" data-simple="Your savings target is split into two parts, based on when you'll need the money.">Your retirement target is divided into two savings buckets, based on when you'll need the money.</p>
+
+      <div style="margin-top:20px;">
+        <div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div>
+        <div class="fi-stat-value" id="driftFiBeforeSS" style="font-size:21px;">$0</div>
+        <p class="fi-sub" style="margin-top:4px;">This bucket covers your retirement expenses from retirement until Social Security begins.</p>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="fi-stat-label" data-simple="You'll need this saved up after Social Security starts too">Savings needed after Social Security starts</div>
+        <div class="fi-stat-value" id="driftFiAfterSS" style="font-size:21px;">$0</div>
+        <p class="fi-sub" style="margin-top:4px;">This bucket helps fund your retirement expenses after Social Security begins. Your Social Security benefits pay part of your expenses, and this savings bucket works alongside those benefits to fund the rest of your retirement.</p>
+      </div>
+
+      <div class="fi-breakdown" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
         <div><div class="fi-stat-label">Annual retirement expenses</div><div class="fi-stat-value" id="driftOwnFiAnnual">$0</div></div>
-        <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="driftOwnFiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label" data-simple="You'll need this saved up before Social Security starts">Savings needed before Social Security starts</div><div class="fi-stat-value" id="driftFiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label" data-simple="You'll need this saved up after Social Security starts too">Savings needed after Social Security starts</div><div class="fi-stat-value" id="driftFiAfterSS">$0</div></div>
+        <div><div class="fi-stat-label">Social Security income (combined, monthly)</div><div class="fi-stat-value" id="driftOwnFiSSMonthly">$0/mo</div></div>
       </div>
       <p class="field-hint" id="driftOwnFiBridgeNote" style="margin-top:14px;">—</p>
     </div>
@@ -2609,35 +2631,23 @@ function updateFiCard(){
   const phaseBreak = retirementTargetPhaseBreakdown(retireAge);
   document.getElementById('fiBeforeSS').textContent = fmtMoney(phaseBreak.beforeSS);
   document.getElementById('fiAfterSS').textContent = fmtMoney(phaseBreak.afterSS);
-  const planTaxPct = Math.round(Number(withdrawalTaxPctEl.value)||0);
-  document.getElementById('fiTargetSub').textContent = simpleText(
-    `What you need to save, after accounting for what Social Security will cover and a ${planTaxPct}% assumed tax on withdrawals`,
-    `The total you need saved up, after Social Security and taxes take their share`
-  );
-  // Plain-English, 8th-grade-level explanation of the pre/post-SS split, in one of five
-  // versions depending on how Social Security is being claimed (solo vs. spouse, gap vs. no
-  // gap, same vs. staggered claiming ages) -- only one of the five is ever shown at once. Uses
-  // the real entered $ amount; when it's still $0 (not entered yet), swaps in a line that says
-  // so instead of the old self-contradictory "$0/mo covers part of your spending."
+  // Plain-English explanation of the retiree's specific timeline and why there are two investing
+  // styles above -- one of five versions depending on how Social Security is being claimed (solo
+  // vs. spouse, gap vs. no gap, same vs. staggered claiming ages); only one is ever shown at once.
+  // Doesn't restate what each bucket is for or that SS covers part of expenses -- the two bucket
+  // blocks above already say that -- so this no longer needs an SS-entered/not-entered split.
   const note = document.getElementById('fiBridgeNote');
-  const ssEntered = combinedSSMonthly > 0;
 
   if(!hasSpouseSS()){
     const years = bridgeYears();
     if(years > 0){
-      const p1 = `You're planning to retire at ${retireAge}. Social Security won't start until ${socialSecurityClaimAge()}, so there's a ${years}-year stretch where your savings have to cover everything on their own.`;
-      const p2 = ssEntered
-        ? `After that, it covers ${fmtMoney(combinedSSMonthly)} a month, so your savings only need to cover what's left.`
-        : `After that, it'll cover part of the cost — add your expected amount above to see how much. For now, this treats it as $0.`;
-      const p3 = `That's why you see two investing styles above. The money for those first ${years} years is kept safer, since you'll need to spend it soon. The money for later stays invested for growth, since it has time to ride out ups and downs before you touch it.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p1 = `You're planning to retire at ${retireAge}. Social Security won't start until ${socialSecurityClaimAge()}, so there's a ${years}-year stretch where your savings cover your expenses on their own.`;
+      const p2 = `That's why you see two investing styles above. The money for those first ${years} years is kept safer, since you'll need to spend it soon. The money for later stays invested for growth, since it has time to ride out ups and downs before you touch it.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     } else {
       const p1 = `You're planning to retire at ${retireAge}, at or after your Social Security claiming age of ${socialSecurityClaimAge()} — so it's already paying from day one.`;
-      const p2 = ssEntered
-        ? `It covers ${fmtMoney(combinedSSMonthly)} a month right away, and your savings cover the rest.`
-        : `Add your expected amount above to see how much it'll cover — for now this treats it as $0.`;
-      const p3 = `Since it's covering part of your spending from the start, your savings can stay invested for growth the whole time instead of being split into a safer, near-term chunk.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p2 = `Since it's covering part of your expenses from the start, your savings can stay invested for growth the whole time instead of being split into a safer, near-term chunk.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     }
   } else {
     const claim1 = Math.min(socialSecurityClaimAge(), spouseSSClaimAge());
@@ -2645,27 +2655,18 @@ function updateFiCard(){
     const totalYears = Math.max(0, claim2 - retireAge);
     if(claim1 === claim2){
       if(totalYears > 0){
-        const p1 = `You're planning to retire at ${retireAge}. You and your spouse both start Social Security at ${claim1}, so there's a ${totalYears}-year stretch where your savings cover everything alone.`;
-        const p2 = ssEntered
-          ? `After that, your combined checks cover ${fmtMoney(combinedSSMonthly)} a month, so your savings only need to cover what's left.`
-          : `After that, your checks will cover part of the cost — add your expected amounts above to see how much. For now, this treats it as $0.`;
-        const p3 = `That's why you see two investing styles above. The money for those first ${totalYears} years is kept safer, since you'll need to spend it soon. The money for later stays invested for growth, since it has time to ride out ups and downs before you touch it.`;
-        note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+        const p1 = `You're planning to retire at ${retireAge}. You and your spouse both start Social Security at ${claim1}, so there's a ${totalYears}-year stretch where your savings cover your expenses alone.`;
+        const p2 = `That's why you see two investing styles above. The money for those first ${totalYears} years is kept safer, since you'll need to spend it soon. The money for later stays invested for growth, since it has time to ride out ups and downs before you touch it.`;
+        note.innerHTML = `${p1}<br><br>${p2}`;
       } else {
         const p1 = `You're planning to retire at ${retireAge}, at or after both your claiming ages of ${claim1} — so your checks are already coming in from day one.`;
-        const p2 = ssEntered
-          ? `Combined, they cover ${fmtMoney(combinedSSMonthly)} a month, and your savings cover the rest.`
-          : `Add your expected amounts above to see how much they'll cover — for now this treats it as $0.`;
-        const p3 = `Since they're covering part of your spending from the start, your savings can stay invested for growth the whole time instead of being split into a safer, near-term chunk.`;
-        note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+        const p2 = `Since they're covering part of your expenses from the start, your savings can stay invested for growth the whole time instead of being split into a safer, near-term chunk.`;
+        note.innerHTML = `${p1}<br><br>${p2}`;
       }
     } else {
-      const p1 = `You're planning to retire at ${retireAge}. One Social Security check starts at ${claim1}, the other at ${claim2}.`;
-      const p2 = ssEntered
-        ? `Your savings cover everything alone until ${claim1}. One check helps from ${claim1} to ${claim2}. From ${claim2} on, both do — together covering ${fmtMoney(combinedSSMonthly)} a month.`
-        : `Your savings cover everything alone until ${claim1}, then one check helps, then both do starting at ${claim2}. Add your expected amounts above to see how much they'll cover.`;
-      const p3 = `That's why you see two investing styles above: safer for money you'll need soon, more growth-focused for money that has years to ride out the ups and downs.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p1 = `You're planning to retire at ${retireAge}. One Social Security check starts at ${claim1}, the other at ${claim2}. Your savings cover your expenses alone until ${claim1}, then one check helps, then both do from ${claim2} on.`;
+      const p2 = `That's why you see two investing styles above: safer for money you'll need soon, more growth-focused for money that has years to ride out the ups and downs.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     }
   }
 }
@@ -4405,33 +4406,22 @@ function updateDriftFiCard(){
   const driftPhaseBreak = driftRetirementTargetPhaseBreakdown(retireAge);
   document.getElementById('driftFiBeforeSS').textContent = fmtMoney(driftPhaseBreak.beforeSS);
   document.getElementById('driftFiAfterSS').textContent = fmtMoney(driftPhaseBreak.afterSS);
-  const driftTaxPct = Math.round(Number(driftWithdrawalTaxPctEl.value)||0);
-  document.getElementById('driftFiTargetSub').textContent = simpleText(
-    `What you need to save, after accounting for what Social Security will cover and a ${driftTaxPct}% assumed tax on withdrawals`,
-    `The total you need saved up, after Social Security and taxes take their share`
-  );
-  // Plain-English, 8th-grade-level explanation of the pre/post-SS split -- see the matching
-  // comment in updateFiCard() for the five-branch / real-$-amount / $0-fallback logic. Same
-  // structure, kept in Drift's own punchier voice rather than Main's.
+  // Plain-English explanation of the retiree's specific timeline and why there are two investing
+  // styles above -- see the matching comment in updateFiCard() for the five-branch logic. Same
+  // structure, kept in Drift's own punchier voice rather than Main's. No longer restates what
+  // each bucket is for or that SS covers part of expenses -- the two bucket blocks above do that.
   const note = document.getElementById('driftOwnFiBridgeNote');
-  const ssEntered = combinedSSMonthly > 0;
 
   if(!driftHasSpouseSS()){
     const years = driftBridgeYears();
     if(years > 0){
       const p1 = `You're retiring at ${retireAge}. Social Security doesn't start till ${driftSocialSecurityClaimAge()} — that's ${years} years your savings carry alone.`;
-      const p2 = ssEntered
-        ? `After that, it chips in ${fmtMoney(combinedSSMonthly)} a month, and your savings cover the rest.`
-        : `After that, it'll chip in part of the cost — add your expected amount above to see how much. For now, this treats it as $0.`;
-      const p3 = `That's why the two investing styles above differ: conservative for the first ${years} years since you'll spend that money soon, growth-focused for the rest since it has time to ride out the ups and downs.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p2 = `That's why the two investing styles above differ: conservative for the first ${years} years since you'll spend that money soon, growth-focused for the rest since it has time to ride out the ups and downs.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     } else {
       const p1 = `You're retiring at ${retireAge}, on or after your claiming age of ${driftSocialSecurityClaimAge()} — so Social Security is already paying from day one.`;
-      const p2 = ssEntered
-        ? `It chips in ${fmtMoney(combinedSSMonthly)} a month right away, and your savings cover the rest.`
-        : `Add your expected amount above to see how much it'll chip in — for now this treats it as $0.`;
-      const p3 = `Since it's covering part of your spending from day one, your savings can stay growth-focused the whole time instead of splitting into a safer near-term chunk.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p2 = `Since it's covering part of your expenses from day one, your savings can stay growth-focused the whole time instead of splitting into a safer near-term chunk.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     }
   } else {
     const claim1 = Math.min(driftSocialSecurityClaimAge(), driftSpouseSSClaimAge());
@@ -4440,26 +4430,17 @@ function updateDriftFiCard(){
     if(claim1 === claim2){
       if(totalYears > 0){
         const p1 = `You're retiring at ${retireAge}. You both claim at ${claim1} — that's ${totalYears} years your savings carry solo.`;
-        const p2 = ssEntered
-          ? `After that, your combined checks add ${fmtMoney(combinedSSMonthly)} a month, and your savings cover the rest.`
-          : `After that, your checks will chip in part of the cost — add your expected amounts above to see how much. For now, this treats it as $0.`;
-        const p3 = `That's why the two investing styles above differ: conservative for the first ${totalYears} years since you'll spend that money soon, growth-focused for the rest since it has time to ride out the ups and downs.`;
-        note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+        const p2 = `That's why the two investing styles above differ: conservative for the first ${totalYears} years since you'll spend that money soon, growth-focused for the rest since it has time to ride out the ups and downs.`;
+        note.innerHTML = `${p1}<br><br>${p2}`;
       } else {
         const p1 = `You're retiring at ${retireAge}, on or after both your claiming ages of ${claim1} — so your checks are already coming in from day one.`;
-        const p2 = ssEntered
-          ? `Combined, they add ${fmtMoney(combinedSSMonthly)} a month, and your savings cover the rest.`
-          : `Add your expected amounts above to see how much they'll add — for now this treats it as $0.`;
-        const p3 = `Since they're covering part of your spending from day one, your savings can stay growth-focused the whole time instead of splitting into a safer near-term chunk.`;
-        note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+        const p2 = `Since they're covering part of your expenses from day one, your savings can stay growth-focused the whole time instead of splitting into a safer near-term chunk.`;
+        note.innerHTML = `${p1}<br><br>${p2}`;
       }
     } else {
-      const p1 = `You're retiring at ${retireAge}. One check starts at ${claim1}, the other at ${claim2}.`;
-      const p2 = ssEntered
-        ? `Your savings carry everything solo until ${claim1}. One check helps from ${claim1} to ${claim2}. From ${claim2} on, both do — together adding ${fmtMoney(combinedSSMonthly)} a month.`
-        : `Your savings carry everything solo until ${claim1}, then one check helps, then both do starting at ${claim2}. Add your expected amounts above to see how much they'll add.`;
-      const p3 = `That's why the two investing styles above differ: conservative for money you'll spend soon, growth-focused for money with years left to compound.`;
-      note.innerHTML = `${p1}<br><br>${p2}<br><br>${p3}`;
+      const p1 = `You're retiring at ${retireAge}. One check starts at ${claim1}, the other at ${claim2}. Your savings carry everything solo until ${claim1}, then one check helps, then both do from ${claim2} on.`;
+      const p2 = `That's why the two investing styles above differ: conservative for money you'll spend soon, growth-focused for money with years left to compound.`;
+      note.innerHTML = `${p1}<br><br>${p2}`;
     }
   }
   driftSyncTarget();
