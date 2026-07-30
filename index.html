@@ -1031,6 +1031,7 @@
       <div class="field"><label>Traditional IRA balance <button type="button" class="help-trigger" aria-label="What is a Traditional IRA?" onclick="openAccountHelp('traditionalIra')">?</button></label><input type="text" id="driftAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Roth IRA balance <button type="button" class="help-trigger" aria-label="What is a Roth IRA?" onclick="openAccountHelp('rothIra')">?</button></label><input type="text" id="driftAssetsRothIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Brokerage account <button type="button" class="help-trigger" aria-label="What is a brokerage account?" onclick="openAccountHelp('brokerage')">?</button></label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+      <div class="field"><label>High-yield savings</label><input type="text" id="driftAssetsHysaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Getting a monthly check instead of a lump sum? Leave this at 0 and add it as income in the next steps. Tap the ? for the rest.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="driftAssetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1401,6 +1402,7 @@ const DEFAULT_CURRENT_NEEDS = [
   { icon: "📉", name: "Investment/margin loan payment", annual: 0 },
   { icon: "💵", name: "Other loan payment",         annual: 0     },
   { icon: "📱", name: "Phone & internet",          annual: 1500  },
+  { icon: "🔁", name: "Subscriptions (streaming, software, memberships, etc.)", annual: 0 },
   { icon: "🧸", name: "Childcare / daycare",       annual: 0     },
   { icon: "⚽", name: "Kids' activities & sports", annual: 0     },
   { icon: "🏋️", name: "Sports & fitness (gym, leagues, gear)", annual: 0 }
@@ -1827,6 +1829,7 @@ function resetAllState(){
   driftAssetsIraVal = 0;
   driftAssetsRothIraVal = 0;
   driftAssetsBrokerageVal = 0;
+  driftAssetsHysaVal = 0;
   driftAssetsHsaVal = 0;
   driftAssetsPensionVal = 0;
   driftAssetsAltVal = 0;
@@ -1879,6 +1882,7 @@ function resetAllState(){
   driftAssetsIraInputEl.value = '';
   driftAssetsRothIraInputEl.value = '';
   driftAssetsBrokerageInputEl.value = '';
+  driftAssetsHysaInputEl.value = '';
   driftAssetsHsaInputEl.value = '';
   driftAssetsPensionInputEl.value = '';
   driftAssetsAltInputEl.value = '';
@@ -3880,6 +3884,7 @@ let driftAssets401kVal = 0;
 let driftAssetsIraVal = 0;
 let driftAssetsRothIraVal = 0;
 let driftAssetsBrokerageVal = 0;
+let driftAssetsHysaVal = 0;
 let driftAssetsHsaVal = 0;
 let driftAssetsPensionVal = 0;
 let driftAssetsAltVal = 0;
@@ -3920,6 +3925,7 @@ const driftAssets401kInputEl = document.getElementById('driftAssets401kInput');
 const driftAssetsIraInputEl = document.getElementById('driftAssetsIraInput');
 const driftAssetsRothIraInputEl = document.getElementById('driftAssetsRothIraInput');
 const driftAssetsBrokerageInputEl = document.getElementById('driftAssetsBrokerageInput');
+const driftAssetsHysaInputEl = document.getElementById('driftAssetsHysaInput');
 const driftAssetsHsaInputEl = document.getElementById('driftAssetsHsaInput');
 const driftAssetsPensionInputEl = document.getElementById('driftAssetsPensionInput');
 const driftAssetsAltInputEl = document.getElementById('driftAssetsAltInput');
@@ -4178,7 +4184,7 @@ function renderDriftAltAnnuities(){ renderInvestmentTable('driftAltAnnuitiesTabl
 function renderDriftAltOtherIncome(){ renderInvestmentTable('driftAltOtherIncomeTable', driftAltOtherIncome, renderDriftBudget); }
 
 function driftUpdateAssetsTotal(){
-  const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHsaVal + driftAssetsPensionVal + driftAssetsAltVal + driftSpouseAssets401kVal + driftSpouseAssetsIraVal + driftSpouseAssetsRothIraVal;
+  const sum = driftAssets401kVal + driftAssetsIraVal + driftAssetsRothIraVal + driftAssetsBrokerageVal + driftAssetsHysaVal + driftAssetsHsaVal + driftAssetsPensionVal + driftAssetsAltVal + driftSpouseAssets401kVal + driftSpouseAssetsIraVal + driftSpouseAssetsRothIraVal;
   document.getElementById('driftAssetsSubtotal').textContent = fmtMoney(sum);
   driftCurrentSavingsVal = sum;
 }
@@ -4406,7 +4412,7 @@ function driftComputeBalanceSeries(includeExtra){
     claim1Age = driftSocialSecurityClaimAge(); claim2Age = driftSocialSecurityClaimAge();
     benefit1 = ssAmt; benefit2 = 0;
   }
-  let taxableBal = driftAssetsBrokerageVal + driftAssetsAltVal;
+  let taxableBal = driftAssetsBrokerageVal + driftAssetsHysaVal + driftAssetsAltVal;
   let taxDeferredBal = driftAssets401kVal + driftAssetsIraVal + driftAssetsPensionVal + driftSpouseAssets401kVal + driftSpouseAssetsIraVal;
   let taxFreeBal = driftAssetsRothIraVal + driftAssetsHsaVal + driftSpouseAssetsRothIraVal;
 
@@ -4854,6 +4860,7 @@ bindMoneyInput(driftAssets401kInputEl, ()=>driftAssets401kVal, (v)=>{driftAssets
 bindMoneyInput(driftAssetsIraInputEl, ()=>driftAssetsIraVal, (v)=>{driftAssetsIraVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsRothIraInputEl, ()=>driftAssetsRothIraVal, (v)=>{driftAssetsRothIraVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsBrokerageInputEl, ()=>driftAssetsBrokerageVal, (v)=>{driftAssetsBrokerageVal=v;}, onDriftAssetsChange);
+bindMoneyInput(driftAssetsHysaInputEl, ()=>driftAssetsHysaVal, (v)=>{driftAssetsHysaVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsHsaInputEl, ()=>driftAssetsHsaVal, (v)=>{driftAssetsHsaVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsPensionInputEl, ()=>driftAssetsPensionVal, (v)=>{driftAssetsPensionVal=v;}, onDriftAssetsChange);
 bindMoneyInput(driftAssetsAltInputEl, ()=>driftAssetsAltVal, (v)=>{driftAssetsAltVal=v;}, onDriftAssetsChange);
