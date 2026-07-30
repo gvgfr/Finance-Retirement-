@@ -31,7 +31,7 @@
     background: radial-gradient(ellipse at 50% -10%, rgba(5,150,105,0.05), transparent 55%), var(--bg);
     color:var(--paper); font-family:'Inter',sans-serif; min-height:100vh;
   }
-  .wrap{max-width:640px;margin:0 auto;padding:32px 18px 90px;}
+  .wrap{max-width:640px;margin:0 auto;padding:70px 18px 90px;}
   .eyebrow{
     font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.1em;
     text-transform:uppercase;color:var(--paper);display:flex;align-items:center;gap:8px;margin-bottom:14px;
@@ -344,9 +344,34 @@
     font-weight:700;color:var(--gold);text-decoration:none;border-top:1px solid var(--line);padding-top:14px;width:100%;
   }
   .help-modal-link:hover{text-decoration:underline;}
+
+  .simple-toggle-bar{
+    position:fixed; top:0; left:0; right:0; z-index:60;
+    background:var(--bg-card); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:flex-end; gap:8px;
+    padding:9px 18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  }
+  .simple-toggle-bar label{display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--paper);user-select:none;}
+  .simple-switch{position:relative;width:34px;height:19px;flex-shrink:0;}
+  .simple-switch input{opacity:0;width:0;height:0;position:absolute;}
+  .simple-switch .track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:background .15s;}
+  .simple-switch .thumb{position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,0.25);}
+  .simple-switch input:checked + .track{background:var(--teal);}
+  .simple-switch input:checked + .track .thumb{transform:translateX(15px);}
 </style>
 </head>
 <body>
+<!-- Fixed top bar toggling Simple Mode: swaps every [data-simple] element's content for a
+     plain-English version, everywhere in the app, without navigating away from the step you're on. -->
+<div class="simple-toggle-bar">
+  <label for="simpleModeToggle">
+    <span class="simple-switch">
+      <input type="checkbox" id="simpleModeToggle">
+      <span class="track"><span class="thumb"></span></span>
+    </span>
+    Simple mode
+  </label>
+</div>
 <!-- Fixed bottom bar mirroring whatever Back/Next buttons the active step's own nav-row has,
      so you can move between steps from anywhere on a long page without scrolling down first. -->
 <div class="sticky-nav" id="stickyNav">
@@ -358,19 +383,19 @@
   <!-- STEP 0: TEASER -->
   <div class="step active" data-step="0">
     <div class="eyebrow">Kaasu · are you ready?</div>
-    <h1>What could your money make <em>possible</em>?</h1>
-    <p class="sub">See how today's spending and saving choices can create more freedom, flexibility, and options in the future.</p>
+    <h1 data-simple="Could your money get you the life you actually want?">What could your money make <em>possible</em>?</h1>
+    <p class="sub" data-simple="See how the choices you make about spending and saving today could change your future.">See how today's spending and saving choices can create more freedom, flexibility, and options in the future.</p>
 
     <div class="duo-grid">
       <div class="duo-card plan" onclick="startPath('plan')" style="cursor:pointer;">
         <div class="duo-label">Ready to retire?</div>
         <div class="duo-number" style="font-size:clamp(17px,5.5vw,22px);">Build your retirement plan</div>
-        <div class="duo-caption">See what you may need, whether you are on track, and how much to invest each month.</div>
+        <div class="duo-caption" data-simple="Find out how much money you'll need, whether you're on track, and how much to save each month.">See what you may need, whether you are on track, and how much to invest each month.</div>
       </div>
       <div class="duo-card drift" onclick="startPath('drift')" style="cursor:pointer;">
         <div class="duo-label">Start with today</div>
         <div class="duo-number" style="font-size:clamp(17px,5.5vw,22px);">See where you're headed</div>
-        <div class="duo-caption">New to the workforce, or just starting out? Explore how your current saving and spending habits could shape your future freedom.</div>
+        <div class="duo-caption" data-simple="Just starting out? See how your saving and spending habits today could shape your future.">New to the workforce, or just starting out? Explore how your current saving and spending habits could shape your future freedom.</div>
       </div>
     </div>
 
@@ -383,15 +408,15 @@
 
   <!-- STEP 1: ESSENTIAL RETIREMENT SPENDING -->
   <div class="step" data-step="1">
-    <div class="eyebrow">Retirement budget</div>
-    <h2>How much will you <em>spend</em> in retirement?</h2>
-    <p class="sub">First, the essentials — the costs of everyday life once you've stopped working. Not today's budget. Mortgage is often gone by 60, but healthcare usually rises.</p>
+    <div class="eyebrow" data-simple="Your retirement budget">Retirement budget</div>
+    <h2 data-simple="How much will you &lt;em&gt;spend&lt;/em&gt; once you retire?">How much will you <em>spend</em> in retirement?</h2>
+    <p class="sub" data-simple="Start with the essentials — what everyday life costs once you've stopped working. Not what you spend today. Your mortgage is often paid off by 60, but healthcare usually costs more.">First, the essentials — the costs of everyday life once you've stopped working. Not today's budget. Mortgage is often gone by 60, but healthcare usually rises.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Your age now</label><input type="number" id="planStartCurrentAge" min="0" step="1"></div>
       <div class="field"><label>Age you want to retire</label><input type="number" id="planStartRetireAge" min="0" step="1"></div>
     </div>
-    <p class="field-hint" style="margin:6px 0 20px;">We ask this first because it feeds everything downstream — including how much you'll need to cover yourself before Social Security starts, a couple steps from now.</p>
+    <p class="field-hint" style="margin:6px 0 20px;" data-simple="We ask this first because everything else builds on it — including how much you'll need to cover yourself before Social Security kicks in, coming up in a couple steps.">We ask this first because it feeds everything downstream — including how much you'll need to cover yourself before Social Security starts, a couple steps from now.</p>
 
     <div class="cat-table" id="essentialTable"></div>
     <button class="add-cat-btn" id="addEssentialBtn">+ add category</button>
@@ -408,9 +433,9 @@
 
   <!-- STEP 2: LIFESTYLE & TRAVEL -->
   <div class="step" data-step="2">
-    <div class="eyebrow">Retirement budget</div>
-    <h2>What's your retirement <em>lifestyle</em>?</h2>
-    <p class="sub">Now the fun part — travel, hobbies, the life you're retiring into. This usually goes up, not down, once you have the free time for it.</p>
+    <div class="eyebrow" data-simple="Your retirement budget">Retirement budget</div>
+    <h2 data-simple="What do you want retirement to &lt;em&gt;look like&lt;/em&gt;?">What's your retirement <em>lifestyle</em>?</h2>
+    <p class="sub" data-simple="Now the fun part — travel, hobbies, whatever you picture retirement being. This usually goes UP once you have the free time for it, not down.">Now the fun part — travel, hobbies, the life you're retiring into. This usually goes up, not down, once you have the free time for it.</p>
 
     <div class="cat-table" id="lifestyleTable"></div>
     <button class="add-cat-btn" id="addLifestyleBtn">+ add category</button>
@@ -429,8 +454,8 @@
   <!-- STEP 3: NEST EGG -->
   <div class="step" data-step="3">
     <div class="eyebrow">Your target</div>
-    <h2>What's your <em>nest egg</em> target?</h2>
-    <p class="sub">How much you need to save — accounting for Social Security and any other retirement income you add below.</p>
+    <h2 data-simple="How much money do you need saved up?">What's your <em>nest egg</em> target?</h2>
+    <p class="sub" data-simple="The total amount you need saved — after we count Social Security and any other income you add below.">How much you need to save — accounting for Social Security and any other retirement income you add below.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Before Social Security starts</label>
@@ -440,7 +465,7 @@
           <option value="balanced">Balanced — a mix of stocks and bonds</option>
           <option value="growth">Growth-focused — mostly stocks</option>
         </select>
-        <span class="field-hint">Money you'll need soon is usually kept more conservative.</span>
+        <span class="field-hint" data-simple="Money you'll need soon should be kept safer, not in risky investments.">Money you'll need soon is usually kept more conservative.</span>
       </div>
       <div class="field"><label>After Social Security starts</label>
         <select id="longtermStyle">
@@ -449,9 +474,9 @@
           <option value="balanced" selected>Balanced — a mix of stocks and bonds</option>
           <option value="growth">Growth-focused — mostly stocks</option>
         </select>
-        <span class="field-hint">Money with decades to grow can usually afford more risk.</span>
+        <span class="field-hint" data-simple="Money you won't touch for decades can handle more risk (like stocks), since it has time to recover if it drops.">Money with decades to grow can usually afford more risk.</span>
       </div>
-      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="withdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint">Withdrawals from pre-tax accounts (401(k), traditional IRA) are taxed as income when you take them out — this isn't extra spending money, it inflates how much you need to withdraw. 15% is a rough starting point for many retirees; go lower if most of your savings are Roth, higher if most are pre-tax and you expect a higher tax bracket.</span></div>
+      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="withdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint" data-simple="When you pull money out of accounts like a 401(k), the IRS still taxes it — so you'll need to take out a bit more than you plan to spend. 15% is a decent guess for most people; go lower if most of your savings are Roth (already taxed), higher if most are pre-tax.">Withdrawals from pre-tax accounts (401(k), traditional IRA) are taxed as income when you take them out — this isn't extra spending money, it inflates how much you need to withdraw. 15% is a rough starting point for many retirees; go lower if most of your savings are Roth, higher if most are pre-tax and you expect a higher tax bracket.</span></div>
     </div>
 
     <div class="plan-grid">
@@ -464,11 +489,11 @@
         </select>
       </div>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">National average benefit (2026, SSA): <b style="color:var(--paper);">~$1,400/mo at 62</b> · <b style="color:var(--paper);">~$2,000/mo at 67</b> · <b style="color:var(--paper);">~$2,200/mo at 70</b>. For your real number, check <b style="color:var(--paper);">ssa.gov/myaccount</b>.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Not sure of your number yet? On average people get about $1,400/mo starting at 62, $2,000/mo at 67, or $2,200/mo at 70. Get your real number free at ssa.gov/myaccount.">National average benefit (2026, SSA): <b style="color:var(--paper);">~$1,400/mo at 62</b> · <b style="color:var(--paper);">~$2,000/mo at 67</b> · <b style="color:var(--paper);">~$2,200/mo at 70</b>. For your real number, check <b style="color:var(--paper);">ssa.gov/myaccount</b>.</p>
 
     <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
       <input type="checkbox" id="includeSpouseSS" style="width:16px;height:16px;">
-      + Add a spouse's Social Security (can start at a different age)
+      <span data-simple="+ Add my spouse's Social Security too (they can start at a different age)">+ Add a spouse's Social Security (can start at a different age)</span>
     </label>
 
     <div id="spouseSsFields" style="display:none;">
@@ -482,59 +507,59 @@
           </select>
         </div>
       </div>
-      <p class="field-hint" style="margin-bottom:16px;">If you claim at different ages, your self-funded years are calculated in stages — alone until the first check starts, then together once both do.</p>
+      <p class="field-hint" style="margin-bottom:16px;" data-simple="If you two start at different ages, we'll figure it out in stages — the years you're covering yourselves alone, then the years you're both getting checks.">If you claim at different ages, your self-funded years are calculated in stages — alone until the first check starts, then together once both do.</p>
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental property, a business, pensions, annuities, and other income. <b style="color:var(--paper);">Retirement income</b> here directly reduces your retirement target below — watch the number change as you type. <b style="color:var(--paper);">Current income</b> only affects your take-home pay (see Step 4). Enter each source only once. Most sources start when you retire — only touch "starts at a different age" if one begins earlier or later (e.g. a pension starting at 65 when you retire at 60).</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Rental property, a business, a pension, an annuity, or any other income? Add it here. Money you'll get IN RETIREMENT lowers how much you need saved — watch the number change as you type. Money you're getting RIGHT NOW just affects your paycheck today (see the next step). Only enter each source once — most start when you retire, so only touch 'starts at a different age' if one begins earlier or later.">Rental property, a business, pensions, annuities, and other income. <b style="color:var(--paper);">Retirement income</b> here directly reduces your retirement target below — watch the number change as you type. <b style="color:var(--paper);">Current income</b> only affects your take-home pay (see Step 4). Enter each source only once. Most sources start when you retire — only touch "starts at a different age" if one begins earlier or later (e.g. a pension starting at 65 when you retire at 60).</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money you collect from renting out a property — not what the property is worth. Want to add a home's value instead? That goes in the Net Worth Calculator on the results page.">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
     <div class="cat-table" id="altRealEstateTable"></div>
     <button class="add-cat-btn" id="addAltRealEstateBtn">+ add property</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Own a business? Add what it pays you now, and/or what you expect it to pay you once you retire.">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
     <div class="cat-table" id="altBusinessTable"></div>
     <button class="add-cat-btn" id="addAltBusinessBtn">+ add business</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
-    <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money coming in from things like real estate funds, private equity, crypto, or anything else that doesn't fit above.">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
     <div class="cat-table" id="altOtherInvestmentsTable"></div>
     <button class="add-cat-btn" id="addAltOtherInvestmentsBtn">+ add investment</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
-    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="An annuity is a contract that pays you a set amount on a schedule. Add what it pays you now, and/or what it'll pay once you retire.">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
     <div class="cat-table" id="altAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addAltAnnuitiesBtn">+ add annuity</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:#0D9488"></span>Pension</div>
-    <p class="field-hint" style="margin-bottom:10px;">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" on Step 4). Often starts at a different age than when you actually retire.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="A regular pension check from an employer — not a one-time payout (that goes under 'Current invested assets' in the next step). Often starts at a different age than when you actually retire.">A monthly/annual pension check — not a lump-sum cash-out (that belongs in "Current invested assets" on Step 4). Often starts at a different age than when you actually retire.</p>
     <div class="cat-table" id="altPensionTable"></div>
     <button class="add-cat-btn" id="addAltPensionBtn">+ add pension</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Freelance work, dividends, royalties, alimony, or anything else that doesn't fit above — just pick the closest type.">Consulting, dividends, royalties, or anything else that doesn't fit the categories above — pick a type per source.</p>
     <div class="cat-table" id="altOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addAltOtherIncomeBtn">+ add income source</button>
 
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
       <div class="fi-number" id="fiNumber">$0</div>
-      <p class="fi-sub" id="fiTargetSub">What you need to save, after accounting for what Social Security will cover</p>
+      <p class="fi-sub" id="fiTargetSub" data-simple="The total you need saved up, after Social Security covers part of it.">What you need to save, after accounting for what Social Security will cover</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Annual retirement spend</div><div class="fi-stat-value" id="fiAnnual">$0</div></div>
         <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="fiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label">Needed before Social Security starts</div><div class="fi-stat-value" id="fiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label">Still working for you after it starts</div><div class="fi-stat-value" id="fiAfterSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="You need this saved before Social Security starts">Needed before Social Security starts</div><div class="fi-stat-value" id="fiBeforeSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="Your savings still need to cover this once it starts">Still working for you after it starts</div><div class="fi-stat-value" id="fiAfterSS">$0</div></div>
       </div>
       <p class="field-hint" id="fiBridgeNote" style="margin-top:14px;">—</p>
     </div>
 
     <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--paper-dim);line-height:1.5;">
-      <p style="margin:0 0 6px;">* Social Security only covers part of retirement, starting when you claim it. Waiting longer (up to 70) means bigger checks.</p>
-      <p style="margin:0 0 6px;">Rule of thumb: save about 25× your yearly spending, and you can withdraw ~4%/year without running out.</p>
-      <p style="margin:0;">This uses a fixed, inflation-adjusted withdrawal every year — the most conservative of the common approaches. It doesn't run Monte Carlo or historical-sequence simulations, and doesn't model dynamic strategies (guardrails, percent-of-portfolio, VPW, etc.) that flex spending with market performance — those would generally allow spending more, not less.</p>
+      <p style="margin:0 0 6px;" data-simple="* Social Security only covers part of what you'll need, and only once you claim it. Waiting longer (up to 70) means bigger monthly checks.">* Social Security only covers part of retirement, starting when you claim it. Waiting longer (up to 70) means bigger checks.</p>
+      <p style="margin:0 0 6px;" data-simple="Quick rule of thumb: if you save about 25× what you spend in a year, you can pull out about 4% a year without running out.">Rule of thumb: save about 25× your yearly spending, and you can withdraw ~4%/year without running out.</p>
+      <p style="margin:0;" data-simple="This tool assumes you withdraw the same amount every year (adjusted for inflation) — the safest, most cautious way to plan. It doesn't run the fancier simulations some advisors use, which usually let you spend a bit MORE than what's shown here, not less.">This uses a fixed, inflation-adjusted withdrawal every year — the most conservative of the common approaches. It doesn't run Monte Carlo or historical-sequence simulations, and doesn't model dynamic strategies (guardrails, percent-of-portfolio, VPW, etc.) that flex spending with market performance — those would generally allow spending more, not less.</p>
     </div>
 
     <div class="nav-row">
@@ -546,17 +571,17 @@
   <!-- STEP 4: CONTRIBUTION CALCULATOR -->
   <div class="step" data-step="4">
     <div class="eyebrow">The plan</div>
-    <h2><em>Assets & Contributions</em></h2>
-    <p class="sub">What you've already got working for you, and what you're adding toward your target.</p>
+    <h2 data-simple="What you've got, and what you're adding">Assets & Contributions</h2>
+    <p class="sub" data-simple="What you've already saved, plus how much more you're putting in toward your goal.">What you've already got working for you, and what you're adding toward your target.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Current age</label><input type="number" id="currentAge" value="35" min="0" step="1"></div>
       <div class="field"><label>Retirement age</label><input type="number" id="retireAge" value="55" min="0" step="1"></div>
-      <div class="field full"><label>Expected annual growth</label><input type="number" id="planGrowth" value="7" step="0.5"><span class="field-hint">Use an <b style="color:var(--paper);">inflation-adjusted (real)</b> return, not a raw market average — your spending targets are in today's dollars, so growth needs to be too. ~6-7% real is roughly the long-run historical figure for an all-stock portfolio; many planners now use more conservative forward-looking numbers like 4-5% real, especially for a balanced portfolio or a shorter timeline.</span></div>
+      <div class="field full"><label>Expected annual growth</label><input type="number" id="planGrowth" value="7" step="0.5"><span class="field-hint" data-simple="How fast you expect your investments to grow each year, after accounting for inflation. About 6-7% is the long-run average for an all-stock portfolio; many planners now use a more cautious 4-5%, especially for a mixed portfolio or a shorter timeline.">Use an <b style="color:var(--paper);">inflation-adjusted (real)</b> return, not a raw market average — your spending targets are in today's dollars, so growth needs to be too. ~6-7% real is roughly the long-run historical figure for an all-stock portfolio; many planners now use more conservative forward-looking numbers like 4-5% real, especially for a balanced portfolio or a shorter timeline.</span></div>
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--teal)"></span>Current invested assets</div>
-    <p class="field-hint" style="margin-bottom:10px;">What you've already got working for you. This is the exact same breakdown as the one later in Budget — fill it in either place and it stays in sync. Do not include checking, emergency savings, or money you expect to spend soon.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money you've already saved and invested. Fill it in here or later in Budget — either way it stays in sync. Don't include checking, your emergency fund, or money you plan to spend soon.">What you've already got working for you. This is the exact same breakdown as the one later in Budget — fill it in either place and it stays in sync. Do not include checking, emergency savings, or money you expect to spend soon.</p>
     <div class="plan-grid">
       <div class="field"><label>401(k) / 403(b) balance</label><input type="text" id="assets401kInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Traditional IRA balance</label><input type="text" id="assetsIraInputA" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -573,26 +598,26 @@
     <div class="subtotal-line">Total current invested assets: <b id="assetsSubtotalA">$0</b></div>
 
     <div class="group-label" style="margin-top:18px;"><span class="swatch" style="background:var(--jade)"></span>Other income sources</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental, business, pension, annuities, and other income are entered on Step 3, right next to your retirement target, so you can watch the target update live. This just shows what's there.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Any rental, business, pension, annuity, or other income you added — entered back on the target step so you can watch that number change live. This is just a summary.">Rental, business, pension, annuities, and other income are entered on Step 3, right next to your retirement target, so you can watch the target update live. This just shows what's there.</p>
     <div id="incomeSourcesSummary"></div>
     <button class="btn btn-ghost" type="button" style="margin-top:10px;" onclick="goTo(3)">Edit income sources →</button>
 
     <div class="fi-card" id="currentIncomeImpactCard" style="margin-top:16px;display:none;">
-      <div class="fi-label">What your current income from these sources does for you</div>
+      <div class="fi-label" data-simple="What this income does for your paycheck today">What your current income from these sources does for you</div>
       <div class="fi-number" id="currentIncomeImpactAmount" style="color:#059669;">$0/mo</div>
       <p class="fi-sub" id="currentIncomeImpactSub">—</p>
     </div>
 
     <div class="plan-grid" style="margin-top:22px;">
-      <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint">auto-filled from your retirement target — editable</span><span class="field-hint" id="planTargetEditedNote" style="display:none;color:#9A3412;"></span></div>
+      <div class="field full"><label>Target at retirement</label><input type="text" id="planTarget" inputmode="numeric" autocomplete="off"><span class="field-hint" data-simple="We filled this in from your target above — change it if you want.">auto-filled from your retirement target — editable</span><span class="field-hint" id="planTargetEditedNote" style="display:none;color:#9A3412;"></span></div>
     </div>
 
     <div class="fi-card">
-      <div class="fi-label">Minimum required 401(k) + other investing to reach your retirement goal</div>
+      <div class="fi-label" data-simple="The least you need to invest each year to hit your goal">Minimum required 401(k) + other investing to reach your retirement goal</div>
       <div class="fi-number" id="requiredAnnual" style="color:#2563EB;">$0/yr</div>
       <p class="fi-sub" id="requiredMonthlyLine">≈ $0/month invested to hit your target on schedule.</p>
     </div>
-    <div class="warn-box" id="ageOrderWarn">Your retirement age isn't after your current age, so there's no real time to invest — this number won't mean much until you fix that above.</div>
+    <div class="warn-box" id="ageOrderWarn" data-simple="Your retirement age needs to come after your current age — otherwise there's no time left to invest, and this number won't make sense yet.">Your retirement age isn't after your current age, so there's no real time to invest — this number won't mean much until you fix that above.</div>
 
     <p class="field-hint goal-reminder" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b class="goal-reminder-value" style="color:var(--gold);">$0</b></p>
     <div class="nav-row">
@@ -603,9 +628,9 @@
 
   <!-- STEP 5: TODAY — INCOME & TAX -->
   <div class="step" data-step="5">
-    <div class="eyebrow">Save after spending</div>
-    <h2>What do you <em>actually</em> take home?</h2>
-    <p class="sub">Let's ground this in today — your income right now, and what taxes actually take before anything gets saved or spent.</p>
+    <div class="eyebrow" data-simple="Step 1: what you keep">Save after spending</div>
+    <h2 data-simple="How much money do you &lt;em&gt;really&lt;/em&gt; get to keep?">What do you <em>actually</em> take home?</h2>
+    <p class="sub" data-simple="Let's start with today — what you earn right now, and what taxes take before anything gets saved or spent.">Let's ground this in today — your income right now, and what taxes actually take before anything gets saved or spent.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Your age now</label><input type="number" id="driftCurrentAge" min="0" step="1"></div>
@@ -614,7 +639,7 @@
 
     <div class="plan-grid">
       <div class="field">
-        <label>Filing status</label>
+        <label data-simple="How do you file your taxes?">Filing status</label>
         <select id="filingStatus">
           <option value="single">Single</option>
           <option value="mfj">Married filing jointly</option>
@@ -623,27 +648,27 @@
           <option value="qss">Qualifying surviving spouse</option>
         </select>
       </div>
-      <div class="field"><label>Gross annual salary</label><input type="text" id="planSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
-      <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="k401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 IRS limit is $24,500/year (usually ticks up a bit with inflation each year). Turning 50 or older? You can add a "catch-up" — an extra $8,000/year (total $32,500), or an extra $11,250/year if you're 60–63 (total $35,750).</span></div>
-      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="rothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
-      <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="cashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
-      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="iraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
-      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="hsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
+      <div class="field"><label>Gross annual salary</label><input type="text" id="planSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint" data-simple="Your salary before anything gets taken out — taxes, 401(k), any of it. The number on your offer letter, not your paycheck.">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
+      <div class="field full"><label>401(k) contribution (annual, pre-tax)</label><input type="text" id="k401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint" data-simple="How much you're putting into your 401(k) each year, before tax. Most people can put in up to $24,500/year — a bit more if you're 50+.">2026 IRS limit is $24,500/year (usually ticks up a bit with inflation each year). Turning 50 or older? You can add a "catch-up" — an extra $8,000/year (total $32,500), or an extra $11,250/year if you're 60–63 (total $35,750).</span></div>
+      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="rothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Money you put in already taxed — it still comes out of your paycheck, but it grows tax-free and you won't owe anything on it in retirement.">After-tax — doesn't reduce your taxable income below, but still comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings.</span></div>
+      <div class="field full"><label>Cash balance / profit sharing (annual)</label><input type="text" id="cashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Extra retirement money some employers add on top of your 401(k), automatically. If you're not sure whether you have this, you probably don't.">If your employer offers a cash balance pension or profit-sharing plan on top of your 401(k), add the annual contribution here — treated the same as 401(k) for taxes and growth.</span></div>
+      <div class="field full"><label>Traditional or Roth IRA contribution (annual)</label><input type="text" id="iraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="A personal retirement account you opened yourself — separate from your 401(k)/Roth above. Most people can put in up to about $7,500/year.">A separate IRA you opened yourself — not the 401(k)/Roth above. 2026 IRS limit is $7,500/year combined across Traditional + Roth IRA. Turning 50 or older? Add a $1,100 catch-up (total $8,600).</span></div>
+      <div class="field full"><label>HSA contribution (annual)</label><input type="text" id="hsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Money set aside for medical costs that can also grow tax-free if invested. Most people can put in up to $4,400/year alone, or $8,750/year for a family.">2026 IRS limit is $4,400/year (self-only coverage) or $8,750/year (family coverage). Turning 55 or older? Add a $1,000 catch-up.</span></div>
       <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
         <input type="checkbox" id="hsaFamilyCoverage" style="width:16px;height:16px;">
-        This HSA has family coverage (raises the limit above)
+        <span data-simple="This HSA covers my family, not just me (lets you save more)">This HSA has family coverage (raises the limit above)</span>
       </label>
-      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="selfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
-      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="selfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
+      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="selfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint" data-simple="If your job adds free money to your 401(k) when you contribute, put that percent here. Not sure? Ask HR, or leave it at 0.">e.g. 100 for "100% of what you contribute".</span></div>
+      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="selfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint" data-simple="The most your employer will match, as a percent of your salary. Leave at 0 if this doesn't apply to you.">e.g. 4 for "up to 4% of salary". Match = rate × min(your 401(k) contribution, salary × this cap). Defaults to 0 — leave at 0 if you don't get a match.</span></div>
       <div class="field"><label>State</label>
         <select id="stateSelect"></select>
       </div>
-      <div class="field"><label>Rough state tax rate</label><input type="number" id="stateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable. Uses each state's flat rate, or top marginal rate for progressive-bracket states (your effective rate is often lower).</span></div>
+      <div class="field"><label>Rough state tax rate</label><input type="number" id="stateTaxPct" value="5" step="0.5"><span class="field-hint" data-simple="We already filled this in based on your state. Change it if you know your actual rate — your real bill is often lower than this rough estimate.">Auto-filled from your state — editable. Uses each state's flat rate, or top marginal rate for progressive-bracket states (your effective rate is often lower).</span></div>
     </div>
 
     <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--paper);margin-bottom:14px;cursor:pointer;">
       <input type="checkbox" id="hasSpouseIncome" style="width:18px;height:18px;">
-      + Add a spouse's income
+      <span data-simple="+ My spouse makes money too (add their income)">+ Add a spouse's income</span>
     </label>
     <div id="spouseIncomeFields" style="display:none;">
       <div class="plan-grid">
@@ -651,30 +676,30 @@
         <div class="field full"><label>Spouse's 401(k) contribution (annual, pre-tax)</label><input type="text" id="spouseK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 10,000"></div>
         <div class="field full"><label>Spouse's Roth 401(k) / Roth IRA contribution (annual)</label><input type="text" id="spouseRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="field full"><label>Spouse's Cash balance / profit sharing (annual)</label><input type="text" id="spouseCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="spouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
+        <div class="field full"><label>Spouse's own IRA contribution (annual)</label><input type="text" id="spouseIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Their own separate IRA — same limit as yours above, tracked separately.">Their own separate IRA — same $7,500/$8,600 limit as yours above, tracked separately per person.</span></div>
         <div class="field"><label>Spouse's employer match rate (%)</label><input type="number" id="spouseMatchRatePct" value="0" step="1" min="0" max="200"></div>
         <div class="field"><label>Spouse's employer match cap (% of salary)</label><input type="number" id="spouseMatchCapPct" value="0" step="0.5" min="0" max="100"></div>
       </div>
     </div>
 
-    <p class="field-hint" style="margin-top:18px;">Side business, rental, freelance, or other income beyond salary? Add it in the alt-investment categories in Step 4 — each one has a "Current income" field that flows into your taxes and take-home below automatically.</p>
+    <p class="field-hint" style="margin-top:18px;" data-simple="Have income beyond salary — a side business, rentals, freelance work? Add it in the income categories back on the target step; each has a 'Current income' field that flows into your taxes and take-home below automatically.">Side business, rental, freelance, or other income beyond salary? Add it in the alt-investment categories in Step 4 — each one has a "Current income" field that flows into your taxes and take-home below automatically.</p>
 
     <div class="tax-card" style="margin-top:22px;">
-      <div><div class="tax-stat-label">Gross pay</div><div class="tax-stat-value" id="totalGrossOut">$0</div></div>
-      <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="taxCard401kOut">$0</div></div>
-      <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardCashBalanceOut">$0</div></div>
-      <div><div class="tax-stat-label">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="taxCardRothOut">$0</div></div>
-      <div><div class="tax-stat-label">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="taxCardIraHsaOut">$0</div></div>
-      <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="taxCardSpouseK401Out">$0</div></div>
-      <div><div class="tax-stat-label">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardSpouseCashBalanceOut">$0</div></div>
-      <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="taxCardEmployerMatchOut">$0</div></div>
-      <div><div class="tax-stat-label">Taxable income</div><div class="tax-stat-value" id="taxableIncomeOut">$0</div></div>
-      <div><div class="tax-stat-label">Federal tax</div><div class="tax-stat-value" id="federalTaxOut">$0</div></div>
-      <div><div class="tax-stat-label">FICA (SS + Medicare)</div><div class="tax-stat-value" id="ficaOut">$0</div></div>
-      <div><div class="tax-stat-label">State tax (est.)</div><div class="tax-stat-value" id="stateTaxOut">$0</div></div>
-      <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px;"><div class="tax-stat-label">Take-home cash</div><div class="tax-stat-value" id="takeHomeOut" style="font-size:19px;">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Total money you make">Gross pay</div><div class="tax-stat-value" id="totalGrossOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into your 401(k)">401(k) contribution</div><div class="tax-stat-value" id="taxCard401kOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Extra employer retirement money">Cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into Roth accounts">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="taxCardRothOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into IRA & HSA">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="taxCardIraHsaOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Spouse's 401(k) money">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="taxCardSpouseK401Out">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Spouse's extra employer money">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="taxCardSpouseCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Free money from your employer">Employer match (you + spouse)</div><div class="tax-stat-value" id="taxCardEmployerMatchOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Income the IRS actually taxes">Taxable income</div><div class="tax-stat-value" id="taxableIncomeOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Tax you owe the IRS">Federal tax</div><div class="tax-stat-value" id="federalTaxOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Social Security & Medicare tax">FICA (SS + Medicare)</div><div class="tax-stat-value" id="ficaOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Estimated state tax">State tax (est.)</div><div class="tax-stat-value" id="stateTaxOut">$0</div></div>
+      <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px;"><div class="tax-stat-label" data-simple="What you actually get to keep">Take-home cash</div><div class="tax-stat-value" id="takeHomeOut" style="font-size:19px;">$0</div></div>
     </div>
-    <p class="field-hint" style="margin-top:6px;">Like a W-2: pre-tax 401(k) comes out before federal and state tax, but not before FICA (that's real — 401(k) contributions are still subject to Social Security and Medicare tax). Roth contributions come out of take-home pay too, but don't reduce taxable income. 2026 IRS federal brackets. State tax is a rough flat-rate estimate, not your actual state's bracket system.</p>
+    <p class="field-hint" style="margin-top:6px;" data-simple="Pre-tax 401(k) money skips federal and state tax, but not Social Security & Medicare tax — that still applies. Roth money comes out of your paycheck too, but doesn't lower what's taxed. We use the real 2026 federal brackets; state tax is just a rough estimate, not your state's actual system.">Like a W-2: pre-tax 401(k) comes out before federal and state tax, but not before FICA (that's real — 401(k) contributions are still subject to Social Security and Medicare tax). Roth contributions come out of take-home pay too, but don't reduce taxable income. 2026 IRS federal brackets. State tax is a rough flat-rate estimate, not your actual state's bracket system.</p>
 
     <p class="field-hint goal-reminder" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b class="goal-reminder-value" style="color:var(--gold);">$0</b></p>
     <div class="nav-row">
@@ -685,17 +710,17 @@
 
   <!-- STEP 6: TODAY — BUDGET & EDUCATION -->
   <div class="step" data-step="6">
-    <div class="eyebrow">Save after spending</div>
-    <h2>What's left for <em>everything else</em>?</h2>
-    <p class="sub">What life costs you right now, plus anything set aside for kids — and what's actually left over once you decide how much to invest.</p>
+    <div class="eyebrow" data-simple="Step 2: what it costs">Save after spending</div>
+    <h2 data-simple="What's left over after the basics?">What's left for <em>everything else</em>?</h2>
+    <p class="sub" data-simple="What life costs you today, plus anything you're setting aside for kids — and what's actually left over once you decide how much to invest.">What life costs you right now, plus anything set aside for kids — and what's actually left over once you decide how much to invest.</p>
 
-    <div class="warn-box" id="driftAgeOrderWarn">Your retirement age isn't after your age now, so there's no real time to invest — fix that above before trusting the numbers below.</div>
+    <div class="warn-box" id="driftAgeOrderWarn" data-simple="Your retirement age needs to come after your age now — otherwise there's no time to invest, so fix that above before trusting the numbers below.">Your retirement age isn't after your age now, so there's no real time to invest — fix that above before trusting the numbers below.</div>
 
     <div class="section-header first" style="margin-top:26px;">
       <span class="icon" style="background:rgba(234,88,12,0.1);color:var(--clay);">🏠</span>
       <span class="label">NEEDS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">Life right now — rent, student loans, personal loans, auto loans, childcare, and other required costs. Do not add credit-card payments here; record the purchases in their actual spending categories instead.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="The stuff you have to pay for — rent, loans, childcare, and other required costs. Don't add credit card payments here; just log the actual purchases in their own categories instead.">Life right now — rent, student loans, personal loans, auto loans, childcare, and other required costs. Do not add credit-card payments here; record the purchases in their actual spending categories instead.</p>
     <div class="cat-table" id="currentNeedsTable"></div>
     <button class="add-cat-btn" id="addCurrentNeedBtn">+ add category</button>
     <div class="subtotal-line">Subtotal — NEEDS: <b id="needsSubtotal">$0</b>/yr</div>
@@ -704,7 +729,7 @@
       <span class="icon" style="background:rgba(217,119,6,0.14);color:var(--amber);">🎯</span>
       <span class="label">SAVINGS GOALS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">House, car, wedding, vacation — the stuff life costs before retirement even comes into it. Set a target and a timeline; we'll tell you the monthly.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Saving up for a house, car, wedding, or trip? Set a target amount and a timeline, and we'll tell you how much to save each month.">House, car, wedding, vacation — the stuff life costs before retirement even comes into it. Set a target and a timeline; we'll tell you the monthly.</p>
     <div class="cat-table" id="goalsTable"></div>
     <button class="add-cat-btn" id="addGoalBtn">+ add a goal</button>
     <div class="subtotal-line">Subtotal — SAVINGS GOALS: <b id="goalsSubtotal">$0</b>/yr</div>
@@ -720,7 +745,7 @@
       <span class="icon" style="background:rgba(2,132,199,0.12);color:var(--sky);">🛟</span>
       <span class="label">EMERGENCY FUND</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">The standard recommendation is 3–6 months of essential expenses, kept liquid — not invested. This scales automatically with your NEEDS total above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Most experts recommend keeping 3-6 months of essential expenses in cash, not invested, in case something goes wrong. This scales automatically with your NEEDS total above.">The standard recommendation is 3–6 months of essential expenses, kept liquid — not invested. This scales automatically with your NEEDS total above.</p>
     <div class="plan-grid">
       <div class="field"><label>Months to cover</label>
         <select id="emergencyMonths">
@@ -741,7 +766,7 @@
       <span class="icon" style="background:rgba(5,150,105,0.14);color:var(--teal);">📈</span>
       <span class="label">CURRENT INVESTED ASSETS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">What you've already got working for you — this fills in "Current invested assets" everywhere else in the app automatically.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money you've already saved and invested — this fills in 'Current invested assets' everywhere else in the app automatically.">What you've already got working for you — this fills in "Current invested assets" everywhere else in the app automatically.</p>
     <div class="plan-grid">
       <div class="field"><label>401(k) / 403(b) balance</label><input type="text" id="assets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Traditional IRA balance</label><input type="text" id="assetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -749,7 +774,7 @@
       <div class="field"><label>Brokerage account</label><input type="text" id="assetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>High-yield savings</label><input type="text" id="assetsHysaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA</label><input type="text" id="assetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">If your pension pays a monthly amount instead of a lump sum, leave this at 0 and add it as an income source in Step 3 instead.</span></div>
+      <div class="field"><label>Pension (present value / cash-out)</label><input type="text" id="assetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="If your pension pays a monthly check instead of a one-time payout, leave this at 0 — add it as income back on the target step instead.">If your pension pays a monthly amount instead of a lump sum, leave this at 0 and add it as an income source in Step 3 instead.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="assetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="spouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's Traditional IRA balance</label><input type="text" id="spouseAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -761,13 +786,13 @@
     <p class="field-hint" style="margin-bottom:12px;">First, let's see what happens if nothing changes.</p>
 
     <div class="fi-card" style="margin-top:8px;">
-      <div class="fi-label">Nest egg at retirement, if you stop here</div>
+      <div class="fi-label" data-simple="What you'd have saved by retirement, if nothing changes">Nest egg at retirement, if you stop here</div>
       <div class="fi-number" id="driftAutopilotNumber">$0</div>
       <p class="fi-sub" id="driftAutopilotSub">What you'd have saved by your target age — no extra investing added yet.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Sustainable spending this could support</div><div class="fi-stat-value" id="driftAutopilotIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label" data-simple="How much you could spend per year from this">Sustainable spending this could support</div><div class="fi-stat-value" id="driftAutopilotIncome">$0/yr</div></div>
       </div>
-      <p class="field-hint" style="margin-top:10px;">This keeps growing while you spend it down — bridge-style growth before Social Security starts, long-term growth after, minus your assumed withdrawal tax. Same math as your actual retirement target, just run against this smaller nest egg instead.</p>
+      <p class="field-hint" style="margin-top:10px;" data-simple="This money keeps growing even while you're spending it in retirement, minus the withdrawal tax you assumed earlier. Same math as your real retirement target, just applied to this smaller amount.">This keeps growing while you spend it down — bridge-style growth before Social Security starts, long-term growth after, minus your assumed withdrawal tax. Same math as your actual retirement target, just run against this smaller nest egg instead.</p>
     </div>
 
     <div style="margin-top:30px;text-align:center;">
@@ -778,25 +803,25 @@
     <p class="field-hint" id="planGoalMetMessage" style="margin-top:14px;text-align:center;">—</p>
 
     <div style="margin-top:26px;text-align:center;">
-      <h2 style="font-size:clamp(19px,5.5vw,24px);color:var(--paper);">How much do you want to put toward retirement, <em>beyond</em> your 401(k)?</h2>
+      <h2 style="font-size:clamp(19px,5.5vw,24px);color:var(--paper);" data-simple="How much extra do you want to save for retirement, on top of your 401(k)?">How much do you want to put toward retirement, <em>beyond</em> your 401(k)?</h2>
     </div>
     <div class="plan-grid">
       <div class="field full">
         <label>Extra investing (monthly)</label>
         <input type="text" id="additionalInvestingInput" inputmode="numeric" autocomplete="off" placeholder="0" style="font-size:24px;font-weight:400;padding:14px 2px;">
-        <span class="field-hint">Starts at $0 — type any monthly amount to see where it leaves you.</span>
+        <span class="field-hint" data-simple="Starts at $0 — type in any monthly amount to see what it does to your numbers.">Starts at $0 — type any monthly amount to see where it leaves you.</span>
       </div>
     </div>
 
     <div class="fi-card" style="margin-top:16px;border-color:rgba(5,150,105,0.4);">
-      <div class="fi-label">This is how much your nest egg will grow to</div>
+      <div class="fi-label" data-simple="This is what your savings will grow to">This is how much your nest egg will grow to</div>
       <div class="fi-number" id="driftResultNumber">$0</div>
-      <p class="fi-sub">By age <span id="driftResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
+      <p class="fi-sub" data-simple="By age &lt;span id=&quot;driftResultAge&quot;&gt;—&lt;/span&gt;, adding up what you've already saved, your 401(k), and the extra amount above.">By age <span id="driftResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Sustainable spending per year</div><div class="fi-stat-value" id="driftResultIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label" data-simple="How much you could spend per year">Sustainable spending per year</div><div class="fi-stat-value" id="driftResultIncome">$0/yr</div></div>
       </div>
     </div>
-    <p class="field-hint" style="margin-top:10px;">Both numbers above account for real investment growth throughout retirement and Social Security kicking in at your claiming age — the same math behind your retirement target. Actual results are not guaranteed.</p>
+    <p class="field-hint" style="margin-top:10px;" data-simple="Both numbers above factor in investment growth through retirement and Social Security starting at your claiming age — same math as your retirement target. Nothing here is guaranteed, just an estimate.">Both numbers above account for real investment growth throughout retirement and Social Security kicking in at your claiming age — the same math behind your retirement target. Actual results are not guaranteed.</p>
 
     <div class="breakdown" id="breakdownContainer" style="margin-top:30px;"></div>
 
@@ -804,9 +829,9 @@
     <div class="good-box" id="planGood"></div>
 
     <div class="result-hero">
-      <div class="fi-label">Left for additional savings, investing, charity, or discretionary spending</div>
+      <div class="fi-label" data-simple="What's left over for anything else — extra saving, giving, or spending">Left for additional savings, investing, charity, or discretionary spending</div>
       <div class="fi-number" id="discretionaryResult">$0</div>
-      <p class="fi-sub" id="discretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
+      <p class="fi-sub" id="discretionarySub" data-simple="per year, once taxes, your 401(k), needs, savings goals, the education fund, and extra investing are all accounted for.">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
     </div>
 
     <div class="result-hero" id="nextStepsCard" style="border-color:rgba(234,88,12,0.45);">
@@ -844,12 +869,12 @@
     </div>
 
     <div class="eyebrow">Your results</div>
-    <h2>Where you're <em>headed</em>.</h2>
-    <p class="sub">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
+    <h2 data-simple="Here's where you're &lt;em&gt;headed&lt;/em&gt;.">Where you're <em>headed</em>.</h2>
+    <p class="sub" data-simple="Based on everything you entered — here's the short answer, then the full picture over time.">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
 
     <div class="plan-grid">
       <div class="fi-card" id="resultHero" style="margin-top:20px;border-color:#2563EB;box-shadow:0 0 0 1.5px #2563EB inset;">
-        <div class="fi-label">Nest egg at retirement</div>
+        <div class="fi-label" data-simple="What you'll have saved by retirement">Nest egg at retirement</div>
         <div class="fi-number" id="resultNestEgg" style="color:#2563EB;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you'd actually have saved</p>
       </div>
@@ -868,18 +893,18 @@
     <div class="shortfall-actions" id="resultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The blue line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
+    <p class="field-hint" style="margin-bottom:14px;" data-simple="Your money grows while you're working, then gets spent down in retirement — you cover yourself early on, then Social Security helps once it kicks in. Blue = your plan, red = just your 401(k) alone for comparison, green = your goal. Tap or hover the chart to see the numbers at any age.">Growing while you invest, then spent down using your real retirement budget — self-funded in the early years, then Social Security covering part of it once it starts. The blue line is investing as planned; the red line is 401(k) only, for comparison; the green line is your retirement goal. Hover or tap the chart to see the numbers at any age.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="balanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="balanceChartTooltip"></div></div>
     <div class="plan-legend" id="balanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="balanceChartNote" style="margin-top:8px;">—</p>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--violet)"></span><b style="color:var(--paper);">NET WORTH CALCULATOR</b></div>
-    <p class="field-hint" style="margin-bottom:10px;">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Everything you own, minus everything you owe. This is a separate snapshot — it doesn't affect the retirement numbers above.">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
 
     <div class="tax-card" style="margin-bottom:14px;grid-template-columns:1fr;">
       <div><div class="tax-stat-label">Invested assets</div><div class="tax-stat-value" id="nwInvestedAssetsOut">$0</div></div>
     </div>
-    <p class="field-hint" style="margin:-6px 0 14px;">Pulled from what you entered above — edit it there, not here.</p>
+    <p class="field-hint" style="margin:-6px 0 14px;" data-simple="This number comes from what you entered above — go up there to change it.">Pulled from what you entered above — edit it there, not here.</p>
 
     <div class="section-header first">
       <span class="icon" style="background:rgba(124,58,237,0.12);color:var(--violet);">💰</span>
@@ -906,7 +931,7 @@
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your net worth — as of today</div>
       <div class="fi-number" id="nwNetWorthNumber">$0</div>
-      <p class="field-hint" style="margin-top:2px;">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
+      <p class="field-hint" style="margin-top:2px;" data-simple="Not a future estimate — just what you've entered right now, added up. (The nest egg and goal numbers above are estimates of the future; this is a snapshot of today.)">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="nwTotalAssetsOut">$0</div></div>
         <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="nwTotalLiabilitiesOut">$0</div></div>
@@ -923,9 +948,9 @@
 
   <!-- STEP 8: TIMELINE + TODAY'S INCOME & TAX -->
   <div class="step" data-step="8">
-    <div class="eyebrow">Save after spending</div>
-    <h2>What do you <em>actually</em> take home?</h2>
-    <p class="sub">Your own timeline, your income right now, and what taxes actually take before anything gets saved or spent.</p>
+    <div class="eyebrow" data-simple="Step 1: what you keep">Save after spending</div>
+    <h2 data-simple="How much money do you &lt;em&gt;really&lt;/em&gt; get to keep?">What do you <em>actually</em> take home?</h2>
+    <p class="sub" data-simple="Tell us your age, what you earn, and we'll work out what taxes take — so you know what's actually left over to save or spend.">Your own timeline, your income right now, and what taxes actually take before anything gets saved or spent.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Your age now</label><input type="number" id="driftOwnCurrentAge" value="30" min="0" step="1"></div>
@@ -934,7 +959,7 @@
 
     <div class="plan-grid">
       <div class="field">
-        <label>Filing status</label>
+        <label data-simple="How do you file your taxes?">Filing status</label>
         <select id="driftFilingStatus">
           <option value="single">Single</option>
           <option value="mfj">Married filing jointly</option>
@@ -943,27 +968,27 @@
           <option value="qss">Qualifying surviving spouse</option>
         </select>
       </div>
-      <div class="field"><label>Gross annual salary</label><input type="text" id="driftSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
-      <div class="field full"><label>401(k) contribution (annual, pre-tax) <button type="button" class="help-trigger" aria-label="What is a 401(k)/403(b) contribution?" onclick="openAccountHelp('k401')">?</button></label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint">2026 limit: $24,500/year. 50+ catch-up: $8,000 (total $32,500) — or $11,250 if you're 60–63. Tap the ? for the rest.</span></div>
-      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual) <button type="button" class="help-trigger" aria-label="What is a Roth account?" onclick="openAccountHelp('rothIra')">?</button></label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings. Tap the ? for how Roth accounts work.</span></div>
-      <div class="field full"><label>Cash balance / profit sharing (annual) <button type="button" class="help-trigger" aria-label="What is cash balance / profit sharing?" onclick="openAccountHelp('cashBalance')">?</button></label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Your employer funds this automatically, on top of your 401(k). Tap the ? for how it works.</span></div>
-      <div class="field full"><label>Traditional <button type="button" class="help-trigger" aria-label="What is a Traditional IRA?" onclick="openAccountHelp('traditionalIra')">?</button> or Roth <button type="button" class="help-trigger" aria-label="What is a Roth IRA?" onclick="openAccountHelp('rothIra')">?</button> IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 limit: $7,500/year combined ($8,600 if you're 50+). Tap either ? above for the full rundown.</span></div>
-      <div class="field full"><label>HSA contribution (annual) <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">2026 limit: $4,400 solo, $8,750 family (add $1,000 if you're 55+). Tap the ? for the full rundown.</span></div>
+      <div class="field"><label>Gross annual salary</label><input type="text" id="driftSalary" inputmode="numeric" autocomplete="off" placeholder="e.g. 100,000"><span class="field-hint" data-simple="Your salary before anything gets taken out — taxes, 401(k), any of it. The number on your offer letter, not your paycheck.">Enter your gross income — before taxes and before any 401(k) contribution.</span></div>
+      <div class="field full"><label>401(k) contribution (annual, pre-tax) <button type="button" class="help-trigger" aria-label="What is a 401(k)/403(b) contribution?" onclick="openAccountHelp('k401')">?</button></label><input type="text" id="driftK401Input" inputmode="numeric" autocomplete="off" placeholder="e.g. 12,000"><span class="field-hint" data-simple="How much you're putting into your 401(k) each year, before tax. Most people can put in up to $24,500/year — tap the ? for the exact rules at your age.">2026 limit: $24,500/year. 50+ catch-up: $8,000 (total $32,500) — or $11,250 if you're 60–63. Tap the ? for the rest.</span></div>
+      <div class="field full"><label>Roth 401(k) / Roth IRA contribution (annual) <button type="button" class="help-trigger" aria-label="What is a Roth account?" onclick="openAccountHelp('rothIra')">?</button></label><input type="text" id="driftRothContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Money you put in already taxed, so it's tax-free when you take it out in retirement. Tap the ? for how it works.">Comes out of your paycheck like the pre-tax 401(k) above, and still counts toward employer match and your retirement savings. Tap the ? for how Roth accounts work.</span></div>
+      <div class="field full"><label>Cash balance / profit sharing (annual) <button type="button" class="help-trigger" aria-label="What is cash balance / profit sharing?" onclick="openAccountHelp('cashBalance')">?</button></label><input type="text" id="driftCashBalanceInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Extra retirement money your employer adds on top of your 401(k), automatically. Tap the ? if you're not sure whether you have this.">Your employer funds this automatically, on top of your 401(k). Tap the ? for how it works.</span></div>
+      <div class="field full"><label>Traditional <button type="button" class="help-trigger" aria-label="What is a Traditional IRA?" onclick="openAccountHelp('traditionalIra')">?</button> or Roth <button type="button" class="help-trigger" aria-label="What is a Roth IRA?" onclick="openAccountHelp('rothIra')">?</button> IRA contribution (annual)</label><input type="text" id="driftIraContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="A personal retirement account you open yourself, outside of work — up to about $7,500/year for most people. Tap either ? to see how the two types differ.">2026 limit: $7,500/year combined ($8,600 if you're 50+). Tap either ? above for the full rundown.</span></div>
+      <div class="field full"><label>HSA contribution (annual) <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftHsaContribInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Money set aside for medical costs that can also grow tax-free if invested. Tap the ? to see how much you're allowed to put in.">2026 limit: $4,400 solo, $8,750 family (add $1,000 if you're 55+). Tap the ? for the full rundown.</span></div>
       <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin:-8px 0 4px;cursor:pointer;">
         <input type="checkbox" id="driftHsaFamilyCoverage" style="width:16px;height:16px;">
-        This HSA has family coverage (raises the limit above)
+        <span data-simple="This HSA covers my family, not just me (lets you save more)">This HSA has family coverage (raises the limit above)</span>
       </label>
-      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint">e.g. 100 for "100% of what you contribute".</span></div>
-      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint">e.g. 4 for "up to 4% of salary". Match = rate × min(your contribution, salary × cap). Leave at 0 if you don't get one.</span></div>
+      <div class="field"><label>Employer 401(k) match rate (%)</label><input type="number" id="driftSelfMatchRatePct" value="0" step="1" min="0" max="200"><span class="field-hint" data-simple="If your job adds free money to your 401(k) when you contribute, put that percent here. Not sure? Ask HR, or just leave it at 0.">e.g. 100 for "100% of what you contribute".</span></div>
+      <div class="field"><label>Employer match cap (% of salary)</label><input type="number" id="driftSelfMatchCapPct" value="0" step="0.5" min="0" max="100"><span class="field-hint" data-simple="The most your employer will match, as a percent of your salary. Leave at 0 if this doesn't apply to you.">e.g. 4 for "up to 4% of salary". Match = rate × min(your contribution, salary × cap). Leave at 0 if you don't get one.</span></div>
       <div class="field"><label>State</label>
         <select id="driftStateSelect"></select>
       </div>
-      <div class="field"><label>Rough state tax rate</label><input type="number" id="driftStateTaxPct" value="5" step="0.5"><span class="field-hint">Auto-filled from your state — editable.</span></div>
+      <div class="field"><label>Rough state tax rate</label><input type="number" id="driftStateTaxPct" value="5" step="0.5"><span class="field-hint" data-simple="We already filled this in based on your state. Change it if you actually know your real rate.">Auto-filled from your state — editable.</span></div>
     </div>
 
     <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--paper);margin-bottom:14px;cursor:pointer;">
       <input type="checkbox" id="driftHasSpouseIncome" style="width:18px;height:18px;">
-      + Add a spouse's income
+      <span data-simple="+ My spouse makes money too (add their income)">+ Add a spouse's income</span>
     </label>
     <div id="driftSpouseIncomeFields" style="display:none;">
       <div class="plan-grid">
@@ -977,20 +1002,20 @@
       </div>
     </div>
 
-    <p class="field-hint" style="margin-top:18px;">Side income — business, rental, freelance? Add it under Current Invested Assets; it flows into your taxes and take-home here automatically.</p>
+    <p class="field-hint" style="margin-top:18px;" data-simple="Have income from a side business, rentals, or freelance work? Add it under Current Invested Assets — we'll factor it into your taxes and take-home pay automatically.">Side income — business, rental, freelance? Add it under Current Invested Assets; it flows into your taxes and take-home here automatically.</p>
 
     <div class="tax-card" style="margin-top:22px;">
-      <div><div class="tax-stat-label">Gross pay</div><div class="tax-stat-value" id="driftTotalGrossOut">$0</div></div>
-      <div><div class="tax-stat-label">401(k) contribution</div><div class="tax-stat-value" id="driftTaxCard401kOut">$0</div></div>
-      <div><div class="tax-stat-label">Cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardCashBalanceOut">$0</div></div>
-      <div><div class="tax-stat-label">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardRothOut">$0</div></div>
-      <div><div class="tax-stat-label">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardIraHsaOut">$0</div></div>
-      <div><div class="tax-stat-label">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="driftTaxCardSpouseK401Out">$0</div></div>
-      <div><div class="tax-stat-label">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardSpouseCashBalanceOut">$0</div></div>
-      <div><div class="tax-stat-label">Employer match (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardEmployerMatchOut">$0</div></div>
-      <div><div class="tax-stat-label">Taxable income</div><div class="tax-stat-value" id="driftTaxableIncomeOut">$0</div></div>
-      <div><div class="tax-stat-label">Federal tax</div><div class="tax-stat-value" id="driftFederalTaxOut">$0</div></div>
-      <div><div class="tax-stat-label">FICA (SS + Medicare)</div><div class="tax-stat-value" id="driftFicaOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Total money you make">Gross pay</div><div class="tax-stat-value" id="driftTotalGrossOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into your 401(k)">401(k) contribution</div><div class="tax-stat-value" id="driftTaxCard401kOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Extra employer retirement money">Cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into Roth accounts">Roth 401(k)/IRA (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardRothOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Going into IRA & HSA">IRA + HSA contribution (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardIraHsaOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Spouse's 401(k) money">Spouse's 401(k) contribution</div><div class="tax-stat-value" id="driftTaxCardSpouseK401Out">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Spouse's extra employer money">Spouse's cash balance / profit sharing</div><div class="tax-stat-value" id="driftTaxCardSpouseCashBalanceOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Free money from your employer">Employer match (you + spouse)</div><div class="tax-stat-value" id="driftTaxCardEmployerMatchOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Income the IRS actually taxes">Taxable income</div><div class="tax-stat-value" id="driftTaxableIncomeOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Tax you owe the IRS">Federal tax</div><div class="tax-stat-value" id="driftFederalTaxOut">$0</div></div>
+      <div><div class="tax-stat-label" data-simple="Social Security & Medicare tax">FICA (SS + Medicare)</div><div class="tax-stat-value" id="driftFicaOut">$0</div></div>
       <div><div class="tax-stat-label">State tax (est.)</div><div class="tax-stat-value" id="driftStateTaxOut">$0</div></div>
       <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:2px;"><div class="tax-stat-label">Take-home cash</div><div class="tax-stat-value" id="driftTakeHomeOut" style="font-size:19px;">$0</div></div>
     </div>
@@ -1004,15 +1029,15 @@
 
   <!-- STEP 9: TODAY'S BUDGET -->
   <div class="step" data-step="9">
-    <div class="eyebrow">Save after spending</div>
-    <h2>What does <em>life cost</em> right now?</h2>
-    <p class="sub">Everyday needs, savings goals, kids' education, and your emergency fund.</p>
+    <div class="eyebrow" data-simple="Step 2: what it costs">Save after spending</div>
+    <h2 data-simple="What does &lt;em&gt;life cost&lt;/em&gt; you right now?">What does <em>life cost</em> right now?</h2>
+    <p class="sub" data-simple="Everyday needs, savings goals, kids' education, and your emergency fund.">Everyday needs, savings goals, kids' education, and your emergency fund.</p>
 
     <div class="section-header first">
       <span class="icon" style="background:rgba(234,88,12,0.1);color:var(--clay);">🏠</span>
       <span class="label">NEEDS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">Rent, loans, insurance, groceries — the required stuff. Skip credit-card payments here; log the actual purchases instead.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="The stuff you have to pay for — rent, loans, insurance, groceries. Skip credit card payments here; just log the actual purchases instead.">Rent, loans, insurance, groceries — the required stuff. Skip credit-card payments here; log the actual purchases instead.</p>
     <div class="cat-table" id="driftCurrentNeedsTable"></div>
     <button class="add-cat-btn" id="addDriftCurrentNeedBtn">+ add category</button>
     <div class="subtotal-line">Subtotal — NEEDS: <b id="driftNeedsSubtotal">$0</b>/yr</div>
@@ -1021,7 +1046,7 @@
       <span class="icon" style="background:rgba(217,119,6,0.14);color:var(--amber);">🎯</span>
       <span class="label">SAVINGS GOALS</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">House, car, wedding, vacation. Set a target and a timeline; we'll tell you the monthly.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Saving up for a house, car, wedding, or trip? Set a target amount and a timeline, and we'll tell you how much to save each month.">House, car, wedding, vacation. Set a target and a timeline; we'll tell you the monthly.</p>
     <div class="cat-table" id="driftGoalsTable"></div>
     <button class="add-cat-btn" id="addDriftGoalBtn">+ add a goal</button>
     <div class="subtotal-line">Subtotal — SAVINGS GOALS: <b id="driftGoalsSubtotal">$0</b>/yr</div>
@@ -1037,7 +1062,7 @@
       <span class="icon" style="background:rgba(2,132,199,0.12);color:var(--sky);">🛟</span>
       <span class="label">EMERGENCY FUND</span>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">Standard advice: 3–6 months of essential expenses, kept liquid — not invested.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Most experts recommend keeping 3-6 months of essential expenses in cash, not invested, for emergencies.">Standard advice: 3–6 months of essential expenses, kept liquid — not invested.</p>
     <div class="plan-grid">
       <div class="field"><label>Months to cover</label>
         <select id="driftEmergencyMonths">
@@ -1062,11 +1087,11 @@
 
   <!-- STEP 10: CURRENT INVESTED ASSETS -->
   <div class="step" data-step="10">
-    <div class="eyebrow">Save after spending</div>
-    <h2>What have you <em>already got</em> working for you?</h2>
-    <p class="sub">Not checking or emergency cash — money that's actually invested toward retirement.</p>
+    <div class="eyebrow" data-simple="Step 3: what you've built">Save after spending</div>
+    <h2 data-simple="What have you &lt;em&gt;already saved&lt;/em&gt;?">What have you <em>already got</em> working for you?</h2>
+    <p class="sub" data-simple="Not checking or emergency cash — money that's actually invested for retirement.">Not checking or emergency cash — money that's actually invested toward retirement.</p>
     <div class="plan-grid">
-      <div class="field full"><label>Expected annual growth</label><input type="number" id="driftGrowth" value="7" step="0.5"><span class="field-hint">Use a <b style="color:var(--paper);">real (inflation-adjusted)</b> return, not a raw market average. ~6-7% is the long-run figure for all-stock; 4-5% is the more conservative bet. This is what grows everything below.</span></div>
+      <div class="field full"><label>Expected annual growth</label><input type="number" id="driftGrowth" value="7" step="0.5"><span class="field-hint" data-simple="How fast you expect your investments to grow each year, after inflation. About 6-7% is the long-run average for an all-stock portfolio; 4-5% is the more cautious bet. This is what grows everything below.">Use a <b style="color:var(--paper);">real (inflation-adjusted)</b> return, not a raw market average. ~6-7% is the long-run figure for all-stock; 4-5% is the more conservative bet. This is what grows everything below.</span></div>
     </div>
     <div class="plan-grid">
       <div class="field"><label>401(k) / 403(b) balance</label><input type="text" id="driftAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1075,7 +1100,7 @@
       <div class="field"><label>Brokerage account <button type="button" class="help-trigger" aria-label="What is a brokerage account?" onclick="openAccountHelp('brokerage')">?</button></label><input type="text" id="driftAssetsBrokerageInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>High-yield savings</label><input type="text" id="driftAssetsHysaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Invested HSA <button type="button" class="help-trigger" aria-label="What is an invested HSA?" onclick="openAccountHelp('hsa')">?</button></label><input type="text" id="driftAssetsHsaInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
-      <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint">Getting a monthly check instead of a lump sum? Leave this at 0 and add it as income in the next steps. Tap the ? for the rest.</span></div>
+      <div class="field"><label>Pension (present value / cash-out) <button type="button" class="help-trigger" aria-label="What is a pension?" onclick="openAccountHelp('pension')">?</button></label><input type="text" id="driftAssetsPensionInput" inputmode="numeric" autocomplete="off" placeholder="0"><span class="field-hint" data-simple="Getting a monthly check instead of a one-time payout? Leave this at 0 and add it as income in the next steps instead. Tap the ? for more.">Getting a monthly check instead of a lump sum? Leave this at 0 and add it as income in the next steps. Tap the ? for the rest.</span></div>
       <div class="field"><label>Alternative investments (CDs, gold, crypto, real estate syndicates, etc.)</label><input type="text" id="driftAssetsAltInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's 401(k) / 403(b) balance</label><input type="text" id="driftSpouseAssets401kInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
       <div class="field"><label>Spouse's Traditional IRA balance</label><input type="text" id="driftSpouseAssetsIraInput" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1083,30 +1108,30 @@
     </div>
     <div class="subtotal-line">Total current invested assets: <b id="driftAssetsSubtotal">$0</b></div>
 
-    <p class="field-hint" style="margin-top:18px;">Current income counts now, toward your take-home. Retirement income counts later, toward your target. Enter each source once — we'll use it in the right years.</p>
+    <p class="field-hint" style="margin-top:18px;" data-simple="Money you're getting RIGHT NOW counts toward your paycheck today. Money you'll get IN RETIREMENT counts toward your target. Only enter each source once — we'll use it in the right years.">Current income counts now, toward your take-home. Retirement income counts later, toward your target. Enter each source once — we'll use it in the right years.</p>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--clay)"></span>Rental Real Estate</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money you collect from renting out a property — not what the property is worth. Want to add a home's value instead? That goes in the Net Worth Calculator on the results page.">Rental income you collect now, and/or expect once you've retired — not the property's value. Have a home value to add? That goes in the Net Worth Calculator on the results page, not here.</p>
     <div class="cat-table" id="driftAltRealEstateTable"></div>
     <button class="add-cat-btn" id="addDriftAltRealEstateBtn">+ add property</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--violet)"></span>Business Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Own a business? Add what it pays you now, and/or what you expect it to pay you once you retire.">A business you own — what it pays you now, and/or what it'll pay you in retirement.</p>
     <div class="cat-table" id="driftAltBusinessTable"></div>
     <button class="add-cat-btn" id="addDriftAltBusinessBtn">+ add business</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--sky)"></span>Other Investments</div>
-    <p class="field-hint" style="margin-bottom:10px;">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Money coming in from things like real estate funds, private equity, crypto, or anything else that doesn't fit above.">Income from REITs, private equity, crypto, or anything else that doesn't fit the accounts above.</p>
     <div class="cat-table" id="driftAltOtherInvestmentsTable"></div>
     <button class="add-cat-btn" id="addDriftAltOtherInvestmentsBtn">+ add investment</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--rose)"></span>Annuities</div>
-    <p class="field-hint" style="margin-bottom:10px;">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="An annuity is a contract that pays you a set amount on a schedule. Add what it pays you now, and/or what it'll pay once you retire.">Fixed or deferred annuities — what they pay you now, and/or what they'll pay you starting in retirement.</p>
     <div class="cat-table" id="driftAltAnnuitiesTable"></div>
     <button class="add-cat-btn" id="addDriftAltAnnuitiesBtn">+ add annuity</button>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Other Income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Catch-all for any income that doesn't fit the categories above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Catch-all for freelance work, dividends, alimony, or any other income that doesn't fit above.">Catch-all for any income that doesn't fit the categories above.</p>
     <div class="cat-table" id="driftAltOtherIncomeTable"></div>
     <button class="add-cat-btn" id="addDriftAltOtherIncomeBtn">+ add income source</button>
 
@@ -1119,21 +1144,21 @@
   <!-- STEP 11: YOUR CURRENT TRAJECTORY (no target defined yet) -->
   <div class="step" data-step="11">
     <div class="eyebrow">Where you're headed</div>
-    <h2>If nothing <em>changes</em>...</h2>
-    <p class="sub">Based only on what you've entered so far — before we ask what retirement you actually want.</p>
+    <h2 data-simple="If nothing &lt;em&gt;changes&lt;/em&gt;...">If nothing <em>changes</em>...</h2>
+    <p class="sub" data-simple="Based only on what you've entered so far — before we ask what you actually want retirement to look like.">Based only on what you've entered so far — before we ask what retirement you actually want.</p>
 
-    <div class="warn-box" id="driftOwnAgeOrderWarn">Your retirement age isn't after your age now, so there's no real time to invest — fix that on the timeline step before trusting the numbers below.</div>
+    <div class="warn-box" id="driftOwnAgeOrderWarn" data-simple="Your retirement age needs to come after your age now — otherwise there's no time to invest, so fix that on the timeline step before trusting the numbers below.">Your retirement age isn't after your age now, so there's no real time to invest — fix that on the timeline step before trusting the numbers below.</div>
 
     <div class="fi-card" style="margin-top:8px;">
       <div class="fi-label">What you'd have saved</div>
       <div class="fi-number" id="driftOwnAutopilotNumber">$0</div>
       <p class="fi-sub" id="driftOwnAutopilotSub">By your target age, based on your existing invested assets and current 401(k) contribution.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Sustainable spending this could support</div><div class="fi-stat-value" id="driftOwnAutopilotIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label" data-simple="How much you could spend per year from this">Sustainable spending this could support</div><div class="fi-stat-value" id="driftOwnAutopilotIncome">$0/yr</div></div>
       </div>
-      <p class="field-hint" style="margin-top:10px;">Keeps growing while you spend it down, using default investing assumptions (adjustable next). No Social Security yet, so treat this as a rough draft — it'll sharpen up once you add it.</p>
+      <p class="field-hint" style="margin-top:10px;" data-simple="This keeps growing even while you're spending it, using default assumptions you can adjust next. We haven't added Social Security yet, so treat this as a rough draft — it'll get more accurate once you do.">Keeps growing while you spend it down, using default investing assumptions (adjustable next). No Social Security yet, so treat this as a rough draft — it'll sharpen up once you add it.</p>
     </div>
-    <p class="field-hint" style="margin-top:10px;">This isn't "short" or "on track" yet — you haven't told us what retirement you actually want. That's next.</p>
+    <p class="field-hint" style="margin-top:10px;" data-simple="This isn't 'short' or 'on track' yet — you haven't told us what you actually want retirement to look like. That's next.">This isn't "short" or "on track" yet — you haven't told us what retirement you actually want. That's next.</p>
 
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goBack()">← Back</button>
@@ -1144,8 +1169,8 @@
   <!-- STEP 12: DEFINE YOUR RETIREMENT (essentials + lifestyle + Social Security + target) -->
   <div class="step" data-step="12">
     <div class="eyebrow">Now the real question</div>
-    <h2>What retirement do you <em>actually want</em>?</h2>
-    <p class="sub">Essentials, lifestyle, and Social Security — so we can tell you where you really stand.</p>
+    <h2 data-simple="What do you &lt;em&gt;actually want&lt;/em&gt; retirement to look like?">What retirement do you <em>actually want</em>?</h2>
+    <p class="sub" data-simple="Essentials, lifestyle, and Social Security — so we can tell you where you really stand.">Essentials, lifestyle, and Social Security — so we can tell you where you really stand.</p>
 
     <div class="plan-grid">
       <div class="field"><label>Before Social Security starts</label>
@@ -1155,7 +1180,7 @@
           <option value="balanced">Balanced — a mix of stocks and bonds</option>
           <option value="growth">Growth-focused — mostly stocks</option>
         </select>
-        <span class="field-hint">Money you'll need soon is usually kept more conservative.</span>
+        <span class="field-hint" data-simple="Money you'll need soon should be kept safer, not in risky investments.">Money you'll need soon is usually kept more conservative.</span>
       </div>
       <div class="field"><label>After Social Security starts</label>
         <select id="driftLongtermStyle">
@@ -1164,19 +1189,19 @@
           <option value="balanced" selected>Balanced — a mix of stocks and bonds</option>
           <option value="growth">Growth-focused — mostly stocks</option>
         </select>
-        <span class="field-hint">Money with decades to grow can usually afford more risk.</span>
+        <span class="field-hint" data-simple="Money you won't touch for decades can handle more risk (like stocks), since it has time to recover if it drops.">Money with decades to grow can usually afford more risk.</span>
       </div>
-      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="driftWithdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint">Pre-tax withdrawals (401(k), traditional IRA) get taxed as income — that tax isn't spending money, so it inflates what you need to pull out. 15% is a reasonable default; go lower if you're mostly Roth, higher if you're mostly pre-tax.</span></div>
+      <div class="field full"><label>Assumed tax rate on withdrawals</label><input type="number" id="driftWithdrawalTaxPct" value="15" step="1" min="0" max="50"><span class="field-hint" data-simple="When you pull money from pre-tax accounts (401(k), traditional IRA), the IRS still taxes it — so you'll need to take out a bit more than you plan to spend. 15% is a decent default; go lower if you're mostly Roth, higher if you're mostly pre-tax.">Pre-tax withdrawals (401(k), traditional IRA) get taxed as income — that tax isn't spending money, so it inflates what you need to pull out. 15% is a reasonable default; go lower if you're mostly Roth, higher if you're mostly pre-tax.</span></div>
     </div>
 
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--clay)"></span>Essentials</div>
-    <p class="field-hint" style="margin-bottom:10px;">Housing, healthcare, food, transportation, utilities — the costs of everyday life once you've stopped working.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Housing, healthcare, food, transportation, utilities — what everyday life costs once you've stopped working.">Housing, healthcare, food, transportation, utilities — the costs of everyday life once you've stopped working.</p>
     <div class="cat-table" id="driftEssentialTable"></div>
     <button class="add-cat-btn" id="addDriftEssentialBtn">+ add category</button>
     <div class="subtotal-line">Essential total: <b id="driftEssentialTotal">$0</b>/yr</div>
 
     <div class="group-label" style="margin-top:22px;"><span class="swatch" style="background:var(--amber)"></span>Lifestyle</div>
-    <p class="field-hint" style="margin-bottom:10px;">Travel, dining, hobbies, gifts, family support — the life you're retiring into.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Travel, dining, hobbies, gifts, family support — whatever you want your retirement to look like.">Travel, dining, hobbies, gifts, family support — the life you're retiring into.</p>
     <div class="cat-table" id="driftLifestyleTable"></div>
     <button class="add-cat-btn" id="addDriftLifestyleBtn">+ add category</button>
     <div class="subtotal-line">Lifestyle total: <b id="driftLifestyleTotal">$0</b>/yr · Combined: <b id="driftRetirementGrandTotal">$0</b>/yr</div>
@@ -1192,10 +1217,10 @@
         </select>
       </div>
     </div>
-    <p class="field-hint" style="margin-bottom:10px;">National average benefit (2026, SSA): ~$1,400/mo at 62 · ~$2,000/mo at 67 · ~$2,200/mo at 70. For your real number, check ssa.gov/myaccount.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Not sure of your number yet? On average people get about $1,400/mo starting at 62, $2,000/mo at 67, or $2,200/mo at 70. Get your real number free at ssa.gov/myaccount.">National average benefit (2026, SSA): ~$1,400/mo at 62 · ~$2,000/mo at 67 · ~$2,200/mo at 70. For your real number, check ssa.gov/myaccount.</p>
     <label style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-bottom:14px;cursor:pointer;">
       <input type="checkbox" id="driftOwnIncludeSpouseSS" style="width:16px;height:16px;">
-      + Add a spouse's Social Security (can start at a different age)
+      <span data-simple="+ Add my spouse's Social Security too (they can start at a different age)">+ Add a spouse's Social Security (can start at a different age)</span>
     </label>
     <div id="driftOwnSpouseSsFields" style="display:none;">
       <div class="plan-grid">
@@ -1208,30 +1233,30 @@
           </select>
         </div>
       </div>
-      <p class="field-hint" style="margin-bottom:16px;">If you claim at different ages, your self-funded years are calculated in stages.</p>
+      <p class="field-hint" style="margin-bottom:16px;" data-simple="If you two start at different ages, we'll figure it out in stages — the years you're covering yourselves alone, then the years you're both getting checks.">If you claim at different ages, your self-funded years are calculated in stages.</p>
     </div>
     <div class="group-label" style="margin-top:4px;"><span class="swatch" style="background:var(--jade)"></span>Other retirement income</div>
-    <p class="field-hint" style="margin-bottom:10px;">Rental property, pensions, part-time work, royalties.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Rental property, a pension, part-time work, royalties — anything else coming in.">Rental property, pensions, part-time work, royalties.</p>
     <div class="cat-table" id="driftOtherRetIncomeTable"></div>
     <button class="add-cat-btn" id="addDriftOtherRetIncomeBtn">+ add income source</button>
 
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your retirement target</div>
       <div class="fi-number" id="driftOwnFiNumber">$0</div>
-      <p class="fi-sub" id="driftFiTargetSub">What you need to save, after accounting for what Social Security will cover</p>
+      <p class="fi-sub" id="driftFiTargetSub" data-simple="The total you need saved up, after Social Security covers part of it.">What you need to save, after accounting for what Social Security will cover</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Annual retirement expenses</div><div class="fi-stat-value" id="driftOwnFiAnnual">$0</div></div>
         <div><div class="fi-stat-label">Social Security (combined, monthly)</div><div class="fi-stat-value" id="driftOwnFiSSMonthly">$0/mo</div></div>
-        <div><div class="fi-stat-label">Needed before Social Security starts</div><div class="fi-stat-value" id="driftFiBeforeSS">$0</div></div>
-        <div><div class="fi-stat-label">Still working for you after it starts</div><div class="fi-stat-value" id="driftFiAfterSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="You need this saved before Social Security starts">Needed before Social Security starts</div><div class="fi-stat-value" id="driftFiBeforeSS">$0</div></div>
+        <div><div class="fi-stat-label" data-simple="Your savings still need to cover this once it starts">Still working for you after it starts</div><div class="fi-stat-value" id="driftFiAfterSS">$0</div></div>
       </div>
       <p class="field-hint" id="driftOwnFiBridgeNote" style="margin-top:14px;">—</p>
     </div>
 
     <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--paper-dim);line-height:1.5;">
-      <p style="margin:0 0 6px;">* Social Security only covers part of retirement, starting when you claim it. Waiting longer (up to 70) means bigger checks.</p>
-      <p style="margin:0 0 6px;">Rule of thumb: save about 25× your yearly spending, and you can withdraw ~4%/year without running out.</p>
-      <p style="margin:0;">This assumes a fixed, inflation-adjusted withdrawal every year — the conservative choice. It doesn't model flexible strategies that adjust spending with the market, which would generally let you spend more, not less.</p>
+      <p style="margin:0 0 6px;" data-simple="* Social Security only covers part of what you'll need, and only once you claim it. Waiting longer (up to 70) means bigger monthly checks.">* Social Security only covers part of retirement, starting when you claim it. Waiting longer (up to 70) means bigger checks.</p>
+      <p style="margin:0 0 6px;" data-simple="Quick rule of thumb: if you save about 25× what you spend in a year, you can pull out about 4% a year without running out.">Rule of thumb: save about 25× your yearly spending, and you can withdraw ~4%/year without running out.</p>
+      <p style="margin:0;" data-simple="This assumes you withdraw the same amount every year (adjusted for inflation) — the cautious choice. It doesn't model flexible strategies that adjust with the market, which would usually let you spend a bit more, not less.">This assumes a fixed, inflation-adjusted withdrawal every year — the conservative choice. It doesn't model flexible strategies that adjust spending with the market, which would generally let you spend more, not less.</p>
     </div>
 
     <div class="nav-row">
@@ -1244,7 +1269,7 @@
   <div class="step" data-step="13">
     <div style="margin-top:6px;text-align:center;">
       <div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:var(--paper);margin-bottom:10px;">Close your retirement gap</div>
-      <h2 style="font-size:clamp(20px,6vw,26px);color:var(--paper);">Here's the gap — and how to close it.</h2>
+      <h2 style="font-size:clamp(20px,6vw,26px);color:var(--paper);" data-simple="Here's the gap, and how to close it.">Here's the gap — and how to close it.</h2>
     </div>
 
     <div class="fi-card" style="margin-top:8px;">
@@ -1271,7 +1296,7 @@
     <p class="field-hint" id="driftGoalMetMessage" style="margin-top:14px;text-align:center;">—</p>
 
     <div style="margin-top:26px;text-align:center;">
-      <h2 style="font-size:clamp(19px,5.5vw,24px);color:var(--paper);">Put more toward retirement, beyond your 401(k), to help meet your goal.</h2>
+      <h2 style="font-size:clamp(19px,5.5vw,24px);color:var(--paper);" data-simple="Save more toward retirement, beyond your 401(k), to help close that gap.">Put more toward retirement, beyond your 401(k), to help meet your goal.</h2>
     </div>
     <div class="plan-grid">
       <div class="field full">
@@ -1282,14 +1307,14 @@
     </div>
 
     <div class="fi-card" style="margin-top:16px;border-color:rgba(5,150,105,0.4);">
-      <div class="fi-label">This is how much your nest egg will grow to</div>
+      <div class="fi-label" data-simple="This is what your savings will grow to">This is how much your nest egg will grow to</div>
       <div class="fi-number" id="driftOwnResultNumber">$0</div>
-      <p class="fi-sub">By age <span id="driftOwnResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
+      <p class="fi-sub" data-simple="By age &lt;span id=&quot;driftOwnResultAge&quot;&gt;—&lt;/span&gt;, adding up what you've already saved, your 401(k), and the extra amount above.">By age <span id="driftOwnResultAge">—</span>, combining your current invested assets, your 401(k), and the extra amount above.</p>
       <div class="fi-breakdown">
-        <div><div class="fi-stat-label">Sustainable spending per year</div><div class="fi-stat-value" id="driftOwnResultIncome">$0/yr</div></div>
+        <div><div class="fi-stat-label" data-simple="How much you could spend per year">Sustainable spending per year</div><div class="fi-stat-value" id="driftOwnResultIncome">$0/yr</div></div>
       </div>
     </div>
-    <p class="field-hint" style="margin-top:10px;">Accounts for real investment growth through retirement and Social Security kicking in at your claiming age — same math as your target. Not guaranteed.</p>
+    <p class="field-hint" style="margin-top:10px;" data-simple="Factors in investment growth through retirement and Social Security starting at your claiming age — same math as your target. Nothing here is guaranteed, just an estimate.">Accounts for real investment growth through retirement and Social Security kicking in at your claiming age — same math as your target. Not guaranteed.</p>
 
     <div class="breakdown" id="driftOwnBreakdownContainer" style="margin-top:30px;"></div>
 
@@ -1298,9 +1323,9 @@
 
     <div class="result-hero">
 
-      <div class="fi-label">Left for additional savings, investing, charity, or discretionary spending</div>
+      <div class="fi-label" data-simple="What's left over for anything else — extra saving, giving, or spending">Left for additional savings, investing, charity, or discretionary spending</div>
       <div class="fi-number" id="driftOwnDiscretionaryResult">$0</div>
-      <p class="fi-sub" id="driftOwnDiscretionarySub">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
+      <p class="fi-sub" id="driftOwnDiscretionarySub" data-simple="per year, once taxes, your 401(k), needs, savings goals, the education fund, and extra investing are all accounted for.">per year, after tax, 401(k), needs, savings goals, education fund, and investing.</p>
     </div>
 
     <div class="result-hero" id="driftOwnNextStepsCard" style="border-color:rgba(234,88,12,0.45);">
@@ -1318,12 +1343,12 @@
   <!-- STEP 14: RESULTS -->
   <div class="step" data-step="14">
     <div class="eyebrow">Your results</div>
-    <h2>Where you're <em>headed</em>.</h2>
-    <p class="sub">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
+    <h2 data-simple="Here's where you're &lt;em&gt;headed&lt;/em&gt;.">Where you're <em>headed</em>.</h2>
+    <p class="sub" data-simple="Based on everything you entered — here's the short answer, then the full picture over time.">Built from everything you've entered — here's the bottom line, then the full picture over time.</p>
 
     <div class="plan-grid">
       <div class="fi-card" style="margin-top:20px;border-color:#2563EB;box-shadow:0 0 0 1.5px #2563EB inset;">
-        <div class="fi-label">Nest egg at retirement</div>
+        <div class="fi-label" data-simple="What you'll have saved by retirement">Nest egg at retirement</div>
         <div class="fi-number" id="driftOwnResultNestEgg" style="color:#2563EB;">$0</div>
         <p class="field-hint" style="margin-top:4px;">What you'd actually have saved</p>
       </div>
@@ -1342,7 +1367,7 @@
     <div class="shortfall-actions" id="driftOwnResultActions" style="display:none;"></div>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--teal)"></span><b style="color:var(--paper);">YOUR MONEY OVER TIME</b></div>
-    <p class="field-hint" style="margin-bottom:14px;">Grows while you invest, then spends down using your real budget — self-funded early, Social Security picking up part of it later. Blue is your plan, red is 401(k) only, green is your goal. Hover or tap for exact numbers.</p>
+    <p class="field-hint" style="margin-bottom:14px;" data-simple="Your money grows while you're working, then gets spent down in retirement — you cover yourself early on, Social Security helps later. Blue = your plan, red = just your 401(k) alone for comparison, green = your goal. Tap or hover for exact numbers.">Grows while you invest, then spends down using your real budget — self-funded early, Social Security picking up part of it later. Blue is your plan, red is 401(k) only, green is your goal. Hover or tap for exact numbers.</p>
     <div class="stage" style="min-height:280px;position:relative;"><svg id="driftOwnBalanceChart" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;touch-action:none;"></svg><div class="chart-tooltip" id="driftOwnBalanceChartTooltip"></div></div>
     <div class="plan-legend" id="driftOwnBalanceChartLegend" style="margin-top:12px;"></div>
     <p class="field-hint" id="driftOwnBalanceChartNote" style="margin-top:8px;">—</p>
@@ -1350,12 +1375,12 @@
     <p class="field-hint" style="text-align:center;margin:18px 0 0;">Your retirement goal: <b style="color:var(--gold);" id="driftOwnGoalReminder">$0</b></p>
 
     <div class="group-label" style="margin-top:30px;"><span class="swatch" style="background:var(--violet)"></span><b style="color:var(--paper);">NET WORTH CALCULATOR</b></div>
-    <p class="field-hint" style="margin-bottom:10px;">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
+    <p class="field-hint" style="margin-bottom:10px;" data-simple="Everything you own, minus everything you owe. This is a separate snapshot — it doesn't affect the retirement numbers above.">Everything you own, minus everything you owe — a separate snapshot, not part of the retirement math above.</p>
 
     <div class="tax-card" style="margin-bottom:14px;grid-template-columns:1fr;">
       <div><div class="tax-stat-label">Invested assets</div><div class="tax-stat-value" id="driftNwInvestedAssetsOut">$0</div></div>
     </div>
-    <p class="field-hint" style="margin:-6px 0 14px;">Pulled from what you entered above — edit it there, not here.</p>
+    <p class="field-hint" style="margin:-6px 0 14px;" data-simple="This number comes from what you entered above — go up there to change it.">Pulled from what you entered above — edit it there, not here.</p>
 
     <div class="section-header first">
       <span class="icon" style="background:rgba(124,58,237,0.12);color:var(--violet);">💰</span>
@@ -1382,7 +1407,7 @@
     <div class="fi-card" style="margin-top:20px;">
       <div class="fi-label">Your net worth — as of today</div>
       <div class="fi-number" id="driftNwNetWorthNumber">$0</div>
-      <p class="field-hint" style="margin-top:2px;">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
+      <p class="field-hint" style="margin-top:2px;" data-simple="Not a future estimate — just what you've entered right now, added up. (The nest egg and goal numbers above are estimates of the future; this is a snapshot of today.)">Not a projection — just what you've entered right now, added up. (Unlike the nest egg and goal numbers above, which estimate the future, this is today's snapshot.)</p>
       <div class="fi-breakdown">
         <div><div class="fi-stat-label">Total assets</div><div class="fi-stat-value" id="driftNwTotalAssetsOut">$0</div></div>
         <div><div class="fi-stat-label">Total liabilities</div><div class="fi-stat-value" id="driftNwTotalLiabilitiesOut">$0</div></div>
@@ -1420,6 +1445,42 @@
 <script>
 /* ================= CONFIG ================= */
 const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx-kUugJ-0KUyj6b4P-e7JA0iL8m-vQxeadxWpjhKj5w-xo4jJhr9EfGzw4rhpn6Cws/exec";
+
+/* ================= SIMPLE MODE =================
+   Every element that should read differently in Simple Mode carries a
+   data-simple="..." attribute holding the plain-English version. The
+   original markup is captured into data-normal-html the first time it's
+   touched, so toggling back and forth never loses the precise wording.
+   Dynamic (JS-generated) text uses simpleText(normal, simple) instead. */
+let simpleMode = (localStorage.getItem('kaasuSimpleMode') === '1');
+
+function simpleText(normal, simple){ return simpleMode ? simple : normal; }
+
+function applySimpleMode(){
+  document.querySelectorAll('[data-simple]').forEach(el => {
+    if(el.dataset.normalHtml === undefined) el.dataset.normalHtml = el.innerHTML;
+    el.innerHTML = simpleMode ? el.dataset.simple : el.dataset.normalHtml;
+  });
+  document.body.classList.toggle('simple-mode', simpleMode);
+}
+
+// Re-renders every JS-generated block whose text depends on simpleText(), so an
+// already-rendered pension row (say) picks up the new wording immediately on toggle.
+function refreshAllDynamicText(){
+  renderAltRealEstate(); renderAltBusiness(); renderAltOtherInvestments();
+  renderAltAnnuities(); renderAltPension(); renderAltOtherIncome();
+  renderDriftAltRealEstate(); renderDriftAltBusiness(); renderDriftAltOtherInvestments();
+  renderDriftAltAnnuities(); renderDriftAltOtherIncome(); renderDriftOtherRetIncomeTable();
+  recalculatePlan();
+  renderDriftBudget();
+}
+
+function setSimpleMode(on){
+  simpleMode = on;
+  localStorage.setItem('kaasuSimpleMode', on ? '1' : '0');
+  applySimpleMode();
+  refreshAllDynamicText();
+}
 
 /* ================= MONEY HELPERS ================= */
 function formatNum(n){ return Math.round(n||0).toLocaleString('en-US'); }
@@ -2532,7 +2593,10 @@ function updateFiCard(){
   document.getElementById('fiBeforeSS').textContent = fmtMoney(phaseBreak.beforeSS);
   document.getElementById('fiAfterSS').textContent = fmtMoney(phaseBreak.afterSS);
   const planTaxPct = Math.round(Number(withdrawalTaxPctEl.value)||0);
-  document.getElementById('fiTargetSub').textContent = `What you need to save, after accounting for what Social Security will cover and a ${planTaxPct}% assumed tax on withdrawals`;
+  document.getElementById('fiTargetSub').textContent = simpleText(
+    `What you need to save, after accounting for what Social Security will cover and a ${planTaxPct}% assumed tax on withdrawals`,
+    `The total you need saved up, after Social Security and taxes take their share`
+  );
   const note = document.getElementById('fiBridgeNote');
 
   if(!hasSpouseSS()){
@@ -3416,7 +3480,10 @@ function renderStep4(){
   }
 
   document.getElementById('discretionaryResult').textContent = fmtMoney(Math.max(0,leftover)) + '/yr';
-  document.getElementById('discretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`;
+  document.getElementById('discretionarySub').textContent = simpleText(
+    `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`,
+    `${fmtMoney(Math.max(0,leftover)/12)}/month left over once everything else is covered.`
+  );
 
   /* Drift narrative: autopilot preview + result-with-extra preview + next steps */
   const years = getYearsToRetirement();
@@ -4288,7 +4355,10 @@ function updateDriftFiCard(){
   document.getElementById('driftFiBeforeSS').textContent = fmtMoney(driftPhaseBreak.beforeSS);
   document.getElementById('driftFiAfterSS').textContent = fmtMoney(driftPhaseBreak.afterSS);
   const driftTaxPct = Math.round(Number(driftWithdrawalTaxPctEl.value)||0);
-  document.getElementById('driftFiTargetSub').textContent = `What you need to save, after accounting for what Social Security will cover and a ${driftTaxPct}% assumed tax on withdrawals`;
+  document.getElementById('driftFiTargetSub').textContent = simpleText(
+    `What you need to save, after accounting for what Social Security will cover and a ${driftTaxPct}% assumed tax on withdrawals`,
+    `The total you need saved up, after Social Security and taxes take their share`
+  );
   const note = document.getElementById('driftOwnFiBridgeNote');
   if(!driftHasSpouseSS()){
     const years = driftBridgeYears();
@@ -4528,7 +4598,10 @@ function renderDriftBudget(){
   }
 
   document.getElementById('driftOwnDiscretionaryResult').textContent = fmtMoney(Math.max(0,leftover)) + '/yr';
-  document.getElementById('driftOwnDiscretionarySub').textContent = `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`;
+  document.getElementById('driftOwnDiscretionarySub').textContent = simpleText(
+    `${fmtMoney(Math.max(0,leftover)/12)}/month left over for anything beyond what's already budgeted above.`,
+    `${fmtMoney(Math.max(0,leftover)/12)}/month left over once everything else is covered.`
+  );
 
   const years = driftGetYearsToRetirement();
   const growth = Number(driftGrowthEl.value) || 0;
@@ -5151,7 +5224,14 @@ const ACCOUNT_HELP = {
     how: "Automatic, no willpower required. 2026 max: $24,500/year (more if you're 50+).",
     benefit: "Some employers match what you put in. That's free money. Free.",
     recommendation: "At minimum, put in enough to get the full match — anything less and you're turning down a raise for no reason.",
-    link: "https://www.investopedia.com/terms/1/401kplan.asp"
+    link: "https://www.investopedia.com/terms/1/401kplan.asp",
+    simple: {
+      what: "A retirement account your job sets up for you. Money goes in from your paycheck, and you're not supposed to touch it until you're older.",
+      why: "It comes out of your paycheck before taxes, so you pay less tax right now.",
+      how: "It happens automatically every paycheck. In 2026 you can put in up to $24,500 a year (more if you're 50+).",
+      benefit: "Some jobs add extra money on top of what you put in — that's free money, so take it if it's offered.",
+      recommendation: "At the very least, put in enough to get all the free match money your job offers."
+    }
   },
   cashBalance: {
     title: "Cash balance / profit sharing",
@@ -5160,7 +5240,14 @@ const ACCOUNT_HELP = {
     how: "Your employer funds it automatically. You don't pick the amount.",
     benefit: "Grows tax-deferred, same deal as your 401(k).",
     recommendation: "You can't steer this one — just don't forget it exists when you're adding up what you've actually got saved.",
-    link: "https://www.investopedia.com/terms/c/cashbalancepensionplan.asp"
+    link: "https://www.investopedia.com/terms/c/cashbalancepensionplan.asp",
+    simple: {
+      what: "An extra retirement account some jobs add on top of your 401(k), mostly at places like medical offices.",
+      why: "You get more retirement money without doing anything extra.",
+      how: "Your employer decides the amount and adds it automatically — you don't do anything.",
+      benefit: "It grows without being taxed yet, just like your 401(k).",
+      recommendation: "You can't control this one — just remember to count it when you add up what you've saved."
+    }
   },
   traditionalIra: {
     title: "Traditional IRA",
@@ -5169,7 +5256,14 @@ const ACCOUNT_HELP = {
     how: "2026 limit: $7,500/year ($8,600 if you're 50+). Yes, you can have this and a 401(k) at the same time — they're separate limits, not one shared pool.",
     benefit: "Extra tax-deferred room beyond your 401(k).",
     recommendation: "Solid backup if your job has no 401(k), or you want more space beyond it. Heads up: if you already have a 401(k), your tax deduction here might shrink at higher incomes — you can still contribute either way, you just might not get the write-off.",
-    link: "https://www.investopedia.com/terms/t/traditionalira.asp"
+    link: "https://www.investopedia.com/terms/t/traditionalira.asp",
+    simple: {
+      what: "A retirement account you open yourself, without needing a job to offer it.",
+      why: "Same deal as a 401(k): you get a tax break now, and pay tax later when you take the money out.",
+      how: "In 2026 you can put in up to $7,500 a year ($8,600 if you're 50+). You can have this AND a 401(k) at the same time.",
+      benefit: "Extra room to save for retirement, beyond your 401(k).",
+      recommendation: "Good if your job doesn't offer a 401(k), or you want to save even more. Note: if you already have a 401(k), you might lose part of the tax break here once you earn more — but you can still contribute."
+    }
   },
   rothIra: {
     title: "Roth IRA",
@@ -5178,7 +5272,14 @@ const ACCOUNT_HELP = {
     how: "Shares the same $7,500/$8,600 limit as a Traditional IRA — one pool, not two. Also totally fine to have alongside a 401(k).",
     benefit: "Every dollar of growth comes out 100% tax-free in retirement. That's the entire pitch.",
     recommendation: "Usually a bigger win the earlier you are in your career — you're probably in a lower tax bracket now than you will be later.",
-    link: "https://www.investopedia.com/terms/r/rothira.asp"
+    link: "https://www.investopedia.com/terms/r/rothira.asp",
+    simple: {
+      what: "Like a Traditional IRA, but flipped — you pay the tax now instead of later.",
+      why: "You pay tax on the money today, then never pay tax on it again, no matter how much it grows.",
+      how: "Shares the same $7,500/$8,600 yearly limit as a Traditional IRA — it's one limit split between the two, not double. You can also have this alongside a 401(k).",
+      benefit: "Every dollar it earns comes out completely tax-free when you retire.",
+      recommendation: "Usually a better deal the earlier in your career you are, since you're likely paying less tax now than you will later."
+    }
   },
   brokerage: {
     title: "Brokerage account",
@@ -5187,7 +5288,14 @@ const ACCOUNT_HELP = {
     how: "Invest money you've already paid tax on. That's it.",
     benefit: "Use it for literally anything, whenever you want.",
     recommendation: "Good for non-retirement goals — a house down payment, or overflow once your tax-advantaged accounts are full.",
-    link: "https://www.investopedia.com/terms/b/brokerageaccount.asp"
+    link: "https://www.investopedia.com/terms/b/brokerageaccount.asp",
+    simple: {
+      what: "A regular investment account — no special tax rules, no restrictions.",
+      why: "Total freedom: no limit on how much you put in, no penalty for taking money out early.",
+      how: "You invest money you've already paid tax on. Nothing complicated beyond that.",
+      benefit: "Use the money for anything, anytime — it doesn't have to be for retirement.",
+      recommendation: "Good for goals that aren't retirement, like a house down payment, or extra savings once you've maxed out your other accounts."
+    }
   },
   hsa: {
     title: "Invested HSA",
@@ -5196,7 +5304,14 @@ const ACCOUNT_HELP = {
     how: "2026 limit: $4,400 solo, $8,750 family. \"Invested\" means you're not just letting the cash sit there — you're actually putting it into funds so it grows, same as a 401(k) would.",
     benefit: "After 65, you can spend it on anything, not just medical — no penalty, it just becomes a regular retirement account.",
     recommendation: "If you can stomach paying medical bills out of pocket now and leave this alone to grow, it's one of the best deals in the entire tax code.",
-    link: "https://www.investopedia.com/terms/h/hsa.asp"
+    link: "https://www.investopedia.com/terms/h/hsa.asp",
+    simple: {
+      what: "A special account just for medical costs. You can only open one if you have a high-deductible health insurance plan.",
+      why: "It's the only account where your money is never taxed — not going in, not while it grows, and not coming out (as long as it's for medical costs).",
+      how: "In 2026 you can put in up to $4,400 alone or $8,750 for a family. 'Invested' means the money is actually invested and growing, not just sitting there.",
+      benefit: "After you turn 65, you can spend it on anything, not just medical costs, with no penalty.",
+      recommendation: "If you can afford to pay medical bills out of pocket now and leave this account alone to grow, it's one of the best deals around."
+    }
   },
   pension: {
     title: "Pension",
@@ -5205,19 +5320,27 @@ const ACCOUNT_HELP = {
     how: "Not something you manage — it's a formula, not an account.",
     benefit: "Predictable money forever. The anti-stock-market.",
     recommendation: "Ask HR for its estimated value and plug that number in here, so it actually counts toward your real retirement picture.",
-    link: "https://www.investopedia.com/terms/p/pensionplan.asp"
+    link: "https://www.investopedia.com/terms/p/pensionplan.asp",
+    simple: {
+      what: "A guaranteed monthly check from your employer for the rest of your life, based on your salary and how long you worked there.",
+      why: "It's steady income that doesn't depend on how the stock market is doing.",
+      how: "You don't manage this yourself — it's based on a formula your employer uses, not an account you control.",
+      benefit: "Predictable money for life, no matter what happens in the markets.",
+      recommendation: "Ask your HR department what it's worth, and add that number here so it's counted in your real retirement picture."
+    }
   }
 };
 const accountHelpOverlayEl = document.getElementById('accountHelpOverlay');
 function openAccountHelp(key){
   const info = ACCOUNT_HELP[key];
   if(!info) return;
+  const s = info.simple || {};
   document.getElementById('accountHelpTitle').textContent = info.title;
-  document.getElementById('accountHelpWhat').textContent = info.what;
-  document.getElementById('accountHelpWhy').textContent = info.why;
-  document.getElementById('accountHelpHow').textContent = info.how;
-  document.getElementById('accountHelpBenefit').textContent = info.benefit;
-  document.getElementById('accountHelpRecommendation').textContent = info.recommendation;
+  document.getElementById('accountHelpWhat').textContent = simpleText(info.what, s.what || info.what);
+  document.getElementById('accountHelpWhy').textContent = simpleText(info.why, s.why || info.why);
+  document.getElementById('accountHelpHow').textContent = simpleText(info.how, s.how || info.how);
+  document.getElementById('accountHelpBenefit').textContent = simpleText(info.benefit, s.benefit || info.benefit);
+  document.getElementById('accountHelpRecommendation').textContent = simpleText(info.recommendation, s.recommendation || info.recommendation);
   document.getElementById('accountHelpLink').href = info.link;
   accountHelpOverlayEl.classList.add('show');
 }
@@ -5272,6 +5395,11 @@ loadFromSheet();
 setupReveals();
 triggerStepReveal(0);
 history.replaceState({ kaasuStep: 0, entryMode: null }, '', '#step-0');
+
+const simpleModeToggleEl = document.getElementById('simpleModeToggle');
+simpleModeToggleEl.checked = simpleMode;
+simpleModeToggleEl.addEventListener('change', () => setSimpleMode(simpleModeToggleEl.checked));
+applySimpleMode();
 </script>
 </body>
 </html>
