@@ -1500,7 +1500,7 @@ const DEFAULT_SAVINGS_GOALS = [
 // Used only by the (unaffected) Drift/Budget-first flow's own separate "other retirement
 // income" table — the Plan flow below uses the canonical incomeSources model instead.
 const DEFAULT_OTHER_RET_INCOME = [ { name: "Rental Real Estate", annual: 0 } ];
-const OTHER_RET_INCOME_NAMES = ["Rental Real Estate", "Business Income", "Other Investments", "Annuities", "Other Income"];
+const OTHER_RET_INCOME_NAMES = ["Rental Real Estate", "Business Income", "Other Investments", "Annuities", "Alimony", "Other Income"];
 
 let essential = DEFAULT_ESSENTIAL.map(c => ({...c}));
 let lifestyle = DEFAULT_LIFESTYLE.map(c => ({...c}));
@@ -1522,13 +1522,14 @@ const INCOME_TYPE_LABELS = {
   consulting: "Consulting",
   dividends: "Dividends",
   royalties: "Royalties",
+  alimony: "Alimony",
   annuity: "Annuity",
   pension: "Pension",
   otherInvestment: "Other Investment",
   other: "Other"
 };
 // Types shown/editable under the catch-all "Other Income" section on Step 4.
-const OTHER_INCOME_TYPES = ["other", "consulting", "dividends", "royalties"];
+const OTHER_INCOME_TYPES = ["other", "consulting", "dividends", "royalties", "alimony"];
 
 let incomeSourceIdSeq = 1;
 function nextIncomeSourceId(){ return "source-" + (incomeSourceIdSeq++); }
@@ -3034,7 +3035,10 @@ function renderIncomeSourceTable(tableId, types, onChange, opts){
     }
     const notifyChange = () => { onChange(); updateNudge(); };
 
-    const bottom1 = makeMonthlyAnnualRow('Current annual income (optional)', () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; }, notifyChange);
+    const currentLabel = item.type === 'pension'
+      ? 'Current annual income (optional) — only if already collecting, e.g. from a prior job'
+      : 'Current annual income (optional)';
+    const bottom1 = makeMonthlyAnnualRow(currentLabel, () => item.currentAnnualIncome, (v)=>{ item.currentAnnualIncome = v; }, notifyChange);
     const bottom2 = makeMonthlyAnnualRow('Retirement annual income (optional)', () => item.retirementAnnualIncome, (v)=>{ item.retirementAnnualIncome = v; }, notifyChange);
     bottom2.style.marginTop = '10px';
     updateNudge();
@@ -3154,7 +3158,8 @@ const OTHER_INCOME_TYPE_OPTIONS = [
   { value: 'other', label: 'Other' },
   { value: 'consulting', label: 'Consulting' },
   { value: 'dividends', label: 'Dividends' },
-  { value: 'royalties', label: 'Royalties' }
+  { value: 'royalties', label: 'Royalties' },
+  { value: 'alimony', label: 'Alimony' }
 ];
 function renderAltRealEstate(){ renderIncomeSourceTable('altRealEstateTable', ['rental'], recalculatePlan); }
 function renderAltBusiness(){ renderIncomeSourceTable('altBusinessTable', ['business'], recalculatePlan); }
